@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a logical volume on a physical drive or network location</summary>  

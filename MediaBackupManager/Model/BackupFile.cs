@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Virtual representation of a file in one or multiple backup set.</summary>  
