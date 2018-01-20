@@ -17,7 +17,7 @@ namespace ConsoleApp1
         public string Label { get; set; }
 
         // Logical Disk
-        //TODO: Check if using readonly works here
+        //TODO: Check if using readonly could work here
         public string VolumeSerialNumber { get; private set; }
         public long Size { get; private set; }
         public DriveType Type { get; private set; }
