@@ -77,13 +77,15 @@
     </Compile>
     <Compile Include="Model\BackupFile.cs" />
     <Compile Include="Model\BackupSet.cs" />
-    <Compile Include="Model\Class1.cs" />
     <Compile Include="Model\FileDirectory.cs" />
     <Compile Include="Model\FileIndex.cs" />
     <Compile Include="Model\FileNode.cs" />
     <Compile Include="Model\LogicalVolume.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TestPage.xaml.cs">
+      <DependentUpon>TestPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +116,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TestPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

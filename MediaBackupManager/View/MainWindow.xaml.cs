@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,12 @@ namespace MediaBackupManager.View
         public MainWindow()
         {
             InitializeComponent();
+            App.Current.Properties["FileIndex"] = new FileIndex();
+
+            var testPage = new TestPage();
+            testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            testPage.Show();
         }
+
     }
 }
