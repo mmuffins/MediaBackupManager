@@ -43,10 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackupDirectory.cs" />
-    <Compile Include="BackupDrive.cs" />
+    <Compile Include="FileDirectory.cs" />
+    <Compile Include="FileNode.cs" />
+    <Compile Include="LogicalVolume.cs" />
     <Compile Include="BackupFile.cs" />
-    <Compile Include="BackupList.cs" />
+    <Compile Include="FileIndex.cs" />
+    <Compile Include="BackupSet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

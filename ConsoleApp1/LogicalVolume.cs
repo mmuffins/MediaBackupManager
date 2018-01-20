@@ -11,12 +11,13 @@ namespace ConsoleApp1
 {
     /// <summary>
     /// Represents a logical volume on a physical drive or network location</summary>  
-    class BackupDrive
+    class LogicalVolume : IEquatable<LogicalVolume>
     {
         /// <summary>User defined label for the drive</summary>
         public string Label { get; set; }
 
         // Logical Disk
+        //TODO: Check if using readonly works here
         public string VolumeSerialNumber { get; private set; }
         public long Size { get; private set; }
         public DriveType Type { get; private set; }
@@ -25,9 +26,9 @@ namespace ConsoleApp1
         /// <summary>Mount point or drive letter, only valid in the current session.</summary>
         public string MountPoint { get; }
 
-        public BackupDrive() { }
+        public LogicalVolume() { }
 
-        public BackupDrive(DirectoryInfo directory)
+        public LogicalVolume(DirectoryInfo directory)
         {
             this.MountPoint = directory.Root.Name;
 
@@ -51,7 +52,6 @@ namespace ConsoleApp1
             }
         }
 
-        // Does the general pattern make sense?
         private async Task GetLogicalDriveInformationAsync()
         {
             await Task.Run(() =>
@@ -71,6 +71,36 @@ namespace ConsoleApp1
             });
 
             return;
+        }
+
+        public override string ToString()
+        {
+            return VolumeSerialNumber;
+        }
+
+        public override int GetHashCode()
+        {
+            return VolumeSerialNumber.GetHashCode();
+        }
+
+        public bool Equals(LogicalVolume other)
+        {
+            if (other == null)
+                return false;
+
+            return this.VolumeSerialNumber.Equals(other.VolumeSerialNumber);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            LogicalVolume otherObj = obj as LogicalVolume;
+            if (otherObj == null)
+                return false;
+            else
+                return Equals(otherObj);
         }
     }
 }

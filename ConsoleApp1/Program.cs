@@ -11,12 +11,15 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            var backupFiles = new FileIndex();
 
-            var backupFiles = new BackupList();
-            backupFiles.Add(new DirectoryInfo(@"C:\"));
-            backupFiles.Add(new DirectoryInfo(@"C:\"));
-            backupFiles.Add(new DirectoryInfo(@"E:\"));
+            var dirInfo = new DirectoryInfo(@"F:\indexdir\main\images2");
 
+            backupFiles.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
+
+            backupFiles.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
+            backupFiles.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            backupFiles.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
         }
     }
 }
