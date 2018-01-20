@@ -28,15 +28,11 @@ namespace MediaBackupManager.View
             InitializeComponent();
             this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
 
-            var fileIndex = new FileIndex();
-
-            var dirInfo = new DirectoryInfo(@"F:\indexdir\main\images2");
-
+            fileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
             fileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
 
             fileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
             fileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
-            fileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
 
         }
     }

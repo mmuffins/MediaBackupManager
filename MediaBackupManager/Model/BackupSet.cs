@@ -32,6 +32,16 @@ namespace MediaBackupManager.Model
             RootDirectory.ScanFiles();
         }
 
+        public bool ContainsDirectory(DirectoryInfo dir)
+        {
+            bool result = false;
+
+            if (MountPoint != dir.Root.Name)
+                return false;
+
+            return dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length).Contains(RootDirectory.Name);
+        }
+
         public override string ToString()
         {
             return MountPoint + " " + RootDirectory;

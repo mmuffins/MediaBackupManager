@@ -20,6 +20,8 @@ namespace MediaBackupManager.Model
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public void AddDirectory(DirectoryInfo dir)
         {
+            var ab = ContainsDirectory(dir);
+
             if (!logicalVolumes.ContainsKey(dir.Root.Name))
             {
                 logicalVolumes.Add(dir.Root.Name, new LogicalVolume(dir));
@@ -48,23 +50,20 @@ namespace MediaBackupManager.Model
             }
         }
 
-        //public void IndexDirectory(DirectoryInfo dir, LogicalVolume root)
-        //{
-        //    locations.Add(dir.FullName);
+        public bool ContainsDirectory(DirectoryInfo dir)
+        {
+            bool result = false;
 
-        //    foreach (var file in dir.GetFiles())
-        //    {
-        //        var backupFile = new BackupFile(file);
-        //        if (!fileIndex.ContainsKey(backupFile.CheckSum))
-        //            fileIndex.Add(backupFile.CheckSum, backupFile);
+            foreach (var set in BackupSets)
+            {
+                if (set.ContainsDirectory(dir))
+                {
+                    result = true;
+                    break;
+                }
+            }
 
-        //        fileIndex[backupFile.CheckSum].Locations.Add(dir.FullName);
-        //    }
-
-        //    foreach (var subDir in dir.GetDirectories())
-        //    {
-        //        IndexDirectory(subDir, root);
-        //    }
-        //}
+            return result;
+        }
     }
 }
