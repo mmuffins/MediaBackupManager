@@ -13,16 +13,14 @@ namespace MediaBackupManager.Model
     {
         public LogicalVolume Drive { get; }
         public FileDirectory RootDirectory { get; }
-        public FileIndex Index { get; }
         public string MountPoint { get => Drive.MountPoint; }
 
         public BackupSet() { }
 
-        public BackupSet(FileIndex index, DirectoryInfo directory, LogicalVolume drive)
+        public BackupSet(DirectoryInfo directory, LogicalVolume drive)
         {
-            this.Index = index;
             this.Drive = drive;
-            this.RootDirectory = new FileDirectory(directory.FullName, Drive, Index);
+            this.RootDirectory = new FileDirectory(directory.FullName, Drive);
         }
 
         /// <summary>
@@ -32,6 +30,15 @@ namespace MediaBackupManager.Model
             RootDirectory.ScanFiles();
         }
 
+        /// <summary>
+        /// Removes all Elements from the collection.</summary>  
+        public void Clear()
+        {
+            RootDirectory.Clear();
+        }
+
+        /// <summary>
+        /// Determines whether a directory is already indexed in the backup set.</summary>  
         public bool ContainsDirectory(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)
@@ -40,6 +47,8 @@ namespace MediaBackupManager.Model
             return dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length).Contains(RootDirectory.Name);
         }
 
+        /// <summary>
+        /// Determines whether the backup set is a child of a directory.</summary>  
         public bool IsSubsetOf(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)

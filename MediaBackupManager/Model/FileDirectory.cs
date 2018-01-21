@@ -13,7 +13,6 @@ namespace MediaBackupManager.Model
     {
         public HashSet<FileDirectory> Subdirectories { get; }
         public HashSet<FileNode> FileNodes { get; }
-        public FileIndex Index { get; }
         public LogicalVolume Drive { get; }
 
         /// <summary>Full path name without mount point</summary>
@@ -32,16 +31,15 @@ namespace MediaBackupManager.Model
             this.FileNodes = new HashSet<FileNode>();
         }
 
-        public FileDirectory(string path, LogicalVolume drive, FileIndex index) : this()
+        public FileDirectory(string path, LogicalVolume drive) : this()
         {
-            this.Index = index;
             this.Drive = drive;
             this.Name = path.Substring(Path.GetPathRoot(path).Length);
         }
 
         public void AddSubDirectory(string path)
         {
-            Subdirectories.Add(new FileDirectory(path, Drive, Index));
+            Subdirectories.Add(new FileDirectory(path, Drive));
         }
 
         public void AddSubDirectory(FileDirectory subDirectory)
@@ -58,19 +56,35 @@ namespace MediaBackupManager.Model
         {
             foreach (var item in Directory.EnumerateDirectories(FullName))
             {
-                var subDir = new FileDirectory(item, Drive, Index);
+                var subDir = new FileDirectory(item, Drive);
                 Subdirectories.Add(subDir);
                 subDir.ScanFiles();
             }
 
             foreach (var file in Directory.EnumerateFiles(FullName))
             {
-                BackupFile backupFile = Index.AddFile(file);
+                BackupFile backupFile = FileIndex.IndexFile(file);
                 var fileNode = new FileNode(file, this, backupFile);
                 backupFile.AddNode(fileNode);
                 FileNodes.Add(fileNode);
             }
+        }
 
+        /// <summary>
+        /// Recursively removes all directories and file nodes from the directory.</summary>  
+        public void Clear()
+        {
+            foreach (var item in FileNodes)
+            {
+                item.Remove();
+            }
+
+            FileNodes.Clear();
+
+            foreach (var item in Subdirectories)
+                item.Clear();
+
+            Subdirectories.Clear();
         }
 
         public override string ToString()

@@ -25,8 +25,14 @@ namespace MediaBackupManager.Model
             this.File = file;
         }
 
-        public FileNode(string fileName, FileDirectory directory, BackupFile file) 
+        public FileNode(string fileName, FileDirectory directory, BackupFile file)
             : this(new FileInfo(fileName), directory, file) { }
+
+
+        public void Remove()
+        {
+            this.File.RemoveNode(this);
+        }
 
         public override string ToString()
         {

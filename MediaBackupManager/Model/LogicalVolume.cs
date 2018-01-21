@@ -31,7 +31,6 @@ namespace MediaBackupManager.Model
         public LogicalVolume(DirectoryInfo directory)
         {
             this.MountPoint = directory.Root.Name;
-
             GetLogicalDriveInformation();
         }
 

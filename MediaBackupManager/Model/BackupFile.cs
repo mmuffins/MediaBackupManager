@@ -20,6 +20,7 @@ namespace MediaBackupManager.Model
         public DateTime LastWriteTimeUtc { get; }
         public string CheckSum { get; }
         public HashSet<FileNode> Nodes { get; }
+        public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.Directory.Drive).Distinct().Count(); }
 
         public BackupFile(FileInfo fileInfo, string checkSum)
@@ -50,10 +51,19 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Adds a new physical location to the current file</summary>  
+        /// <summary>Adds a reference to a physical location for the file.</summary>  
         public void AddNode(FileNode node)
         {
             Nodes.Add(node);
+        }
+
+        /// <summary>Removes reference to a phyisical location for the file.</summary>  
+        public void RemoveNode(FileNode node)
+        {
+            Nodes.Remove(node);
+
+            if(Nodes.Count == 0)
+                FileIndex.RemoveFile(this);
         }
 
         public override int GetHashCode()

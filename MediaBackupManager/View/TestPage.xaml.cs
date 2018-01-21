@@ -28,12 +28,18 @@ namespace MediaBackupManager.View
             InitializeComponent();
             this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
 
-            fileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
-            fileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
+            FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
+            FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
 
-            fileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
-            fileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            FileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
+            FileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
 
+
+            for (int i = FileIndex.BackupSets.Count - 1; i >= 0 ; i--)
+            {
+                var deleteElement = FileIndex.BackupSets.ElementAt(i);
+                FileIndex.RemoveSet(deleteElement);
+            }
         }
     }
 }
