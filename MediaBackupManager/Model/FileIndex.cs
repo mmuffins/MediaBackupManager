@@ -20,7 +20,8 @@ namespace MediaBackupManager.Model
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public void AddDirectory(DirectoryInfo dir)
         {
-            var ab = ContainsDirectory(dir);
+            bool containsDir = ContainsDirectory(dir);
+            bool isSubset = IsSubsetOf(dir); 
 
             if (!logicalVolumes.ContainsKey(dir.Root.Name))
             {
@@ -63,6 +64,21 @@ namespace MediaBackupManager.Model
                 }
             }
 
+            return result;
+        }
+
+        public bool IsSubsetOf(DirectoryInfo dir)
+        {
+            bool result = false;
+
+            foreach (var set in BackupSets)
+            {
+                if (set.IsSubsetOf(dir))
+                {
+                    result = true;
+                    break;
+                }
+            }
             return result;
         }
     }

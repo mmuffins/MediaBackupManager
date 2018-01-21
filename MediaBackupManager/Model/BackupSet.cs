@@ -34,12 +34,17 @@ namespace MediaBackupManager.Model
 
         public bool ContainsDirectory(DirectoryInfo dir)
         {
-            bool result = false;
-
             if (MountPoint != dir.Root.Name)
                 return false;
 
             return dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length).Contains(RootDirectory.Name);
+        }
+
+        public bool IsSubsetOf(DirectoryInfo dir)
+        {
+            if (MountPoint != dir.Root.Name)
+                return false;
+            return RootDirectory.Name.Contains(dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length));
         }
 
         public override string ToString()
