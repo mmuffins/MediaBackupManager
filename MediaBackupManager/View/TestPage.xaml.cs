@@ -28,6 +28,8 @@ namespace MediaBackupManager.View
             InitializeComponent();
             this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
 
+            Database.CreateDatabase();
+
             FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
             FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
 

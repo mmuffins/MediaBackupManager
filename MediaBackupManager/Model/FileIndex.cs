@@ -18,23 +18,51 @@ namespace MediaBackupManager.Model
 
         static FileIndex()
         {
+            Database.CreateDatabase();
             BackupSets = new List<BackupSet>();
+            logicalVolumes = Database.GetLogicalVolume();
+            RefreshMountPoints();
         }
 
 
         /// <summary>
-        /// Adds the specified directory as new BackupSet to the file index.</summary>  
+        /// Refreshes the mount points for all logical volumes in the collection.</summary>  
+        private static void RefreshMountPoints()
+        {
+            foreach (var item in logicalVolumes)
+            {
+                DriveInfo mountPoint = item.GetMountPoint();
+                if(!(mountPoint is null))
+                {
+                    item.MountPoint = mountPoint.Name;
+                }
+            }
+        }
+
+            /// <summary>
+            /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public static void AddDirectory(DirectoryInfo dir)
         {
             bool containsDir = ContainsDirectory(dir);
             bool isSubset = IsSubsetOf(dir);
 
             var newDrive = new LogicalVolume(dir);
-            logicalVolumes.Add(newDrive);
+            AddLogicalVolume(newDrive);
             
             var scanSet = new BackupSet(dir, newDrive);
             BackupSets.Add(scanSet);
             scanSet.ScanFiles();
+        }
+
+        /// <summary>
+        /// Adds the specified logical volume to the local collection.</summary>  
+        private static void AddLogicalVolume(LogicalVolume logicalVolume)
+        {
+            if (!logicalVolumes.Contains(logicalVolume))
+            {
+                logicalVolumes.Add(logicalVolume);
+                Database.InsertLogicalVolume(logicalVolume);
+            }
         }
 
         /// <summary>
