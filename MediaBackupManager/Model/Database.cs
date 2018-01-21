@@ -81,7 +81,7 @@ namespace MediaBackupManager.Model
                 sqlCmd.ExecuteNonQuery();
 
                 sqlCmd.CommandText = "CREATE TABLE FileDirectory (" +
-                    "Id INTEGER PRIMARY KEY AUTOINCREMENT" +
+                    "Id TEXT PRIMARY KEY" +
                     ", Name TEXT" +
                     ", Drive TEXT" +
                     ")";
@@ -98,7 +98,7 @@ namespace MediaBackupManager.Model
                 sqlCmd.CommandText = "CREATE TABLE BackupSet (" +
                     "Id INTEGER PRIMARY KEY AUTOINCREMENT" +
                     ", Drive TEXT" +
-                    ", RootDirectory INTEGER" +
+                    ", RootDirectory TEXT" +
                     ")";
                 sqlCmd.ExecuteNonQuery();
             }
@@ -193,6 +193,85 @@ namespace MediaBackupManager.Model
             }
 
             return volumes;
+        }
+
+        public static void InsertBackupSet(BackupSet backupSet)
+        {
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+
+                sqlCmd.CommandText = "INSERT INTO BackupSet (" +
+                    "Drive" +
+                    ", RootDirectory" +
+                    ") VALUES (" +
+                    "@Drive " +
+                    ", @RootDirectory" +
+                    ")";
+
+                sqlCmd.CommandType = CommandType.Text;
+
+                sqlCmd.Parameters.Add(new SQLiteParameter("@Drive", DbType.String));
+                sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+
+                sqlCmd.Parameters["@Drive"].Value = backupSet.Drive.VolumeSerialNumber;
+                sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory.Name;
+
+                try
+                {
+                    dbConn.Open();
+                    sqlCmd.ExecuteNonQuery();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                finally
+                {
+                    if (dbConn.State == ConnectionState.Open)
+                    {
+                        dbConn.Close();
+                    }
+                }
+            }
+        }
+
+        public static List<BackupSet> GetBackupSet()
+        {
+            var sets = new List<BackupSet>();
+
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+
+                sqlCmd.CommandText = "SELECT * FROM BackupSet";
+                sqlCmd.CommandType = CommandType.Text;
+
+                dbConn.Open();
+                using (var reader = sqlCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var ab = reader["VolumeSerialNumber"];
+                        var de = reader["Size"];
+                        var ef = reader["Type"];
+                        var cd = reader["Label"];
+                        var ee = reader["VolumeName"];
+
+                        sets.Add(new BackupSet()
+                        {
+                            //Label = reader["Label"].ToString(),
+                            //Size = long.Parse(reader["Size"].ToString()),
+                            //Type = (DriveType)Enum.Parse(typeof(DriveType), reader["Type"].ToString()),
+                            //VolumeName = reader["VolumeName"].ToString(),
+                            //VolumeSerialNumber = reader["VolumeSerialNumber"].ToString(),
+                        });
+                    }
+                }
+            }
+
+            return sets;
         }
     }
 }

@@ -11,8 +11,8 @@ namespace MediaBackupManager.Model
     /// Represents an index filesystem location.</summary>  
     class BackupSet
     {
-        public LogicalVolume Drive { get; }
-        public FileDirectory RootDirectory { get; }
+        public LogicalVolume Drive { get; set;  }
+        public FileDirectory RootDirectory { get; set;  }
         public string MountPoint { get => Drive.MountPoint; }
 
         public BackupSet() { }
@@ -20,7 +20,7 @@ namespace MediaBackupManager.Model
         public BackupSet(DirectoryInfo directory, LogicalVolume drive)
         {
             this.Drive = drive;
-            this.RootDirectory = new FileDirectory(directory.FullName, Drive);
+            this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
         }
 
         /// <summary>

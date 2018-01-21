@@ -39,9 +39,9 @@ namespace MediaBackupManager.Model
             }
         }
 
-            /// <summary>
-            /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public static void AddDirectory(DirectoryInfo dir)
+        /// <summary>
+        /// Adds the specified directory as new BackupSet to the file index.</summary>  
+        public static void IndexDirectory(DirectoryInfo dir)
         {
             bool containsDir = ContainsDirectory(dir);
             bool isSubset = IsSubsetOf(dir);
@@ -50,8 +50,16 @@ namespace MediaBackupManager.Model
             AddLogicalVolume(newDrive);
             
             var scanSet = new BackupSet(dir, newDrive);
-            BackupSets.Add(scanSet);
+            AddBackupSet(scanSet);
             scanSet.ScanFiles();
+        }
+
+        /// <summary>
+        /// Adds the specified backup set to the local collection.</summary>  
+        private static void AddBackupSet(BackupSet backupSet)
+        {
+            BackupSets.Add(backupSet);
+            Database.InsertBackupSet(backupSet);
         }
 
         /// <summary>

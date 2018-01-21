@@ -11,6 +11,7 @@ namespace MediaBackupManager.Model
     /// Represents a directory in the file system.</summary>  
     class FileDirectory : IEquatable<FileDirectory>
     {
+        public FileDirectory Parent { get; }
         public HashSet<FileDirectory> Subdirectories { get; }
         public HashSet<FileNode> FileNodes { get; }
         public LogicalVolume Drive { get; }
@@ -24,6 +25,8 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point</summary>
         public string FullName { get => Path.Combine(Drive.MountPoint, Name); }
 
+        ///// <summary>Unique Name for the directory across all backup sets</summary>
+        //public string IdPath { get => Path.Combine(Drive.VolumeSerialNumber, Name); }
 
         public FileDirectory()
         {
@@ -31,15 +34,16 @@ namespace MediaBackupManager.Model
             this.FileNodes = new HashSet<FileNode>();
         }
 
-        public FileDirectory(string path, LogicalVolume drive) : this()
+        public FileDirectory(string path, LogicalVolume drive, FileDirectory parent) : this()
         {
             this.Drive = drive;
+            this.Parent = parent;
             this.Name = path.Substring(Path.GetPathRoot(path).Length);
         }
 
         public void AddSubDirectory(string path)
         {
-            Subdirectories.Add(new FileDirectory(path, Drive));
+            Subdirectories.Add(new FileDirectory(path, Drive, this));
         }
 
         public void AddSubDirectory(FileDirectory subDirectory)
@@ -56,7 +60,7 @@ namespace MediaBackupManager.Model
         {
             foreach (var item in Directory.EnumerateDirectories(FullName))
             {
-                var subDir = new FileDirectory(item, Drive);
+                var subDir = new FileDirectory(item, Drive, this);
                 Subdirectories.Add(subDir);
                 subDir.ScanFiles();
             }

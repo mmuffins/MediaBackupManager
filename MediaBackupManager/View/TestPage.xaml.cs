@@ -30,11 +30,11 @@ namespace MediaBackupManager.View
 
             Database.CreateDatabase();
 
-            FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
-            FileIndex.AddDirectory(new DirectoryInfo(@"D:\indexdir"));
+            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
+            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
 
-            FileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
-            FileIndex.AddDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
+            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
 
 
             for (int i = FileIndex.BackupSets.Count - 1; i >= 0 ; i--)
