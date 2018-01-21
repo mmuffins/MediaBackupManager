@@ -12,31 +12,48 @@ namespace MediaBackupManager.Model
 
     class FileNode : IEquatable<FileNode>
     {
-        public FileDirectory Directory { get; }
-        public string Name { get; }
-        public string Extension { get; }
-        public BackupFile File { get; }
+        // File Properties
+        public string Name { get; set; }
+        public string Extension { get; set; }
+        public BackupFile File { get; set; }
 
-        public FileNode(FileInfo fileInfo, FileDirectory directory, BackupFile file)
+        // Directory Properties
+        public BackupSet BackupSet { get; set; }
+
+        /// <summary>Name of the containing directory.</summary>
+        public string Directory { get; set; }
+
+        /// <summary>Full path name including volume serial.</summary>
+        public string FullName { get => Path.Combine(BackupSet.Drive.VolumeSerialNumber, Directory, Name); }
+
+        /// <summary>Full path name including mount point of the current session.</summary>
+        public string FullSessionName { get => Path.Combine(BackupSet.Drive.MountPoint, Directory, Name); }
+
+
+        public FileNode() { }
+
+        public FileNode(FileInfo fileInfo, BackupSet backupSet, BackupFile file)
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
-            this.Directory = directory;
+            this.Directory = fileInfo.FullName.Substring(Path.GetPathRoot(fileInfo.FullName).Length);
+            this.BackupSet = backupSet;
             this.File = file;
         }
 
-        public FileNode(string fileName, FileDirectory directory, BackupFile file)
-            : this(new FileInfo(fileName), directory, file) { }
+        public FileNode(string fileName, BackupSet backupSet, BackupFile file)
+            : this(new FileInfo(fileName), backupSet, file) { }
 
 
         public void Remove()
         {
-            this.File.RemoveNode(this);
+            if(!(this.File is null)) // If the current object refers to a directory it has no file
+                this.File.RemoveNode(this);
         }
 
         public override string ToString()
         {
-            return Name;
+            return FullName;
         }
 
         public override int GetHashCode()
@@ -49,7 +66,9 @@ namespace MediaBackupManager.Model
             if (other == null)
                 return false;
 
-            return this.Name.Equals(other.Name) && this.Directory.Equals(other.Directory);
+            return this.Name.Equals(other.Name)
+                && this.Directory.Equals(other.Directory)
+                && this.BackupSet.Drive.VolumeSerialNumber.Equals(other.BackupSet.Drive.VolumeSerialNumber);
         }
 
         public override bool Equals(object obj)

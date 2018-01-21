@@ -9,8 +9,9 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a directory in the file system.</summary>  
-    class FileDirectory : IEquatable<FileDirectory>
+    class FileDirectory
     {
+        /*
         public FileDirectory Parent { get; }
         public HashSet<FileDirectory> Subdirectories { get; }
         public HashSet<FileNode> FileNodes { get; }
@@ -120,5 +121,8 @@ namespace MediaBackupManager.Model
             else
                 return Equals(otherObj);
         }
+    */
     }
 }
+
+

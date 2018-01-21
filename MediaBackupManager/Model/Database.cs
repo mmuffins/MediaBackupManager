@@ -215,7 +215,7 @@ namespace MediaBackupManager.Model
                 sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
 
                 sqlCmd.Parameters["@Drive"].Value = backupSet.Drive.VolumeSerialNumber;
-                sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory.Name;
+                sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
 
                 try
                 {

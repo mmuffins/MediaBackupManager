@@ -59,7 +59,7 @@ namespace MediaBackupManager.Model
         private static void AddBackupSet(BackupSet backupSet)
         {
             BackupSets.Add(backupSet);
-            Database.InsertBackupSet(backupSet);
+            //Database.InsertBackupSet(backupSet);
         }
 
         /// <summary>
