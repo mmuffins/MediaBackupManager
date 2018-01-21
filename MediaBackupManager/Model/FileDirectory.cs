@@ -9,105 +9,52 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a directory in the file system.</summary>  
-    class FileDirectory
+    class FileDirectory : IEquatable<FileDirectory>
     {
-        /*
-        public FileDirectory Parent { get; }
-        public HashSet<FileDirectory> Subdirectories { get; }
-        public HashSet<FileNode> FileNodes { get; }
-        public LogicalVolume Drive { get; }
+        // Directory Properties
+        public BackupSet BackupSet { get; set; }
 
-        /// <summary>Full path name without mount point</summary>
-        public string Name { get; }
+        /// <summary>Name of the containing directory.</summary>
+        public string DirectoryName { get; set; }
 
-        /// <summary>Name of the current directory</summary>
-        public string DirectoryName { get => Path.GetDirectoryName(Name); }
+        /// <summary>Full path name including volume serial.</summary>
+        public virtual string FullName { get => Path.Combine(BackupSet.Drive.VolumeSerialNumber, DirectoryName); }
 
-        /// <summary>Full path name including mount point</summary>
-        public string FullName { get => Path.Combine(Drive.MountPoint, Name); }
+        /// <summary>Full path name including mount point of the current session.</summary>
+        public virtual string FullSessionName { get => Path.Combine(BackupSet.Drive.MountPoint, DirectoryName); }
 
-        ///// <summary>Unique Name for the directory across all backup sets</summary>
-        //public string IdPath { get => Path.Combine(Drive.VolumeSerialNumber, Name); }
 
-        public FileDirectory()
+        public FileDirectory() { }
+
+        public FileDirectory(DirectoryInfo directoryInfo, BackupSet backupSet)
         {
-            this.Subdirectories = new HashSet<FileDirectory>();
-            this.FileNodes = new HashSet<FileNode>();
+            this.DirectoryName = directoryInfo.FullName.Substring(Path.GetPathRoot(directoryInfo.FullName).Length);
+            this.BackupSet = backupSet;
         }
 
-        public FileDirectory(string path, LogicalVolume drive, FileDirectory parent) : this()
-        {
-            this.Drive = drive;
-            this.Parent = parent;
-            this.Name = path.Substring(Path.GetPathRoot(path).Length);
-        }
+        public FileDirectory(string directoryName, BackupSet backupSet)
+            : this(new DirectoryInfo(directoryName), backupSet) { }
 
-        public void AddSubDirectory(string path)
-        {
-            Subdirectories.Add(new FileDirectory(path, Drive, this));
-        }
 
-        public void AddSubDirectory(FileDirectory subDirectory)
-        {
-            Subdirectories.Add(subDirectory);
-        }
-
-        public void AddFile(FileNode fileNode)
-        {
-            FileNodes.Add(fileNode);
-        }
-
-        public void ScanFiles()
-        {
-            foreach (var item in Directory.EnumerateDirectories(FullName))
-            {
-                var subDir = new FileDirectory(item, Drive, this);
-                Subdirectories.Add(subDir);
-                subDir.ScanFiles();
-            }
-
-            foreach (var file in Directory.EnumerateFiles(FullName))
-            {
-                BackupFile backupFile = FileIndex.IndexFile(file);
-                var fileNode = new FileNode(file, this, backupFile);
-                backupFile.AddNode(fileNode);
-                FileNodes.Add(fileNode);
-            }
-        }
-
-        /// <summary>
-        /// Recursively removes all directories and file nodes from the directory.</summary>  
-        public void Clear()
-        {
-            foreach (var item in FileNodes)
-            {
-                item.Remove();
-            }
-
-            FileNodes.Clear();
-
-            foreach (var item in Subdirectories)
-                item.Clear();
-
-            Subdirectories.Clear();
-        }
+        public virtual void Remove() { }
 
         public override string ToString()
         {
-            return Name;
+            return FullName;
         }
 
         public override int GetHashCode()
         {
-            return (Drive.VolumeName + Name).GetHashCode();
+            return (BackupSet.Guid + DirectoryName).GetHashCode();
         }
 
-        public bool Equals(FileDirectory other)
+        public virtual bool Equals(FileDirectory other)
         {
             if (other == null)
                 return false;
 
-            return this.Name.Equals(other.Name) && this.Drive.Equals(other.Drive);
+            return this.DirectoryName.Equals(other.DirectoryName)
+                && this.BackupSet.Guid.Equals(other.BackupSet.Guid);
         }
 
         public override bool Equals(object obj)
@@ -121,7 +68,6 @@ namespace MediaBackupManager.Model
             else
                 return Equals(otherObj);
         }
-    */
     }
 }
 

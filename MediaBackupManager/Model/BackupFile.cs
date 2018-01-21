@@ -15,9 +15,7 @@ namespace MediaBackupManager.Model
     {
         public long Length { get; }
         public DateTime CreationTime { get; }
-        public DateTime CreationTimeUtc { get; }
         public DateTime LastWriteTime { get; }
-        public DateTime LastWriteTimeUtc { get; }
         public string CheckSum { get; }
         public HashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
@@ -28,9 +26,7 @@ namespace MediaBackupManager.Model
             this.Nodes = new HashSet<FileNode>();
             this.Length = fileInfo.Length;
             this.CreationTime = fileInfo.CreationTime;
-            this.CreationTimeUtc = fileInfo.CreationTimeUtc;
             this.LastWriteTime = fileInfo.LastWriteTime;
-            this.LastWriteTimeUtc = fileInfo.LastWriteTimeUtc;
             this.CheckSum = checkSum;
             this.Nodes = new HashSet<FileNode>();
         }

@@ -43,8 +43,8 @@ namespace MediaBackupManager.Model
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public static void IndexDirectory(DirectoryInfo dir)
         {
-            bool containsDir = ContainsDirectory(dir);
-            bool isSubset = IsSubsetOf(dir);
+            if (ContainsDirectory(dir) || IsSubsetOf(dir))
+                return;
 
             var newDrive = new LogicalVolume(dir);
             AddLogicalVolume(newDrive);
@@ -59,7 +59,7 @@ namespace MediaBackupManager.Model
         private static void AddBackupSet(BackupSet backupSet)
         {
             BackupSets.Add(backupSet);
-            //Database.InsertBackupSet(backupSet);
+            Database.InsertBackupSet(backupSet);
         }
 
         /// <summary>
@@ -87,6 +87,7 @@ namespace MediaBackupManager.Model
             {
                 var newFile = new BackupFile(fileName, checkSum);
                 fileIndex.Add(checkSum, newFile);
+                Database.InsertBackupFile(newFile);
                 return newFile;
             }
         }

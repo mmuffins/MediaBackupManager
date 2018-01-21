@@ -11,14 +11,16 @@ namespace MediaBackupManager.Model
     /// Represents an index filesystem location.</summary>  
     class BackupSet
     {
+        public Guid Guid { get; set; }
         public LogicalVolume Drive { get; set; }
         public string RootDirectory { get; set; }
         public string MountPoint { get => Drive.MountPoint; }
-        public HashSet<FileNode> FileNodes { get; }
+        public HashSet<FileDirectory> FileNodes { get; }
 
         public BackupSet()
         {
-            this.FileNodes = new HashSet<FileNode>();
+            this.Guid = Guid.NewGuid();
+            this.FileNodes = new HashSet<FileDirectory>();
         }
 
         public BackupSet(DirectoryInfo directory, LogicalVolume drive) : this()
@@ -32,13 +34,19 @@ namespace MediaBackupManager.Model
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public void ScanFiles()
         {
-            FileNodes.Add(new FileNode()
-            {
-                BackupSet = this,
-                Directory = RootDirectory
-            });
+            FileNodes.Add(new FileDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), this));
+
 
             IndexDirectories(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
+
+            foreach (var item in FileNodes)
+            {
+                if(item is FileNode)
+                    Database.InsertFileNode(item as FileNode);
+                else
+                    Database.InsertFileNode(item as FileDirectory);
+
+            }
         }
 
         private void IndexDirectories(DirectoryInfo directory)
@@ -46,14 +54,11 @@ namespace MediaBackupManager.Model
             foreach (var item in directory.GetDirectories())
             {
                 IndexDirectories(item);
-                FileNodes.Add(new FileNode()
-                {
-                    BackupSet = this,
-                    Directory = item.FullName.Substring(Path.GetPathRoot(item.FullName).Length)
-                });
+                FileNodes.Add(new FileDirectory(directory,this));
             }
 
             IndexFiles(directory);
+
         }
 
         private void IndexFiles(DirectoryInfo directory)
