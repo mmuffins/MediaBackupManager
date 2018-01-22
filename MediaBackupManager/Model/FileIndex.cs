@@ -126,17 +126,28 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
-        public static void RemoveSet(BackupSet item)
+        /// <param name="item">The object to be removed.</param>
+        public static void RemoveBackupSet(BackupSet item)
         {
             if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
-                LogicalVolumes.Remove(item.Volume);
+                RemoveLogicalVolume(item.Volume);
             }
 
             item.Clear();
             BackupSets.Remove(item);
+            Database.DeleteBackupSet(item);
+        }
+
+        /// <summary>
+        /// Removes the specified logical volume.</summary>  
+        /// <param name="item">The object to be removed.</param>
+        public static void RemoveLogicalVolume(LogicalVolume volume)
+        {
+            LogicalVolumes.Remove(volume);
+            Database.DeleteLogicalVolume(volume);
         }
 
         /// <summary>

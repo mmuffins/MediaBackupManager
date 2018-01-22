@@ -42,7 +42,7 @@ namespace MediaBackupManager.View
             for (int i = FileIndex.BackupSets.Count - 1; i >= 0 ; i--)
             {
                 var deleteElement = FileIndex.BackupSets.ElementAt(i);
-                FileIndex.RemoveSet(deleteElement);
+                FileIndex.RemoveBackupSet(deleteElement);
             }
         }
     }

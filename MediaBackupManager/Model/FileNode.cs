@@ -38,8 +38,8 @@ namespace MediaBackupManager.Model
         public FileNode(string fileName, BackupSet backupSet, BackupFile file)
             : this(new FileInfo(fileName), backupSet, file) { }
 
-
-        public override void Remove()
+        /// <summary>Removes the reference to this node from the linked BackupFile object.</summary>
+        public override void RemoveFileReference()
         {
             if(!(this.File is null)) // If the current object refers to a directory it has no file
                 this.File.RemoveNode(this);

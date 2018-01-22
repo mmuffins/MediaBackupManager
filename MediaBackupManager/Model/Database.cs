@@ -111,8 +111,9 @@ namespace MediaBackupManager.Model
             {
                 try
                 {
+                    command.Connection = dbConn;
                     dbConn.Open();
-                    return command.ExecuteNonQuery()
+                    return command.ExecuteNonQuery();
                 }
                 catch (Exception)
                 {
@@ -535,33 +536,14 @@ namespace MediaBackupManager.Model
         /// <summary>Deletes the specified object from the database.</summary>
         public static void DeleteBackupFile(BackupFile backupFile)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
-            {
-                var sqlCmd = new SQLiteCommand(dbConn);
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "DELETE FROM BackupFile WHERE CheckSum = @CheckSum";
+            sqlCmd.CommandType = CommandType.Text;
 
-                sqlCmd.CommandText = "DELETE FROM BackupFile WHERE CheckSum = @CheckSum";
-                sqlCmd.CommandType = CommandType.Text;
+            sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
+            sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
 
-                sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
-                sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
-
-                try
-                {
-                    dbConn.Open();
-                    sqlCmd.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
-                    {
-                        dbConn.Close();
-                    }
-                }
-            }
+            ExecuteNonQuery(sqlCmd);
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
@@ -573,6 +555,50 @@ namespace MediaBackupManager.Model
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
             sqlCmd.Parameters["@SerialNumber"].Value = logicalVolume.SerialNumber;
+
+            ExecuteNonQuery(sqlCmd);
+        }
+
+        /// <summary>Deletes the specified object from the database.</summary>
+        public static void DeleteBackupSet(BackupSet backupSet)
+        {
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "DELETE FROM BackupSet WHERE Guid = @Guid";
+            sqlCmd.CommandType = CommandType.Text;
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+
+            ExecuteNonQuery(sqlCmd);
+        }
+
+        /// <summary>Deletes the specified object from the database.</summary>
+        public static void DeleteFileNode(FileDirectory fileNode)
+        {
+            var sqlCmd = new SQLiteCommand();
+            var cmdText = new StringBuilder("DELETE FROM FileNode WHERE");
+            cmdText.Append(" BackupSet = @BackupSet");
+            cmdText.Append(" AND DirectoryName = @DirectoryName");
+
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
+
+            sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
+            sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
+
+            // Only add name parameter if the provided object is of type fileNode
+            if(fileNode is FileNode)
+            {
+                cmdText.Append(" AND Name = @Name");
+                sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
+                sqlCmd.Parameters["@Name"].Value = ((FileNode)fileNode).Name;
+            }
+
+            sqlCmd.CommandText = cmdText.ToString();
+            sqlCmd.CommandType = CommandType.Text;
+
+            ExecuteNonQuery(sqlCmd);
         }
     }
 }

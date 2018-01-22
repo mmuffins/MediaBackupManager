@@ -87,7 +87,8 @@ namespace MediaBackupManager.Model
         {
             foreach (var item in FileNodes)
             {
-                item.Remove();
+                item.RemoveFileReference();
+                Database.DeleteFileNode(item);
             }
 
             FileNodes.Clear();
