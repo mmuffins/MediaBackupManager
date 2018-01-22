@@ -12,32 +12,48 @@ namespace MediaBackupManager.Model
 
     class FileIndex
     {
-        public static Dictionary<string, BackupFile> Files;
-        public static HashSet<LogicalVolume> logicalVolumes = new HashSet<LogicalVolume>();
-        public static List<BackupSet> BackupSets { get; }
+        static Dictionary<string, BackupFile> files = new Dictionary<string, BackupFile>();
+        public static Dictionary<string, BackupFile> Files { get => files; }
+
+        static List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
+        public static List<LogicalVolume> LogicalVolumes { get => logicalVolumes; }
+
+        static List<BackupSet> backupSets = new List<BackupSet>();
+        public static List<BackupSet> BackupSets { get => backupSets; }
 
         static FileIndex()
         {
+            //LoadData();
             Database.CreateDatabase();
-            var ab = Database.GetFileNode();
+        }
+
+        /// <summary>
+        /// Populates the index with data stored in the database.</summary>  
+        public static void LoadData()
+        {
+            // To properly create all needed relations, the objects should
+            // be loaded in the following order:
+            // LogicalVolume => BackupFile => BackupSet
+            // FileNodes will be automatically loaded with the backup sets
+
 
             logicalVolumes = Database.GetLogicalVolume();
             RefreshMountPoints();
 
-            BackupSets = new List<BackupSet>();
-            Files = Database.GetBackupFile()
-                .Select(x => new {Key = x.CheckSum, Item = x })
+            files = Database.GetBackupFile()
+                .Select(x => new { Key = x.CheckSum, Item = x })
                 .ToDictionary(x => x.Key, x => x.Item);
 
+            backupSets = Database.GetBackupSet();
 
+            //var ab = Database.GetFileNode();
         }
-
 
         /// <summary>
         /// Refreshes the mount points for all logical volumes in the collection.</summary>  
         private static void RefreshMountPoints()
         {
-            foreach (var item in logicalVolumes)
+            foreach (var item in LogicalVolumes)
             {
                 DriveInfo mountPoint = item.GetMountPoint();
                 if(!(mountPoint is null))
@@ -74,9 +90,9 @@ namespace MediaBackupManager.Model
         /// Adds the specified logical volume to the local collection.</summary>  
         private static void AddLogicalVolume(LogicalVolume logicalVolume)
         {
-            if (!logicalVolumes.Contains(logicalVolume))
+            if (!LogicalVolumes.Contains(logicalVolume))
             {
-                logicalVolumes.Add(logicalVolume);
+                LogicalVolumes.Add(logicalVolume);
                 Database.InsertLogicalVolume(logicalVolume);
             }
         }
@@ -105,23 +121,26 @@ namespace MediaBackupManager.Model
         public static void RemoveFile(BackupFile file)
         {
             Files.Remove(file.CheckSum);
+            Database.DeleteBackupFile(file);
         }
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
         public static void RemoveSet(BackupSet item)
         {
-            if(BackupSets.Where(x => x.Drive.Equals(item.Drive)).Count() < 2)
+            if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
-                logicalVolumes.Remove(item.Drive);
+                LogicalVolumes.Remove(item.Volume);
             }
 
             item.Clear();
             BackupSets.Remove(item);
         }
 
+        /// <summary>
+        /// Determines whether the provided directory is already indexed in one of the backup sets.</summary>  
         public static bool ContainsDirectory(DirectoryInfo dir)
         {
             bool result = false;
@@ -138,6 +157,8 @@ namespace MediaBackupManager.Model
             return result;
         }
 
+        /// <summary>
+        /// Determines whether the provided directory is a parent of one of the backup sets.</summary>  
         public static bool IsSubsetOf(DirectoryInfo dir)
         {
             bool result = false;

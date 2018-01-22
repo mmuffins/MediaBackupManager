@@ -19,7 +19,7 @@ namespace MediaBackupManager.Model
         public string CheckSum { get; set; }
         public HashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
-        public int BackupCount { get => Nodes.Select(x => x.BackupSet.Drive).Distinct().Count(); }
+        public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
         public BackupFile()
         {
@@ -54,7 +54,6 @@ namespace MediaBackupManager.Model
         public void AddNode(FileNode node)
         {
             Nodes.Add(node);
-            var a1 = Nodes.Select(x => x.BackupSet.Drive).Distinct();
         }
 
         /// <summary>Removes reference to a phyisical location for the file.</summary>  

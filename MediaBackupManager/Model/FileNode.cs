@@ -18,10 +18,10 @@ namespace MediaBackupManager.Model
         public BackupFile File { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
-        public override string FullName { get => Path.Combine(BackupSet.Drive.VolumeSerialNumber, DirectoryName, Name); }
+        public override string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName, Name); }
 
         /// <summary>Full path name including mount point of the current session.</summary>
-        public override string FullSessionName { get => Path.Combine(BackupSet.Drive.MountPoint, DirectoryName, Name); }
+        public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
 
         public FileNode() { }
@@ -57,7 +57,7 @@ namespace MediaBackupManager.Model
 
             return this.Name.Equals(other.Name)
                 && this.DirectoryName.Equals(other.DirectoryName)
-                && this.BackupSet.Drive.VolumeSerialNumber.Equals(other.BackupSet.Drive.VolumeSerialNumber);
+                && this.BackupSet.Volume.SerialNumber.Equals(other.BackupSet.Volume.SerialNumber);
         }
 
         public override bool Equals(object obj)
@@ -70,6 +70,11 @@ namespace MediaBackupManager.Model
                 return false;
             else
                 return Equals(otherObj);
+        }
+
+        public int CompareTo(FileNode other)
+        {
+            return (DirectoryName + Name).CompareTo((other.DirectoryName + other.Name));
         }
     }
 }

@@ -12,9 +12,9 @@ namespace MediaBackupManager.Model
     class BackupSet
     {
         public Guid Guid { get; set; }
-        public LogicalVolume Drive { get; set; }
+        public LogicalVolume Volume { get; set; }
         public string RootDirectory { get; set; }
-        public string MountPoint { get => Drive.MountPoint; }
+        public string MountPoint { get => Volume.MountPoint; }
         public HashSet<FileDirectory> FileNodes { get; }
 
         public BackupSet()
@@ -25,7 +25,7 @@ namespace MediaBackupManager.Model
 
         public BackupSet(DirectoryInfo directory, LogicalVolume drive) : this()
         {
-            this.Drive = drive;
+            this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
         }
@@ -34,41 +34,50 @@ namespace MediaBackupManager.Model
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public void ScanFiles()
         {
-            FileNodes.Add(new FileDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), this));
-
-
-            IndexDirectories(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
-
-            foreach (var item in FileNodes)
-            {
-                if(item is FileNode)
-                    Database.InsertFileNode(item as FileNode);
-                else
-                    Database.InsertFileNode(item as FileDirectory);
-
-            }
+            //AddFileNode(new FileDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), this));
+            IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
+            //TODO:Write more efficient function to mass-add indexed files to the DB
         }
 
-        private void IndexDirectories(DirectoryInfo directory)
+        private void IndexDirectory(DirectoryInfo directory)
         {
+            // Call recursively to get all subdirectories
             foreach (var item in directory.GetDirectories())
-            {
-                IndexDirectories(item);
-                FileNodes.Add(new FileDirectory(directory,this));
-            }
+                IndexDirectory(item);
 
-            IndexFiles(directory);
+            var dir = new FileDirectory(directory, this);
+            AddFileNode(dir);
 
+            IndexFile(directory);
         }
 
-        private void IndexFiles(DirectoryInfo directory)
+        private void IndexFile(DirectoryInfo directory)
         {
             foreach (var file in directory.GetFiles())
             {
+                // Make sure that the backup file is properly
+                // added to the index before creating a file node
                 BackupFile backupFile = FileIndex.IndexFile(file.FullName);
+
                 var fileNode = new FileNode(file, this, backupFile);
                 backupFile.AddNode(fileNode);
-                FileNodes.Add(fileNode);
+                AddFileNode(fileNode);
+            }
+        }
+
+        /// <summary>
+        /// Adds the specified element to the file node index.</summary>  
+        private void AddFileNode(FileDirectory node)
+        {
+            if (node is FileNode)
+            {
+                FileNodes.Add(node);
+                Database.InsertFileNode(node as FileNode);
+            }
+            else
+            {
+                FileNodes.Add(node);
+                Database.InsertFileNode(node as FileDirectory);
             }
         }
 

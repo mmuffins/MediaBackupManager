@@ -17,7 +17,7 @@ namespace MediaBackupManager.Model
         public string Label { get; set; }
 
         // Logical Disk
-        public string VolumeSerialNumber { get; set; }
+        public string SerialNumber { get; set; }
         public long Size { get; set; }
         public DriveType Type { get; set; }
         public string VolumeName { get; set; }
@@ -35,7 +35,7 @@ namespace MediaBackupManager.Model
 
         public DriveInfo GetMountPoint()
         {
-            var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{VolumeSerialNumber}'").Get();
+            var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{SerialNumber}'").Get();
 
             if (w32LogicalDisk.Count == 0) // Drive is currently not mounted, exit
                 return null;
@@ -62,7 +62,7 @@ namespace MediaBackupManager.Model
             {
                 // Since we are querying with a drive letter, the collection can only contain a single object
                 this.Size = long.Parse(drive["Size"].ToString());
-                this.VolumeSerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
+                this.SerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
                 this.Type = (DriveType)Enum.Parse(typeof(DriveType), drive["DriveType"].ToString());
             }
         }
@@ -80,7 +80,7 @@ namespace MediaBackupManager.Model
                 {
                     // Since we are querying with a drive letter, the collection can only contain a single object
                     this.Size = long.Parse(drive["Size"].ToString());
-                    this.VolumeSerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
+                    this.SerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
                     this.Type = (DriveType)Enum.Parse(typeof(DriveType), drive["DriveType"].ToString());
                 }
             });
@@ -90,12 +90,12 @@ namespace MediaBackupManager.Model
 
         public override string ToString()
         {
-            return VolumeSerialNumber;
+            return SerialNumber;
         }
 
         public override int GetHashCode()
         {
-            return VolumeSerialNumber.GetHashCode();
+            return SerialNumber.GetHashCode();
         }
 
         public bool Equals(LogicalVolume other)
@@ -103,7 +103,7 @@ namespace MediaBackupManager.Model
             if (other == null)
                 return false;
 
-            return this.VolumeSerialNumber.Equals(other.VolumeSerialNumber);
+            return this.SerialNumber.Equals(other.SerialNumber);
         }
 
         public override bool Equals(object obj)

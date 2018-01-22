@@ -9,7 +9,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a directory in the file system.</summary>  
-    class FileDirectory : IEquatable<FileDirectory>
+    class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>
     {
         // Directory Properties
         public BackupSet BackupSet { get; set; }
@@ -18,10 +18,10 @@ namespace MediaBackupManager.Model
         public string DirectoryName { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
-        public virtual string FullName { get => Path.Combine(BackupSet.Drive.VolumeSerialNumber, DirectoryName); }
+        public virtual string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName); }
 
         /// <summary>Full path name including mount point of the current session.</summary>
-        public virtual string FullSessionName { get => Path.Combine(BackupSet.Drive.MountPoint, DirectoryName); }
+        public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName); }
 
 
         public FileDirectory() { }
@@ -67,6 +67,11 @@ namespace MediaBackupManager.Model
                 return false;
             else
                 return Equals(otherObj);
+        }
+
+        public int CompareTo(FileDirectory other)
+        {
+            return DirectoryName.CompareTo(other.DirectoryName);
         }
     }
 }
