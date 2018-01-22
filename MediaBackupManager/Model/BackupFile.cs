@@ -13,22 +13,25 @@ namespace MediaBackupManager.Model
     /// Virtual representation of a file in one or multiple backup set.</summary>  
     class BackupFile : IEquatable<BackupFile>
     {
-        public long Length { get; }
-        public DateTime CreationTime { get; }
-        public DateTime LastWriteTime { get; }
-        public string CheckSum { get; }
+        public long Length { get; set; }
+        public DateTime CreationTime { get; set; }
+        public DateTime LastWriteTime { get; set;  }
+        public string CheckSum { get; set; }
         public HashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Drive).Distinct().Count(); }
 
-        public BackupFile(FileInfo fileInfo, string checkSum)
+        public BackupFile()
         {
             this.Nodes = new HashSet<FileNode>();
+        }
+
+        public BackupFile(FileInfo fileInfo, string checkSum) : this()
+        {
             this.Length = fileInfo.Length;
             this.CreationTime = fileInfo.CreationTime;
             this.LastWriteTime = fileInfo.LastWriteTime;
             this.CheckSum = checkSum;
-            this.Nodes = new HashSet<FileNode>();
         }
 
         public BackupFile(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }

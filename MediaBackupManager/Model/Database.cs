@@ -159,7 +159,7 @@ namespace MediaBackupManager.Model
 
         public static HashSet<LogicalVolume> GetLogicalVolume()
         {
-            var volumes = new HashSet<LogicalVolume>();
+            var res = new HashSet<LogicalVolume>();
 
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
@@ -179,7 +179,7 @@ namespace MediaBackupManager.Model
                         var cd = reader["Label"];
                         var ee = reader["VolumeName"];
 
-                        volumes.Add(new LogicalVolume()
+                        res.Add(new LogicalVolume()
                         {
                             Label = reader["Label"].ToString(),
                             Size = long.Parse(reader["Size"].ToString()),
@@ -191,12 +191,12 @@ namespace MediaBackupManager.Model
                 }
             }
 
-            return volumes;
+            return res;
         }
 
         public static List<BackupSet> GetBackupSet()
         {
-            var sets = new List<BackupSet>();
+            var res = new List<BackupSet>();
 
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
@@ -210,25 +210,84 @@ namespace MediaBackupManager.Model
                 {
                     while (reader.Read())
                     {
-                        var ab = reader["VolumeSerialNumber"];
-                        var de = reader["Size"];
-                        var ef = reader["Type"];
-                        var cd = reader["Label"];
-                        var ee = reader["VolumeName"];
-
-                        sets.Add(new BackupSet()
+                        var newSet = new BackupSet()
                         {
-                            //Label = reader["Label"].ToString(),
-                            //Size = long.Parse(reader["Size"].ToString()),
-                            //Type = (DriveType)Enum.Parse(typeof(DriveType), reader["Type"].ToString()),
-                            //VolumeName = reader["VolumeName"].ToString(),
-                            //VolumeSerialNumber = reader["VolumeSerialNumber"].ToString(),
+                            Guid = new Guid(reader["Guid"].ToString()),
+                            RootDirectory = reader["RootDirectory"].ToString()
+                        };
+
+                        res.Add(newSet);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static List<BackupFile> GetBackupFile()
+        {
+            var res = new List<BackupFile>();
+
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+
+                sqlCmd.CommandText = "SELECT * FROM BackupFile";
+                sqlCmd.CommandType = CommandType.Text;
+
+                dbConn.Open();
+                using (var reader = sqlCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        res.Add(new BackupFile()
+                        {
+                            CheckSum = reader["CheckSum"].ToString(),
+                            CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
+                            LastWriteTime = DateTime.Parse(reader["LastWriteTime"].ToString()),
+                            Length = long.Parse(reader["CheckSum"].ToString())
                         });
                     }
                 }
             }
 
-            return sets;
+            return res;
+        }
+
+        public static List<FileDirectory> GetFileNode()
+        {
+            var res = new List<FileDirectory>();
+
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+
+                sqlCmd.CommandText = "SELECT * FROM FileNode";
+                sqlCmd.CommandType = CommandType.Text;
+
+                dbConn.Open();
+                using (var reader = sqlCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var node = new FileDirectory();
+
+                        if(int.Parse(reader["NodeType"].ToString()) == 1)  // 0 => Directory, 1 => Node
+                        {
+                            // Filenode and FileDirectory are stored in the same table,
+                            // based on the nodetype we need to cast to the correct data type
+                            node = new FileNode();
+                            ((FileNode)node).Name = reader["DirectoryName"].ToString();
+                            ((FileNode)node).Extension = reader["Extension"].ToString();
+                        }
+
+                        node.DirectoryName = reader["DirectoryName"].ToString();
+                        res.Add(node);
+                    }
+                }
+            }
+
+            return res;
         }
 
         public static void InsertFileNode(FileDirectory fileNode)

@@ -12,16 +12,24 @@ namespace MediaBackupManager.Model
 
     class FileIndex
     {
-        static Dictionary<string, BackupFile> fileIndex = new Dictionary<string, BackupFile>();
-        static HashSet<LogicalVolume> logicalVolumes = new HashSet<LogicalVolume>();
+        public static Dictionary<string, BackupFile> Files;
+        public static HashSet<LogicalVolume> logicalVolumes = new HashSet<LogicalVolume>();
         public static List<BackupSet> BackupSets { get; }
 
         static FileIndex()
         {
             Database.CreateDatabase();
-            BackupSets = new List<BackupSet>();
+            var ab = Database.GetFileNode();
+
             logicalVolumes = Database.GetLogicalVolume();
             RefreshMountPoints();
+
+            BackupSets = new List<BackupSet>();
+            Files = Database.GetBackupFile()
+                .Select(x => new {Key = x.CheckSum, Item = x })
+                .ToDictionary(x => x.Key, x => x.Item);
+
+
         }
 
 
@@ -79,14 +87,14 @@ namespace MediaBackupManager.Model
         {
             string checkSum = BackupFile.CalculateChecksum(fileName);
 
-            if (fileIndex.ContainsKey(checkSum))
+            if (Files.ContainsKey(checkSum))
             {
-                return fileIndex[checkSum];
+                return Files[checkSum];
             }
             else
             {
                 var newFile = new BackupFile(fileName, checkSum);
-                fileIndex.Add(checkSum, newFile);
+                Files.Add(checkSum, newFile);
                 Database.InsertBackupFile(newFile);
                 return newFile;
             }
@@ -96,7 +104,7 @@ namespace MediaBackupManager.Model
         /// Removes the specified file from the file index.</summary>  
         public static void RemoveFile(BackupFile file)
         {
-            fileIndex.Remove(file.CheckSum);
+            Files.Remove(file.CheckSum);
         }
 
         /// <summary>
