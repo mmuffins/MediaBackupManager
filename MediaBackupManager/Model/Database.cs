@@ -314,223 +314,143 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified FileDirectory or FileNode object to the database.</summary>
         public static void InsertFileNode(FileDirectory fileNode)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "INSERT INTO FileNode (" +
+                "BackupSet" +
+                ", DirectoryName" +
+                ", Name" +
+                ", Extension" +
+                ", File" +
+                ", NodeType" +
+                ") VALUES (" +
+                "@BackupSet" +
+                ", @DirectoryName" +
+                ", @Name" +
+                ", @Extension" +
+                ", @File" +
+                ", @NodeType" +
+                ")";
+
+            sqlCmd.CommandType = CommandType.Text;
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@File", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
+
+            sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
+            sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
+            sqlCmd.Parameters["@Name"].Value = "";
+            sqlCmd.Parameters["@Extension"].Value = "";
+            sqlCmd.Parameters["@File"].Value = "";
+            sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
+
+            if (fileNode is FileNode)
             {
-                var sqlCmd = new SQLiteCommand(dbConn);
-
-                sqlCmd.CommandText = "INSERT INTO FileNode (" +
-                    "BackupSet" +
-                    ", DirectoryName" +
-                    ", Name" +
-                    ", Extension" +
-                    ", File" +
-                    ", NodeType" +
-                    ") VALUES (" +
-                    "@BackupSet" +
-                    ", @DirectoryName" +
-                    ", @Name" +
-                    ", @Extension" +
-                    ", @File" +
-                    ", @NodeType" +
-                    ")";
-
-                sqlCmd.CommandType = CommandType.Text;
-
-                sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@File", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
-
-                sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
-                sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
-                sqlCmd.Parameters["@Name"].Value = "";
-                sqlCmd.Parameters["@Extension"].Value = "";
-                sqlCmd.Parameters["@File"].Value = "";
-                sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
-
-                if (fileNode is FileNode)
-                {
-                    sqlCmd.Parameters["@Name"].Value = (fileNode as FileNode).Name;
-                    sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
-                    sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).File.CheckSum;
-                    sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
-                    sqlCmd.Parameters["@NodeType"].Value = 1;
-                }
-
-
-                try
-                {
-                    dbConn.Open();
-                    sqlCmd.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
-                    {
-                        dbConn.Close();
-                    }
-                }
+                sqlCmd.Parameters["@Name"].Value = (fileNode as FileNode).Name;
+                sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
+                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).File.CheckSum;
+                sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
+                sqlCmd.Parameters["@NodeType"].Value = 1;
             }
+
+            ExecuteNonQuery(sqlCmd);
         }
-        
+
         /// <summary>Inserts the specified object to the database.</summary>
         public static void InsertBackupSet(BackupSet backupSet)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
-            {
-                var sqlCmd = new SQLiteCommand(dbConn);
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "INSERT INTO BackupSet (" +
+                "Guid" +
+                ", Volume" +
+                ", RootDirectory" +
+                ") VALUES (" +
+                "@Guid" +
+                ", @Volume " +
+                ", @RootDirectory" +
+                ")";
 
-                sqlCmd.CommandText = "INSERT INTO BackupSet (" +
-                    "Guid" +
-                    ", Volume" +
-                    ", RootDirectory" +
-                    ") VALUES (" +
-                    "@Guid" +
-                    ", @Volume " +
-                    ", @RootDirectory" +
-                    ")";
+            sqlCmd.CommandType = CommandType.Text;
 
-                sqlCmd.CommandType = CommandType.Text;
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
 
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+            sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
+            sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
 
-                sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
-                sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
-                sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
-
-                try
-                {
-                    dbConn.Open();
-                    sqlCmd.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
-                    {
-                        dbConn.Close();
-                    }
-                }
-            }
+            ExecuteNonQuery(sqlCmd);
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
         public static void InsertBackupFile(BackupFile backupFile)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
-            {
-                var sqlCmd = new SQLiteCommand(dbConn);
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "INSERT INTO BackupFile (" +
+                "CheckSum" +
+                ", Length" +
+                ", CreationTime" +
+                ", LastWriteTime" +
+                ") VALUES (" +
+                "@CheckSum" +
+                ", @Length" +
+                ", @CreationTime" +
+                ", @LastWriteTime" +
+                ")";
 
-                sqlCmd.CommandText = "INSERT INTO BackupFile (" +
-                    "CheckSum" +
-                    ", Length" +
-                    ", CreationTime" +
-                    ", LastWriteTime" +
-                    ") VALUES (" +
-                    "@CheckSum" +
-                    ", @Length" +
-                    ", @CreationTime" +
-                    ", @LastWriteTime" +
-                    ")";
+            sqlCmd.CommandType = CommandType.Text;
 
-                sqlCmd.CommandType = CommandType.Text;
+            sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@CreationTime", DbType.DateTime));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@LastWriteTime", DbType.DateTime));
 
-                sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@CreationTime", DbType.DateTime));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@LastWriteTime", DbType.DateTime));
+            sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
+            sqlCmd.Parameters["@Length"].Value = backupFile.Length;
+            sqlCmd.Parameters["@CreationTime"].Value = backupFile.CreationTime;
+            sqlCmd.Parameters["@LastWriteTime"].Value = backupFile.LastWriteTime;
 
-                sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
-                sqlCmd.Parameters["@Length"].Value = backupFile.Length;
-                sqlCmd.Parameters["@CreationTime"].Value = backupFile.CreationTime;
-                sqlCmd.Parameters["@LastWriteTime"].Value = backupFile.LastWriteTime;
-
-                try
-                {
-                    dbConn.Open();
-                    sqlCmd.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
-                    {
-                        dbConn.Close();
-                    }
-                }
-            }
+            ExecuteNonQuery(sqlCmd);
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
         public static void InsertLogicalVolume(LogicalVolume logicalVolume)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
-            {
-                var sqlCmd = new SQLiteCommand(dbConn);
+            var sqlCmd = new SQLiteCommand();
 
-                sqlCmd.CommandText = "INSERT INTO LogicalVolume (" +
-                    "SerialNumber" +
-                    ", Size" +
-                    ", Type" +
-                    ", VolumeName" +
-                    ", Label" +
-                    ") VALUES (" +
-                    "@SerialNumber " +
-                    ", @Size" +
-                    ", @Type" +
-                    ", @VolumeName" +
-                    ", @Label" +
-                    ")";
+            sqlCmd.CommandText = "INSERT INTO LogicalVolume (" +
+                "SerialNumber" +
+                ", Size" +
+                ", Type" +
+                ", VolumeName" +
+                ", Label" +
+                ") VALUES (" +
+                "@SerialNumber " +
+                ", @Size" +
+                ", @Type" +
+                ", @VolumeName" +
+                ", @Label" +
+                ")";
 
-                sqlCmd.CommandType = CommandType.Text;
+            sqlCmd.CommandType = CommandType.Text;
 
-                sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Type", DbType.Int16));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@VolumeName", DbType.String));
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Type", DbType.Int16));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@VolumeName", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
-                sqlCmd.Parameters["@SerialNumber"].Value = logicalVolume.SerialNumber;
-                sqlCmd.Parameters["@Size"].Value = logicalVolume.Size;
-                sqlCmd.Parameters["@Type"].Value = (int)logicalVolume.Type;
-                sqlCmd.Parameters["@VolumeName"].Value = logicalVolume.VolumeName;
-                sqlCmd.Parameters["@Label"].Value = logicalVolume.Label;
+            sqlCmd.Parameters["@SerialNumber"].Value = logicalVolume.SerialNumber;
+            sqlCmd.Parameters["@Size"].Value = logicalVolume.Size;
+            sqlCmd.Parameters["@Type"].Value = (int)logicalVolume.Type;
+            sqlCmd.Parameters["@VolumeName"].Value = logicalVolume.VolumeName;
+            sqlCmd.Parameters["@Label"].Value = logicalVolume.Label;
 
-                try
-                {
-                    dbConn.Open();
-                    sqlCmd.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
-                    {
-                        dbConn.Close();
-                    }
-                }
-            }
+            ExecuteNonQuery(sqlCmd);
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
