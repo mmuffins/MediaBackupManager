@@ -100,6 +100,7 @@
     <Compile Include="Model\FileIndex.cs" />
     <Compile Include="Model\FileNode.cs" />
     <Compile Include="Model\LogicalVolume.cs" />
+    <Compile Include="ViewModel\FileIndexViewModel.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -145,7 +146,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModel\" />
+    <ProjectReference Include="..\RelayCommand\RelayCommand.csproj">
+      <Project>{77ed7e57-3c06-4678-8a59-44b05b33f7d5}</Project>
+      <Name>RelayCommand</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ViewModelBase\ViewModelBase.csproj">
+      <Project>{36ac6544-2917-4ffd-944b-1ef7dca0560f}</Project>
+      <Name>ViewModelBase</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

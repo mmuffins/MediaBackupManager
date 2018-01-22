@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaBackupManager", "MediaBackupManager\MediaBackupManager.csproj", "{DECDBCD8-3AEF-4206-8C67-68FC3BE0303A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RelayCommand", "RelayCommand\RelayCommand.csproj", "{77ED7E57-3C06-4678-8A59-44B05B33F7D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewModelBase", "ViewModelBase\ViewModelBase.csproj", "{36AC6544-2917-4FFD-944B-1EF7DCA0560F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{DECDBCD8-3AEF-4206-8C67-68FC3BE0303A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DECDBCD8-3AEF-4206-8C67-68FC3BE0303A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DECDBCD8-3AEF-4206-8C67-68FC3BE0303A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77ED7E57-3C06-4678-8A59-44B05B33F7D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77ED7E57-3C06-4678-8A59-44B05B33F7D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77ED7E57-3C06-4678-8A59-44B05B33F7D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77ED7E57-3C06-4678-8A59-44B05B33F7D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36AC6544-2917-4FFD-944B-1EF7DCA0560F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36AC6544-2917-4FFD-944B-1EF7DCA0560F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36AC6544-2917-4FFD-944B-1EF7DCA0560F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36AC6544-2917-4FFD-944B-1EF7DCA0560F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
