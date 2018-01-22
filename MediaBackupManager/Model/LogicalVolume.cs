@@ -33,6 +33,7 @@ namespace MediaBackupManager.Model
             GetLogicalDriveInformation();
         }
 
+        /// <summary>Determines the current drive of the object.</summary>
         public DriveInfo GetMountPoint()
         {
             var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{SerialNumber}'").Get();
@@ -51,6 +52,7 @@ namespace MediaBackupManager.Model
             return null;
         }
 
+        /// <summary>Populates internal properties from WMI.</summary>
         private void GetLogicalDriveInformation()
         {
             var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE Name = '{MountPoint.Replace("\\", "") }'").Get();

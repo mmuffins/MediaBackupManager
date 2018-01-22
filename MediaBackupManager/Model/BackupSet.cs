@@ -34,11 +34,12 @@ namespace MediaBackupManager.Model
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public void ScanFiles()
         {
-            //AddFileNode(new FileDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), this));
             IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
             //TODO:Write more efficient function to mass-add indexed files to the DB
         }
 
+        /// <summary>
+        /// Recursively adds the provided directory and subdirectories to the file index.</summary>
         private void IndexDirectory(DirectoryInfo directory)
         {
             // Call recursively to get all subdirectories
@@ -51,6 +52,8 @@ namespace MediaBackupManager.Model
             IndexFile(directory);
         }
 
+        /// <summary>
+        /// Scans all files found in the provided directory and adds them to the file index.</summary>
         private void IndexFile(DirectoryInfo directory)
         {
             foreach (var file in directory.GetFiles())
