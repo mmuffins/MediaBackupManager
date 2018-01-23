@@ -158,7 +158,7 @@ namespace MediaBackupManager.Model
                         res.Add(new LogicalVolume()
                         {
                             Label = reader["Label"].ToString(),
-                            Size = long.Parse(reader["Size"].ToString()),
+                            Size = ulong.Parse(reader["Size"].ToString()),
                             Type = (DriveType)Enum.Parse(typeof(DriveType), reader["Type"].ToString()),
                             VolumeName = reader["VolumeName"].ToString(),
                             SerialNumber = reader["SerialNumber"].ToString()

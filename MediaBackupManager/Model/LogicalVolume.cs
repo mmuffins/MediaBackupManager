@@ -18,7 +18,7 @@ namespace MediaBackupManager.Model
 
         // Logical Disk
         public string SerialNumber { get; set; }
-        public long Size { get; set; }
+        public ulong Size { get; set; }
         public DriveType Type { get; set; }
         public string VolumeName { get; set; }
 
@@ -30,6 +30,9 @@ namespace MediaBackupManager.Model
         public LogicalVolume(DirectoryInfo directory)
         {
             this.MountPoint = directory.Root.Name;
+            this.Label = directory.Root.Name;
+            this.VolumeName = directory.Root.Name;
+
             GetLogicalDriveInformation();
         }
 
@@ -63,9 +66,10 @@ namespace MediaBackupManager.Model
             foreach (var drive in w32LogicalDisk)
             {
                 // Since we are querying with a drive letter, the collection can only contain a single object
-                this.Size = long.Parse(drive["Size"].ToString());
+                this.Size = ulong.Parse(drive["Size"].ToString());
                 this.SerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
                 this.Type = (DriveType)Enum.Parse(typeof(DriveType), drive["DriveType"].ToString());
+                this.VolumeName = drive["VolumeName"].ToString();
             }
         }
 
@@ -81,9 +85,10 @@ namespace MediaBackupManager.Model
                 foreach (var drive in w32LogicalDisk)
                 {
                     // Since we are querying with a drive letter, the collection can only contain a single object
-                    this.Size = long.Parse(drive["Size"].ToString());
+                    this.Size = ulong.Parse(drive["Size"].ToString());
                     this.SerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
                     this.Type = (DriveType)Enum.Parse(typeof(DriveType), drive["DriveType"].ToString());
+                    this.VolumeName = drive["VolumeName"].ToString();
                 }
             });
 
