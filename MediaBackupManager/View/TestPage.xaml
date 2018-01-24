@@ -4,9 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaBackupManager.View"
+        xmlns:model="clr-namespace:MediaBackupManager.Model"
         mc:Ignorable="d"
-        Title="TestPage" Height="300" Width="300">
-    <Grid>
-        
-    </Grid>
+        Title="TestPage" Height="300" SizeToContent="WidthAndHeight" Width="300">
+    <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
+        <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="80">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type model:BackupSet}" ItemsSource="{Binding Path=BackupSets}">
+                    <TextBlock Text="{Binding RootDirectory}"/>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+            <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearData}"></Button>
+            <Button x:Name="btnLoadData" Content="Load" Command="{Binding LoadData}"></Button>
+            <Button x:Name="btnLoadAdditionalData" Content="Load 2" Command="{Binding LoadAdditionalData}"></Button>
+        </StackPanel>
+            <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" ItemsSource="{Binding Path=BackupSets.BackupSets}"></DataGrid>
+    </DockPanel>
 </Window>

@@ -28,6 +28,10 @@ namespace RelayCommand
             _canExecute = canExecute;
         }
 
+        public RelayCommand()
+        {
+        }
+
         public event EventHandler CanExecuteChanged
         {
             add

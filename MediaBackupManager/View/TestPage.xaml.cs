@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,29 +22,15 @@ namespace MediaBackupManager.View
     /// </summary>
     public partial class TestPage : Window
     {
-        FileIndex fileIndex;
+        //FileIndex fileIndex;
+        TestPageViewModel mvvm = new TestPageViewModel();
 
         public TestPage()
         {
             InitializeComponent();
-            this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
-            FileIndex.LoadData();
-
-            //Database.CreateDatabase();
-
-
-            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
-            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
-
-            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
-            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
-
-
-            for (int i = FileIndex.BackupSets.Count - 1; i >= 0 ; i--)
-            {
-                var deleteElement = FileIndex.BackupSets.ElementAt(i);
-                FileIndex.RemoveBackupSet(deleteElement);
-            }
+            this.DataContext = mvvm;
+            //this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
         }
+
     }
 }
