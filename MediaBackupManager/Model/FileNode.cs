@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Represents the location of a BackupFile object in the file system.</summary>  
+    /// Represents the location of a FileHash object in the file system.</summary>  
 
     class FileNode : FileDirectory
     {
         // File Properties
         public string Name { get; set; }
         public string Extension { get; set; }
-        public BackupFile File { get; set; }
+        public FileHash File { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
         public override string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName, Name); }
@@ -26,7 +26,7 @@ namespace MediaBackupManager.Model
 
         public FileNode() { }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet, BackupFile file)
+        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file)
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
@@ -35,14 +35,15 @@ namespace MediaBackupManager.Model
             this.File = file;
         }
 
-        public FileNode(string fileName, BackupSet backupSet, BackupFile file)
+        public FileNode(string fileName, BackupSet backupSet, FileHash file)
             : this(new FileInfo(fileName), backupSet, file) { }
 
-        /// <summary>Removes the reference to this node from the linked BackupFile object.</summary>
+        /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
         public override void RemoveFileReference()
         {
-            if(!(this.File is null)) // If the current object refers to a directory it has no file
-                this.File.RemoveNode(this);
+            if (!(this.File is null)) // If the current object refers to a directory it has no file
+                this.BackupSet.FileIndex.RemoveFileNode(this);
+                //this.File.RemoveNode(this);
         }
 
         public override int GetHashCode()

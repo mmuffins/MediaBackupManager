@@ -41,10 +41,10 @@ namespace MediaBackupManager.ViewModel
 
         private void ClearData_Execute(object obj)
         {
-            for (int i = FileIndex.BackupSets.Count - 1; i >= 0; i--)
+            for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
             {
-                var deleteElement = FileIndex.BackupSets.ElementAt(i);
-                FileIndex.RemoveBackupSet(deleteElement);
+                var deleteElement = Index.BackupSets.ElementAt(i);
+                Index.RemoveBackupSet(deleteElement);
             }
         }
 
@@ -68,7 +68,7 @@ namespace MediaBackupManager.ViewModel
 
         private void LoadData_Execute(object obj)
         {
-            FileIndex.LoadData();
+            Index.LoadData();
         }
 
         private RelayCommand.RelayCommand loadAdditionalData;
@@ -86,11 +86,11 @@ namespace MediaBackupManager.ViewModel
 
         private void LoadAdditionalData_Execute(object obj)
         {
-            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
-            FileIndex.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
+            Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
+            Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
 
-            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
-            FileIndex.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
+            Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
         }
 
         private bool LoadAdditionalData_CanExecute(object obj)

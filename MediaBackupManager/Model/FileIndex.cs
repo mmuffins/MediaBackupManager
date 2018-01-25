@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Manages a collection of BackupFile objects.</summary>  
+    /// Manages a collection of FileHash objects.</summary>  
 
     class FileIndex
     {
-        static Dictionary<string, BackupFile> files = new Dictionary<string, BackupFile>();
-        public static Dictionary<string, BackupFile> Files { get => files; }
+        Dictionary<string, FileHash> files = new Dictionary<string, FileHash>();
+        public  Dictionary<string, FileHash> Files { get => files; }
 
-        static List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
-        public static List<LogicalVolume> LogicalVolumes { get => logicalVolumes; }
+        List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
+        public List<LogicalVolume> LogicalVolumes { get => logicalVolumes; }
 
-        static List<BackupSet> backupSets = new List<BackupSet>();
-        public static List<BackupSet> BackupSets { get => backupSets; }
+        List<BackupSet> backupSets = new List<BackupSet>();
+        public List<BackupSet> BackupSets { get => backupSets; }
 
         static FileIndex()
         {
@@ -29,18 +29,18 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
-        public static void LoadData()
+        public void LoadData()
         {
             // To properly create all needed relations, the objects should
             // be loaded in the following order:
-            // LogicalVolume => BackupFile => BackupSet
+            // LogicalVolume => FileHash => BackupSet
             // FileNodes will be automatically loaded with the backup sets
 
 
             logicalVolumes = Database.GetLogicalVolume();
             RefreshMountPoints();
 
-            files = Database.GetBackupFile()
+            files = Database.GetFileHash()
                 .Select(x => new { Key = x.CheckSum, Item = x })
                 .ToDictionary(x => x.Key, x => x.Item);
 
@@ -51,7 +51,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Refreshes the mount points for all logical volumes in the collection.</summary>  
-        private static void RefreshMountPoints()
+        private void RefreshMountPoints()
         {
             foreach (var item in LogicalVolumes)
             {
@@ -65,7 +65,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public static void IndexDirectory(DirectoryInfo dir)
+        public void IndexDirectory(DirectoryInfo dir)
         {
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
                 return;
@@ -73,14 +73,14 @@ namespace MediaBackupManager.Model
             var newDrive = new LogicalVolume(dir);
             AddLogicalVolume(newDrive);
             
-            var scanSet = new BackupSet(dir, newDrive);
+            var scanSet = new BackupSet(dir, newDrive, this);
             AddBackupSet(scanSet);
             scanSet.ScanFiles();
         }
 
         /// <summary>
         /// Adds the specified backup set to the local collection.</summary>  
-        private static void AddBackupSet(BackupSet backupSet)
+        private void AddBackupSet(BackupSet backupSet)
         {
             BackupSets.Add(backupSet);
             Database.InsertBackupSet(backupSet);
@@ -88,7 +88,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified logical volume to the local collection.</summary>  
-        private static void AddLogicalVolume(LogicalVolume logicalVolume)
+        private void AddLogicalVolume(LogicalVolume logicalVolume)
         {
             if (!LogicalVolumes.Contains(logicalVolume))
             {
@@ -99,9 +99,9 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified file to the file index and returns its reference.</summary>  
-        public static BackupFile IndexFile(string fileName)
+        public FileHash IndexFile(string fileName)
         {
-            string checkSum = BackupFile.CalculateChecksum(fileName);
+            string checkSum = FileHash.CalculateChecksum(fileName);
 
             if (Files.ContainsKey(checkSum))
             {
@@ -109,17 +109,18 @@ namespace MediaBackupManager.Model
             }
             else
             {
-                var newFile = new BackupFile(fileName, checkSum);
+                var newFile = new FileHash(fileName, checkSum);
                 Files.Add(checkSum, newFile);
-                Database.InsertBackupFile(newFile);
+                Database.InsertFileHash(newFile);
                 return newFile;
             }
         }
 
         /// <summary>
         /// Adds the specified file to the file index and returns its reference.</summary>  
-        public static BackupFile IndexFile(BackupFile file)
+        public FileHash IndexFile(FileHash file)
         {
+
             if (Files.ContainsKey(file.CheckSum))
             {
                 return Files[file.CheckSum];
@@ -127,23 +128,36 @@ namespace MediaBackupManager.Model
             else
             {
                 Files.Add(file.CheckSum, file);
-                Database.InsertBackupFile(file);
+                Database.InsertFileHash(file);
                 return file;
             }
         }
 
         /// <summary>
         /// Removes the specified file from the file index.</summary>  
-        public static void RemoveFile(BackupFile file)
+        public void RemoveFile(FileHash file)
         {
             Files.Remove(file.CheckSum);
-            Database.DeleteBackupFile(file);
+            Database.DeleteFileHash(file);
+        }
+
+        /// <summary>
+        /// Removes a file node for a backup file. The file will automatically removed if the last file node was removed.</summary>  
+        public void RemoveFileNode(FileNode node)
+        {
+            FileHash removeFile;
+            if(Files.TryGetValue(node.File.CheckSum, out removeFile))
+            {
+                removeFile.RemoveNode(node);
+                if (removeFile.NodeCount > 1)
+                    RemoveFile(removeFile);
+            }
         }
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
         /// <param name="item">The object to be removed.</param>
-        public static void RemoveBackupSet(BackupSet item)
+        public void RemoveBackupSet(BackupSet item)
         {
             if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
             {
@@ -160,7 +174,7 @@ namespace MediaBackupManager.Model
         /// <summary>
         /// Removes the specified logical volume.</summary>  
         /// <param name="item">The object to be removed.</param>
-        public static void RemoveLogicalVolume(LogicalVolume volume)
+        public void RemoveLogicalVolume(LogicalVolume volume)
         {
             LogicalVolumes.Remove(volume);
             Database.DeleteLogicalVolume(volume);
@@ -168,7 +182,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Determines whether the provided directory is already indexed in one of the backup sets.</summary>  
-        public static bool ContainsDirectory(DirectoryInfo dir)
+        public bool ContainsDirectory(DirectoryInfo dir)
         {
             bool result = false;
 
@@ -186,7 +200,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Determines whether the provided directory is a parent of one of the backup sets.</summary>  
-        public static bool IsSubsetOf(DirectoryInfo dir)
+        public bool IsSubsetOf(DirectoryInfo dir)
         {
             bool result = false;
 

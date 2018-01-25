@@ -15,8 +15,8 @@ namespace MediaBackupManager.ViewModel
 
         public BackupSetViewModel()
         {
-            //FileIndex.LoadData();
-            this.backupSets = new ObservableCollection<BackupSet>(FileIndex.BackupSets);
+            //FileIndex.LoadDatau
+            //this.backupSets = new ObservableCollection<BackupSet>(FileIndex.BackupSets);
             //var ab
         }
     }

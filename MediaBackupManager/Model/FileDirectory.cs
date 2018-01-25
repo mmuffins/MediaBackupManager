@@ -35,10 +35,10 @@ namespace MediaBackupManager.Model
         public FileDirectory(string directoryName, BackupSet backupSet)
             : this(new DirectoryInfo(directoryName), backupSet) { }
 
-        // FileDirectory objects don't have any backupfile references,
+        // FileDirectory objects don't have any FileHash references,
         // so the class is not implemented here, but still needed for
         // compatibility reasons
-        /// <summary>Removes the reference to this node from the linked BackupFile object.</summary>
+        /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
         public virtual void RemoveFileReference() { }
 
         public override string ToString()

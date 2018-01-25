@@ -11,7 +11,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Virtual representation of a file in one or multiple backup set.</summary>  
-    class BackupFile : IEquatable<BackupFile>
+    class FileHash : IEquatable<FileHash>
     {
         public long Length { get; set; }
         public DateTime CreationTime { get; set; }
@@ -21,12 +21,12 @@ namespace MediaBackupManager.Model
         public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
-        public BackupFile()
+        public FileHash()
         {
             this.Nodes = new HashSet<FileNode>();
         }
 
-        public BackupFile(FileInfo fileInfo, string checkSum) : this()
+        public FileHash(FileInfo fileInfo, string checkSum) : this()
         {
             this.Length = fileInfo.Length;
             this.CreationTime = fileInfo.CreationTime;
@@ -34,9 +34,9 @@ namespace MediaBackupManager.Model
             this.CheckSum = checkSum;
         }
 
-        public BackupFile(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }
+        public FileHash(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }
 
-        public BackupFile(string checkSum, long fileLength, DateTime creationTime, DateTime lastWriteTime) : this()
+        public FileHash(string checkSum, long fileLength, DateTime creationTime, DateTime lastWriteTime) : this()
         {
             this.Length = fileLength;
             this.CreationTime = creationTime;
@@ -69,8 +69,8 @@ namespace MediaBackupManager.Model
         {
             Nodes.Remove(node);
 
-            if(Nodes.Count == 0)
-                FileIndex.RemoveFile(this);
+            //if(Nodes.Count == 0)
+            //    FileIndex.RemoveFile(this);
         }
 
         public override int GetHashCode()
@@ -78,7 +78,7 @@ namespace MediaBackupManager.Model
             return CheckSum.GetHashCode();
         }
 
-        public bool Equals(BackupFile other)
+        public bool Equals(FileHash other)
         {
             if (other == null)
                 return false;
@@ -91,7 +91,7 @@ namespace MediaBackupManager.Model
             if (obj == null)
                 return false;
 
-            BackupFile otherObj = obj as BackupFile;
+            FileHash otherObj = obj as FileHash;
             if (otherObj == null)
                 return false;
             else

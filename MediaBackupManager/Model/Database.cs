@@ -15,6 +15,8 @@ namespace MediaBackupManager.Model
         private const string fileName = "db.sqlite";
         private const string folderName = "MediaBackupManager";
 
+        public static FileIndex FileIndex { get; set; }
+
         public static string GetPath()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), folderName);
@@ -70,7 +72,7 @@ namespace MediaBackupManager.Model
                     ")";
                 sqlCmd.ExecuteNonQuery();
 
-                sqlCmd.CommandText = "CREATE TABLE BackupFile (" +
+                sqlCmd.CommandText = "CREATE TABLE FileHash (" +
                     "CheckSum TEXT PRIMARY KEY" +
                     ", Length INTEGER" +
                     ", CreationTime TEXT" +
@@ -225,15 +227,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Retrieves list of all backup files from the database.</summary>
-        public static List<BackupFile> GetBackupFile()
+        public static List<FileHash> GetFileHash()
         {
-            var res = new List<BackupFile>();
+            var res = new List<FileHash>();
 
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
-                sqlCmd.CommandText = "SELECT * FROM BackupFile";
+                sqlCmd.CommandText = "SELECT * FROM FileHash";
                 sqlCmd.CommandType = CommandType.Text;
 
                 dbConn.Open();
@@ -241,7 +243,7 @@ namespace MediaBackupManager.Model
                 {
                     while (reader.Read())
                     {
-                        res.Add(new BackupFile()
+                        res.Add(new FileHash()
                         {
                             CheckSum = reader["CheckSum"].ToString(),
                             CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
@@ -293,7 +295,7 @@ namespace MediaBackupManager.Model
                             ((FileNode)node).Extension = reader["Extension"].ToString();
 
                             // Make sure to also properly set the relations between nodes and files
-                            BackupFile file;
+                            FileHash file;
                             var crc = reader["File"].ToString();
                             FileIndex.Files.TryGetValue(crc, out file);
 
@@ -389,10 +391,10 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
-        public static void InsertBackupFile(BackupFile backupFile)
+        public static void InsertFileHash(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "INSERT INTO BackupFile (" +
+            sqlCmd.CommandText = "INSERT INTO FileHash (" +
                 "CheckSum" +
                 ", Length" +
                 ", CreationTime" +
@@ -411,10 +413,10 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@CreationTime", DbType.DateTime));
             sqlCmd.Parameters.Add(new SQLiteParameter("@LastWriteTime", DbType.DateTime));
 
-            sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
-            sqlCmd.Parameters["@Length"].Value = backupFile.Length;
-            sqlCmd.Parameters["@CreationTime"].Value = backupFile.CreationTime;
-            sqlCmd.Parameters["@LastWriteTime"].Value = backupFile.LastWriteTime;
+            sqlCmd.Parameters["@CheckSum"].Value = hash.CheckSum;
+            sqlCmd.Parameters["@Length"].Value = hash.Length;
+            sqlCmd.Parameters["@CreationTime"].Value = hash.CreationTime;
+            sqlCmd.Parameters["@LastWriteTime"].Value = hash.LastWriteTime;
 
             ExecuteNonQuery(sqlCmd);
         }
@@ -456,14 +458,14 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static void DeleteBackupFile(BackupFile backupFile)
+        public static void DeleteFileHash(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM BackupFile WHERE CheckSum = @CheckSum";
+            sqlCmd.CommandText = "DELETE FROM FileHash WHERE CheckSum = @CheckSum";
             sqlCmd.CommandType = CommandType.Text;
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
-            sqlCmd.Parameters["@CheckSum"].Value = backupFile.CheckSum;
+            sqlCmd.Parameters["@CheckSum"].Value = hash.CheckSum;
 
             ExecuteNonQuery(sqlCmd);
         }

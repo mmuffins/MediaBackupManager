@@ -11,6 +11,7 @@ namespace MediaBackupManager.Model
     /// Represents an index filesystem location.</summary>  
     class BackupSet
     {
+        public FileIndex FileIndex { get; set; }
         public Guid Guid { get; set; }
         public LogicalVolume Volume { get; set; }
         public string RootDirectory { get; set; }
@@ -23,11 +24,12 @@ namespace MediaBackupManager.Model
             this.FileNodes = new HashSet<FileDirectory>();
         }
 
-        public BackupSet(DirectoryInfo directory, LogicalVolume drive) : this()
+        public BackupSet(DirectoryInfo directory, LogicalVolume drive, FileIndex fileIndex) : this()
         {
             this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
+            this.FileIndex = FileIndex;
         }
 
         /// <summary>
@@ -60,10 +62,10 @@ namespace MediaBackupManager.Model
             {
                 // Make sure that the backup file is properly
                 // added to the index before creating a file node
-                BackupFile backupFile = FileIndex.IndexFile(file.FullName);
+                FileHash hash = FileIndex.IndexFile(file.FullName);
 
-                var fileNode = new FileNode(file, this, backupFile);
-                backupFile.AddNode(fileNode);
+                var fileNode = new FileNode(file, this, hash);
+                hash.AddNode(fileNode);
                 AddFileNode(fileNode);
             }
         }

@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,11 @@ namespace MediaBackupManager.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        MainWindowViewModel mvvm = new MainWindowViewModel();
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = mvvm;
             //App.Current.Properties["FileIndex"] = new FileIndex();
 
             var testPage = new TestPage();
@@ -30,5 +33,9 @@ namespace MediaBackupManager.View
             testPage.Show();
         }
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this.CommandBindings.Clear();
+        }
     }
 }
