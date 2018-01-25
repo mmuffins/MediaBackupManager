@@ -10,7 +10,7 @@ namespace MediaBackupManager.Model
     /// <summary>
     /// Manages a collection of FileHash objects.</summary>  
 
-    class FileIndex
+    public class FileIndex
     {
         Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
         public  Dictionary<string, FileHash> Hashes { get => hashes; }
@@ -31,35 +31,40 @@ namespace MediaBackupManager.Model
         /// Populates the index with data stored in the database.</summary>  
         public void LoadData()
         {
-            // To properly create all needed relations, the objects should
-            // be loaded in the following order:
-            // LogicalVolume => FileHash => BackupSet
-            // FileNodes will be automatically loaded with the backup sets
+            // Add the logical volume to the collection and
+            // refresh its mountpoint, then
+            // populate the set with filenodes and add 
+            // the related hashes to the index
 
+            this.backupSets = Database.GetBackupSet();
 
-            logicalVolumes = Database.GetLogicalVolume();
-            RefreshMountPoints();
+            foreach (var set in BackupSets)
+            {
+                if (!LogicalVolumes.Contains(set.Volume))
+                {
+                    LogicalVolumes.Add(set.Volume);
+                    RefreshMountPoint(set.Volume);
+                }
 
-            hashes = Database.GetFileHash()
-                .Select(x => new { Key = x.CheckSum, Item = x })
-                .ToDictionary(x => x.Key, x => x.Item);
-
-            backupSets = Database.GetBackupSet();
-
-            //var ab = Database.GetFileNode();
+                Database.LoadBackupSetNodes(set);
+            }
         }
 
         /// <summary>
-        /// Refreshes the mount points for all logical volumes in the collection.</summary>  
-        private void RefreshMountPoints()
+        /// Populates the specified BackupSet with data stored in the database.</summary>  
+        private void LoadBackupSetData()
         {
-            foreach (var item in LogicalVolumes)
+
+        }
+
+        /// <summary>
+        /// Refreshes the mount points for a logical volume in the collection.</summary>  
+        private void RefreshMountPoint(LogicalVolume volume)
+        {
+            DriveInfo mountPoint = volume.GetMountPoint();
+            if(!(mountPoint is null))
             {
-                DriveInfo mountPoint = item.GetMountPoint();
-                if(!(mountPoint is null))
-                {
-                    item.MountPoint = mountPoint.Name;
-                }
+                volume.MountPoint = mountPoint.Name;
             }
         }
 
@@ -67,6 +72,7 @@ namespace MediaBackupManager.Model
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public void IndexDirectory(DirectoryInfo dir)
         {
+            //TODO: Give the user a choice here
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
                 return;
 
@@ -120,7 +126,6 @@ namespace MediaBackupManager.Model
         /// Adds the specified file to the file index and returns its reference.</summary>  
         public FileHash IndexFile(FileHash file)
         {
-
             if (Hashes.ContainsKey(file.CheckSum))
             {
                 return Hashes[file.CheckSum];
@@ -134,15 +139,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Removes the specified file from the file index.</summary>  
-        public void RemoveFile(FileHash file)
+        /// Removes the specified hash from the file index.</summary>  
+        public void RemoveHash(FileHash hash)
         {
-            Hashes.Remove(file.CheckSum);
-            Database.DeleteFileHash(file);
+            Hashes.Remove(hash.CheckSum);
+            Database.DeleteFileHash(hash);
         }
 
         /// <summary>
-        /// Removes a file node for a backup file. The file will automatically removed if the last file node was removed.</summary>  
+        /// Removes a file node from the index. The related hash will be automatically removed if the last file node was removed.</summary>  
         public void RemoveFileNode(FileNode node)
         {
             FileHash removeFile;
@@ -150,7 +155,7 @@ namespace MediaBackupManager.Model
             {
                 removeFile.RemoveNode(node);
                 if (removeFile.NodeCount > 1)
-                    RemoveFile(removeFile);
+                    RemoveHash(removeFile);
             }
         }
 

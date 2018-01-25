@@ -11,7 +11,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a logical volume on a physical drive or network location</summary>  
-    class LogicalVolume : IEquatable<LogicalVolume>
+    public class LogicalVolume : IEquatable<LogicalVolume>
     {
         /// <summary>User defined label for the drive</summary>
         public string Label { get; set; }

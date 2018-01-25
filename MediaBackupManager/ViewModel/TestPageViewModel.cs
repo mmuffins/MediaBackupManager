@@ -12,8 +12,12 @@ namespace MediaBackupManager.ViewModel
 {
     class TestPageViewModel : ViewModelBase.ViewModelBase
     {
-        FileIndex fIndex = new FileIndex();
-        public FileIndex Index { get => fIndex; }
+        private FileIndex index;
+        public FileIndex Index
+        {
+            get { return index; }
+            set { index = value; }
+        }
 
         BackupSetViewModel backupSets = new BackupSetViewModel();
         public BackupSetViewModel BackupSets { get => backupSets; }
@@ -98,8 +102,9 @@ namespace MediaBackupManager.ViewModel
             return true;
         }
 
-        public TestPageViewModel()
+        public TestPageViewModel(FileIndex index)
         {
+            this.Index = index;
             //FileIndex.LoadData();
             //this.backupSets = new ObservableCollection<BackupSet>(FileIndex.BackupSets);
 
@@ -115,16 +120,6 @@ namespace MediaBackupManager.ViewModel
             //    var deleteElement = FileIndex.BackupSets.ElementAt(i);
             //    FileIndex.RemoveBackupSet(deleteElement);
             //}
-
-        }
-
-        private void btnClearData_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btnLoadAdditionalData_Click(object sender, RoutedEventArgs e)
-        {
 
         }
     }

@@ -15,7 +15,7 @@ namespace MediaBackupManager.Model
         private const string fileName = "db.sqlite";
         private const string folderName = "MediaBackupManager";
 
-        public static FileIndex FileIndex { get; set; }
+        public static FileIndex Index { get; set; }
 
         public static string GetPath()
         {
@@ -209,7 +209,8 @@ namespace MediaBackupManager.Model
                         var newSet = new BackupSet()
                         {
                             Guid = new Guid(reader["Guid"].ToString()),
-                            RootDirectory = reader["RootDirectory"].ToString()
+                            RootDirectory = reader["RootDirectory"].ToString(),
+                            FileIndex = Database.Index
                         };
 
                         // Load related objects
@@ -299,7 +300,7 @@ namespace MediaBackupManager.Model
                             // Make sure to also properly set the relations between nodes and files
                             FileHash file;
                             var crc = reader["File"].ToString();
-                            FileIndex.Hashes.TryGetValue(crc, out file);
+                            Index.Hashes.TryGetValue(crc, out file);
 
                             if(!(file is null))
                             {
@@ -525,6 +526,86 @@ namespace MediaBackupManager.Model
             sqlCmd.CommandType = CommandType.Text;
 
             ExecuteNonQuery(sqlCmd);
+        }
+
+        /// <summary>Populates the specified BackupSet with filenodes from the database.</summary>
+        public static void LoadBackupSetNodes(BackupSet backupSet)
+        {
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+                sqlCmd.CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
+                    " INNER JOIN FileHash h ON n.file = h.Checksum" +
+                    " WHERE BackupSet = @Guid";
+
+                sqlCmd.CommandType = CommandType.Text;
+                sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+                sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+
+                dbConn.Open();
+                using (var reader = sqlCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Each line contains both a file node and the related has
+                        // make sure that the hash is added to the index before creating the node
+
+                        FileHash hash;
+
+                        if (!Index.Hashes.TryGetValue(reader["CheckSum"].ToString(), out hash))
+                        {
+                            // Only create a new hash if it doesn't exist in the index yet
+                            hash = new FileHash()
+                            {
+                                CheckSum = reader["CheckSum"].ToString(),
+                                CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
+                                LastWriteTime = DateTime.Parse(reader["LastWriteTime"].ToString()),
+                                Length = long.Parse(reader["Length"].ToString())
+                            };
+
+                            Index.Hashes.Add(hash.CheckSum, hash);
+                        }
+
+                        var node = new FileDirectory();
+
+                        if (int.Parse(reader["NodeType"].ToString()) == 0)  // 0 => Directory, 1 => Node
+                        {
+                            node.DirectoryName = reader["DirectoryName"].ToString();
+                            node.BackupSet = backupSet;
+                        }
+                        else
+                        {
+                            // Filenode and FileDirectory are stored in the same table,
+                            // based on the nodetype we need to cast to the correct data type
+                            node = new FileNode();
+
+                            node.DirectoryName = reader["DirectoryName"].ToString();
+                            node.BackupSet = backupSet;
+                            ((FileNode)node).Name = reader["Name"].ToString();
+                            ((FileNode)node).Extension = reader["Extension"].ToString();
+
+                            // Make sure to also properly set the relations between nodes and files
+                            //FileHash file;
+                            //var crc = reader["File"].ToString();
+                            //Index.Hashes.TryGetValue(crc, out file);
+
+                            //if (!(file is null))
+                            //{
+                            //    ((FileNode)node).File = file;
+                            //    file.AddNode((FileNode)node);
+                            //}
+                            ((FileNode)node).File = hash;
+                            hash.AddNode(((FileNode)node));
+                            
+                        }
+
+                        // Don't use the AddFileNode function as it would 
+                        // try to rescan the nodes that we just downloaded 
+                        // right back to the database causing duplicate errors
+                        backupSet.FileNodes.Add(node);
+                    }
+                }
+            }
         }
     }
 }

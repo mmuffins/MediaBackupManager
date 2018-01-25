@@ -30,10 +30,6 @@ namespace MediaBackupManager.View
             //App.Current.Properties["FileIndex"] = index;
 
             mvvm = new MainWindowViewModel(index);
-
-            var testPage = new TestPage();
-            testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            testPage.Show();
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -9,7 +9,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a directory in the file system.</summary>  
-    class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>
+    public class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>
     {
         // Directory Properties
         public BackupSet BackupSet { get; set; }

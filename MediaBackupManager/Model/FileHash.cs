@@ -11,7 +11,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Virtual representation of a file in one or multiple backup set.</summary>  
-    class FileHash : IEquatable<FileHash>
+    public class FileHash : IEquatable<FileHash>
     {
         public long Length { get; set; }
         public DateTime CreationTime { get; set; }
@@ -35,15 +35,6 @@ namespace MediaBackupManager.Model
         }
 
         public FileHash(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }
-
-        public FileHash(string checkSum, long fileLength, DateTime creationTime, DateTime lastWriteTime) : this()
-        {
-            this.Length = fileLength;
-            this.CreationTime = creationTime;
-            this.LastWriteTime = lastWriteTime;
-            this.CheckSum = checkSum;
-        }
-
 
         /// <summary>Generates MD5 hash</summary>  
         /// <param name="filePath">The fully qualified or relative name of a physical file</param>

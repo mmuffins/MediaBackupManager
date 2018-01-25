@@ -22,14 +22,16 @@ namespace MediaBackupManager.View
     /// </summary>
     public partial class TestPage : Window
     {
-        FileIndex fileIndex;
-        TestPageViewModel mvvm = new TestPageViewModel();
+        FileIndex index;
+        TestPageViewModel mvvm;
 
-        public TestPage()
+        public TestPage(FileIndex index)
         {
             InitializeComponent();
+            this.index = index;
+            mvvm = new TestPageViewModel(index);
             this.DataContext = mvvm;
-            this.fileIndex = App.Current.Properties["FileIndex"] as FileIndex;
+            //this.index = App.Current.Properties["FileIndex"] as FileIndex;
         }
 
     }

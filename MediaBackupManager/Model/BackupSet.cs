@@ -9,7 +9,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents an index filesystem location.</summary>  
-    class BackupSet
+    public class BackupSet
     {
         public FileIndex FileIndex { get; set; }
         public Guid Guid { get; set; }
@@ -29,7 +29,7 @@ namespace MediaBackupManager.Model
             this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
-            this.FileIndex = FileIndex;
+            this.FileIndex = fileIndex;
         }
 
         /// <summary>
