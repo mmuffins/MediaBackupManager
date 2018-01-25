@@ -84,7 +84,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\BackupFile.cs" />
+    <Compile Include="Model\FileHash.cs" />
     <Compile Include="Model\BackupSet.cs" />
     <Compile Include="Model\Database.cs" />
     <Compile Include="Model\FileDirectory.cs" />

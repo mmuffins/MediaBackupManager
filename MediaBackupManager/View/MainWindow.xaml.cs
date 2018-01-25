@@ -21,12 +21,15 @@ namespace MediaBackupManager.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        MainWindowViewModel mvvm = new MainWindowViewModel();
+        MainWindowViewModel mvvm;
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = mvvm;
-            //App.Current.Properties["FileIndex"] = new FileIndex();
+            var index = new FileIndex();
+            //App.Current.Properties["FileIndex"] = index;
+
+            mvvm = new MainWindowViewModel(index);
 
             var testPage = new TestPage();
             testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;

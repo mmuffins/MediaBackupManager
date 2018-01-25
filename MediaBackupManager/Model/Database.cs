@@ -43,36 +43,38 @@ namespace MediaBackupManager.Model
             }).ConnectionString;
         }
 
+        /// <summary>Ensures that the database exists.</summary>
         public static void CreateDatabase()
         {
             string dbPath = GetFullName();
 
-            if (File.Exists(dbPath))
-                return;
-
             if (!Directory.Exists(GetPath()))
-            {
                 Directory.CreateDirectory(GetPath());
-            }
-            
-            //TODO: Explicitly create the Database
 
+            if (!(File.Exists(dbPath)))
+                SQLiteConnection.CreateFile(dbPath);
+        }
+
+        /// <summary>Ensures that all needed database objects are created.</summary>
+        public static void PrepareDatabase()
+        {
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
                 dbConn.Open();
 
-                sqlCmd.CommandText = "CREATE TABLE LogicalVolume (" +
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS LogicalVolume (" +
                     "SerialNumber TEXT PRIMARY KEY" +
                     ", Size INTEGER" +
                     ", Type INTEGER" +
                     ", VolumeName TEXT" +
                     ", Label TEXT" +
                     ")";
+
                 sqlCmd.ExecuteNonQuery();
 
-                sqlCmd.CommandText = "CREATE TABLE FileHash (" +
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileHash (" +
                     "CheckSum TEXT PRIMARY KEY" +
                     ", Length INTEGER" +
                     ", CreationTime TEXT" +
@@ -80,14 +82,14 @@ namespace MediaBackupManager.Model
                     ")";
                 sqlCmd.ExecuteNonQuery();
 
-                //sqlCmd.CommandText = "CREATE TABLE FileDirectory (" +
+                //sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileDirectory (" +
                 //    "Id TEXT PRIMARY KEY" +
                 //    ", Name TEXT" +
                 //    ", Drive TEXT" +
                 //    ")";
                 //sqlCmd.ExecuteNonQuery();
 
-                sqlCmd.CommandText = "CREATE TABLE FileNode (" +
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
                     "BackupSet TEXT NOT NULL" +
                     ", DirectoryName TEXT NOT NULL" +
                     ", Name TEXT" +
@@ -98,7 +100,7 @@ namespace MediaBackupManager.Model
                     ")";
                 sqlCmd.ExecuteNonQuery();
 
-                sqlCmd.CommandText = "CREATE TABLE BackupSet (" +
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS BackupSet (" +
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
                     ", RootDirectory TEXT" +
@@ -297,7 +299,7 @@ namespace MediaBackupManager.Model
                             // Make sure to also properly set the relations between nodes and files
                             FileHash file;
                             var crc = reader["File"].ToString();
-                            FileIndex.Files.TryGetValue(crc, out file);
+                            FileIndex.Hashes.TryGetValue(crc, out file);
 
                             if(!(file is null))
                             {

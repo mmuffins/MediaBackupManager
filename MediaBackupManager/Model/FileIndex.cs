@@ -12,8 +12,8 @@ namespace MediaBackupManager.Model
 
     class FileIndex
     {
-        Dictionary<string, FileHash> files = new Dictionary<string, FileHash>();
-        public  Dictionary<string, FileHash> Files { get => files; }
+        Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
+        public  Dictionary<string, FileHash> Hashes { get => hashes; }
 
         List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
         public List<LogicalVolume> LogicalVolumes { get => logicalVolumes; }
@@ -40,7 +40,7 @@ namespace MediaBackupManager.Model
             logicalVolumes = Database.GetLogicalVolume();
             RefreshMountPoints();
 
-            files = Database.GetFileHash()
+            hashes = Database.GetFileHash()
                 .Select(x => new { Key = x.CheckSum, Item = x })
                 .ToDictionary(x => x.Key, x => x.Item);
 
@@ -103,14 +103,14 @@ namespace MediaBackupManager.Model
         {
             string checkSum = FileHash.CalculateChecksum(fileName);
 
-            if (Files.ContainsKey(checkSum))
+            if (Hashes.ContainsKey(checkSum))
             {
-                return Files[checkSum];
+                return Hashes[checkSum];
             }
             else
             {
                 var newFile = new FileHash(fileName, checkSum);
-                Files.Add(checkSum, newFile);
+                Hashes.Add(checkSum, newFile);
                 Database.InsertFileHash(newFile);
                 return newFile;
             }
@@ -121,13 +121,13 @@ namespace MediaBackupManager.Model
         public FileHash IndexFile(FileHash file)
         {
 
-            if (Files.ContainsKey(file.CheckSum))
+            if (Hashes.ContainsKey(file.CheckSum))
             {
-                return Files[file.CheckSum];
+                return Hashes[file.CheckSum];
             }
             else
             {
-                Files.Add(file.CheckSum, file);
+                Hashes.Add(file.CheckSum, file);
                 Database.InsertFileHash(file);
                 return file;
             }
@@ -137,7 +137,7 @@ namespace MediaBackupManager.Model
         /// Removes the specified file from the file index.</summary>  
         public void RemoveFile(FileHash file)
         {
-            Files.Remove(file.CheckSum);
+            Hashes.Remove(file.CheckSum);
             Database.DeleteFileHash(file);
         }
 
@@ -146,7 +146,7 @@ namespace MediaBackupManager.Model
         public void RemoveFileNode(FileNode node)
         {
             FileHash removeFile;
-            if(Files.TryGetValue(node.File.CheckSum, out removeFile))
+            if(Hashes.TryGetValue(node.File.CheckSum, out removeFile))
             {
                 removeFile.RemoveNode(node);
                 if (removeFile.NodeCount > 1)
