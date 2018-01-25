@@ -52,6 +52,8 @@ namespace MediaBackupManager.Model
             {
                 Directory.CreateDirectory(GetPath());
             }
+            
+            //TODO: Explicitly create the Database
 
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
@@ -210,7 +212,7 @@ namespace MediaBackupManager.Model
                         newSet.Volume = GetLogicalVolume(reader["Volume"].ToString()).FirstOrDefault();
 
                         // Don't use the AddFileNode function as it would 
-                        // write the nodes that we just downloaded 
+                        // try to rescan the nodes that we just downloaded 
                         // right back to the database causing duplicate errors
                         GetFileNode(newSet).ForEach(n => newSet.FileNodes.Add(n));
 

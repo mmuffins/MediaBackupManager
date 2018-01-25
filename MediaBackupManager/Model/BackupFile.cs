@@ -36,6 +36,14 @@ namespace MediaBackupManager.Model
 
         public BackupFile(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }
 
+        public BackupFile(string checkSum, long fileLength, DateTime creationTime, DateTime lastWriteTime) : this()
+        {
+            this.Length = fileLength;
+            this.CreationTime = creationTime;
+            this.LastWriteTime = lastWriteTime;
+            this.CheckSum = checkSum;
+        }
+
 
         /// <summary>Generates MD5 hash</summary>  
         /// <param name="filePath">The fully qualified or relative name of a physical file</param>

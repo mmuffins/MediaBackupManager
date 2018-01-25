@@ -117,6 +117,22 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Adds the specified file to the file index and returns its reference.</summary>  
+        public static BackupFile IndexFile(BackupFile file)
+        {
+            if (Files.ContainsKey(file.CheckSum))
+            {
+                return Files[file.CheckSum];
+            }
+            else
+            {
+                Files.Add(file.CheckSum, file);
+                Database.InsertBackupFile(file);
+                return file;
+            }
+        }
+
+        /// <summary>
         /// Removes the specified file from the file index.</summary>  
         public static void RemoveFile(BackupFile file)
         {
