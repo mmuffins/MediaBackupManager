@@ -13,13 +13,19 @@ namespace MediaBackupManager.Model
     /// Virtual representation of a file in one or multiple backup set.</summary>  
     public class FileHash : IEquatable<FileHash>
     {
+        #region Properties
+
         public long Length { get; set; }
         public DateTime CreationTime { get; set; }
-        public DateTime LastWriteTime { get; set;  }
+        public DateTime LastWriteTime { get; set; }
         public string CheckSum { get; set; }
         public HashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
+
+        #endregion
+
+        #region Methods
 
         public FileHash()
         {
@@ -64,6 +70,10 @@ namespace MediaBackupManager.Model
             //    FileIndex.RemoveFile(this);
         }
 
+        #endregion
+
+        #region Implementations
+
         public override int GetHashCode()
         {
             return CheckSum.GetHashCode();
@@ -93,5 +103,7 @@ namespace MediaBackupManager.Model
         {
             return CheckSum;
         }
+
+        #endregion
     }
 }

@@ -11,6 +11,9 @@ namespace MediaBackupManager.Model
     /// Represents a directory in the file system.</summary>  
     public class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>
     {
+
+        #region Properties
+
         // Directory Properties
         public BackupSet BackupSet { get; set; }
 
@@ -23,6 +26,9 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName); }
 
+        #endregion
+
+        #region Methods
 
         public FileDirectory() { }
 
@@ -40,6 +46,10 @@ namespace MediaBackupManager.Model
         // compatibility reasons
         /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
         public virtual void RemoveFileReference() { }
+
+        #endregion
+
+        #region Implementations
 
         public override string ToString()
         {
@@ -76,6 +86,8 @@ namespace MediaBackupManager.Model
         {
             return DirectoryName.CompareTo(other.DirectoryName);
         }
+
+        #endregion
     }
 }
 

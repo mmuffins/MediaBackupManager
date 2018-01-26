@@ -11,6 +11,22 @@ namespace MediaBackupManager.ViewModel
 {
     class MainWindowViewModel
     {
+        #region Fields
+
+        #endregion
+
+        #region Properties
+
+        #endregion
+
+        #region Methods
+
+        #endregion
+
+        #region Implementations
+
+        #endregion
+
         private FileIndex index;
         public FileIndex Index
         {
@@ -33,8 +49,12 @@ namespace MediaBackupManager.ViewModel
         private void PrepareDatabase(FileIndex index)
         {
             Database.Index = index;
-            Database.CreateDatabase();
+            bool newDB = Database.CreateDatabase();
             Database.PrepareDatabase();
+
+            // Add the default exclusions if a new db was created
+            if (newDB)
+                index.RestoreDefaultExclusions();
         }
     }
 }

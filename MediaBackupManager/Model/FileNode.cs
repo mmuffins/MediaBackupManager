@@ -12,6 +12,9 @@ namespace MediaBackupManager.Model
 
     public class FileNode : FileDirectory
     {
+
+        #region Properties
+
         // File Properties
         public string Name { get; set; }
         public string Extension { get; set; }
@@ -23,6 +26,9 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
+        #endregion
+
+        #region Methods
 
         public FileNode() { }
 
@@ -42,9 +48,13 @@ namespace MediaBackupManager.Model
         public override void RemoveFileReference()
         {
             if (!(this.File is null)) // If the current object refers to a directory it has no file
-                this.BackupSet.FileIndex.RemoveFileNode(this);
-                //this.File.RemoveNode(this);
+                this.BackupSet.Index.RemoveFileNode(this);
+            //this.File.RemoveNode(this);
         }
+
+        #endregion
+
+        #region Implementations
 
         public override int GetHashCode()
         {
@@ -77,5 +87,7 @@ namespace MediaBackupManager.Model
         {
             return (DirectoryName + Name).CompareTo((other.DirectoryName + other.Name));
         }
+
+        #endregion
     }
 }

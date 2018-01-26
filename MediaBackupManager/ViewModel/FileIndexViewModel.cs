@@ -9,6 +9,23 @@ namespace MediaBackupManager.ViewModel
 {
     class FileIndexViewModel : ViewModelBase.ViewModelBase
     {
+
+        #region Fields
+
+        #endregion
+
+        #region Properties
+
+        #endregion
+
+        #region Methods
+
+        #endregion
+
+        #region Implementations
+
+        #endregion
+
         FileIndex index = new FileIndex();
         public FileIndex Index { get; set; }
 

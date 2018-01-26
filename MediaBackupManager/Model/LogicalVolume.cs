@@ -13,6 +13,8 @@ namespace MediaBackupManager.Model
     /// Represents a logical volume on a physical drive or network location</summary>  
     public class LogicalVolume : IEquatable<LogicalVolume>
     {
+        #region Properties
+
         /// <summary>User defined label for the drive</summary>
         public string Label { get; set; }
 
@@ -24,6 +26,10 @@ namespace MediaBackupManager.Model
 
         /// <summary>Mount point or drive letter, only valid in the current session.</summary>
         public string MountPoint { get; set; }
+
+        #endregion
+
+        #region Methods
 
         public LogicalVolume() { }
 
@@ -48,7 +54,7 @@ namespace MediaBackupManager.Model
             foreach (var drive in w32LogicalDisk)
             {
                 // Since we are querying by volume label, the collection can only contain a single object
-                if(!string.IsNullOrWhiteSpace(drive["Name"].ToString()))
+                if (!string.IsNullOrWhiteSpace(drive["Name"].ToString()))
                     return new DriveInfo(drive["Name"].ToString());
             }
 
@@ -95,6 +101,10 @@ namespace MediaBackupManager.Model
             return;
         }
 
+        #endregion
+
+        #region Implementations
+
         public override string ToString()
         {
             return SerialNumber;
@@ -124,5 +134,9 @@ namespace MediaBackupManager.Model
             else
                 return Equals(otherObj);
         }
+
+        #endregion
+
+
     }
 }

@@ -90,11 +90,17 @@ namespace MediaBackupManager.ViewModel
 
         private void LoadAdditionalData_Execute(object obj)
         {
+
+            //Index.IndexDirectory(new DirectoryInfo(@"F:\NZB"));
+            //Index.IndexDirectory(new DirectoryInfo(@"F:\Archive"));
+
             Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
             Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
 
             Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
             Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+
+
         }
 
         private bool LoadAdditionalData_CanExecute(object obj)

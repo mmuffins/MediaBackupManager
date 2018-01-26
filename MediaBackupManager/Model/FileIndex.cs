@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MediaBackupManager.Model
@@ -12,39 +13,55 @@ namespace MediaBackupManager.Model
 
     public class FileIndex
     {
-        Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
-        public  Dictionary<string, FileHash> Hashes { get => hashes; }
+        #region Fields
 
-        List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
-        public List<LogicalVolume> LogicalVolumes { get => logicalVolumes; }
+        //private Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
+        //private List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
+        //private List<BackupSet> backupSets = new List<BackupSet>();
+        //private HashSet<string> exclusions = new HashSet<string>();
 
-        List<BackupSet> backupSets = new List<BackupSet>();
-        public List<BackupSet> BackupSets { get => backupSets; }
+        #endregion
 
-        static FileIndex()
+        #region Properties
+
+        public Dictionary<string, FileHash> Hashes { get; private set; }
+        public List<LogicalVolume> LogicalVolumes { get; private set; }
+        public List<BackupSet> BackupSets { get; private set; }
+        public HashSet<string> Exclusions { get; private set; }
+
+        #endregion
+
+        #region Methods
+        public FileIndex()
         {
             //LoadData();
-            Database.CreateDatabase();
+            //Database.CreateDatabase();
+            this.Hashes = new Dictionary<string, FileHash>();
+            this.LogicalVolumes = new List<LogicalVolume>();
+            this.BackupSets = new List<BackupSet>();
+            this.Exclusions = new HashSet<string>();
         }
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
         public void LoadData()
         {
-            // Add the logical volume to the collection and
-            // refresh its mountpoint, then
-            // populate the set with filenodes and add 
-            // the related hashes to the index
+            this.Exclusions = new HashSet<string>(Database.GetExclusions());
 
-            this.backupSets = Database.GetBackupSet();
+            this.BackupSets = Database.GetBackupSet();
 
             foreach (var set in BackupSets)
             {
+                // Add the logical volume to the collection and
+                // refresh its mountpoint
                 if (!LogicalVolumes.Contains(set.Volume))
                 {
                     LogicalVolumes.Add(set.Volume);
                     RefreshMountPoint(set.Volume);
                 }
+
+                // populate the set with filenodes and add 
+                // the related hashes to the index                
                 Database.LoadBackupSetNodes(set);
             }
         }
@@ -64,8 +81,12 @@ namespace MediaBackupManager.Model
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
         public void IndexDirectory(DirectoryInfo dir)
         {
-            //TODO: Give the user a choice here
+            //TODO: Promt the user on what to do when the directory is already indexed
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
+                return;
+
+            //TODO: Inform the user if he tries to add a root directory on the exclusion list
+            if (IsFileExcluded(dir.FullName))
                 return;
 
             var newDrive = new LogicalVolume(dir);
@@ -92,6 +113,16 @@ namespace MediaBackupManager.Model
             {
                 LogicalVolumes.Add(logicalVolume);
                 Database.InsertLogicalVolume(logicalVolume);
+            }
+        }
+
+        /// <summary>
+        /// Adds the specified string collection of file exclusions.</summary>  
+        private void AddExclusion(string exclusion)
+        {
+            if (Exclusions.Add(exclusion))
+            {
+                Database.InsertExclusion(exclusion);
             }
         }
 
@@ -160,7 +191,6 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
-        /// <param name="item">The object to be removed.</param>
         public void RemoveBackupSet(BackupSet item)
         {
             if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
@@ -177,11 +207,18 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Removes the specified logical volume.</summary>  
-        /// <param name="item">The object to be removed.</param>
         public void RemoveLogicalVolume(LogicalVolume volume)
         {
             LogicalVolumes.Remove(volume);
             Database.DeleteLogicalVolume(volume);
+        }
+
+        /// <summary>
+        /// Removes the specified exclusion.</summary>  
+        public void RemoveExclusion(string exclusion)
+        {
+            Exclusions.Remove(exclusion);
+            Database.DeleteExclusion(exclusion);
         }
 
         /// <summary>
@@ -218,5 +255,34 @@ namespace MediaBackupManager.Model
             }
             return result;
         }
+
+        /// <summary>
+        /// Adds the default exclusions to the collection if they don't already exist.</summary>  
+        public void RestoreDefaultExclusions()
+        {
+            //TODO:Remove test exclusions before going live
+            AddExclusion(@".*usrclass.dat.log.*");
+            AddExclusion(@".*\\nzb.*");
+            AddExclusion(@".*\\filme.*");
+            AddExclusion(@".*\.zip");
+        }
+
+        /// <summary>
+        /// Determines whether the provided file or directory is excluded based on the file exclusion list.</summary>  
+        public bool IsFileExcluded(string path)
+        {
+            foreach (var item in Exclusions)
+            {
+                if (Regex.IsMatch(path, item, RegexOptions.IgnoreCase))
+                    return true;
+
+                //var dd = Regex.IsMatch("F:\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
+                //dd = Regex.IsMatch("F:\\SomeDir\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
+                //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
+            }
+            return false;
+        }
+
+        #endregion
     }
 }

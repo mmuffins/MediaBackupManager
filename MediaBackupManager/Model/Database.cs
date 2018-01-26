@@ -12,10 +12,20 @@ namespace MediaBackupManager.Model
 {
     static class Database
     {
+        #region Fields
+
         private const string fileName = "db.sqlite";
         private const string folderName = "MediaBackupManager";
 
+        #endregion
+
+        #region Properties
+
         public static FileIndex Index { get; set; }
+
+        #endregion
+
+        #region Methods
 
         public static string GetPath()
         {
@@ -44,7 +54,8 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Ensures that the database exists.</summary>
-        public static void CreateDatabase()
+        /// <returns>Returns true if a new database was created.</returns>
+        public static bool CreateDatabase()
         {
             string dbPath = GetFullName();
 
@@ -52,7 +63,11 @@ namespace MediaBackupManager.Model
                 Directory.CreateDirectory(GetPath());
 
             if (!(File.Exists(dbPath)))
+            {
                 SQLiteConnection.CreateFile(dbPath);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>Ensures that all needed database objects are created.</summary>
@@ -82,13 +97,6 @@ namespace MediaBackupManager.Model
                     ")";
                 sqlCmd.ExecuteNonQuery();
 
-                //sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileDirectory (" +
-                //    "Id TEXT PRIMARY KEY" +
-                //    ", Name TEXT" +
-                //    ", Drive TEXT" +
-                //    ")";
-                //sqlCmd.ExecuteNonQuery();
-
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
                     "BackupSet TEXT NOT NULL" +
                     ", DirectoryName TEXT NOT NULL" +
@@ -104,6 +112,11 @@ namespace MediaBackupManager.Model
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
                     ", RootDirectory TEXT" +
+                    ")";
+                sqlCmd.ExecuteNonQuery();
+
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS Exclusion (" +
+                    "Value TEXT PRIMARY KEY" +
                     ")";
                 sqlCmd.ExecuteNonQuery();
             }
@@ -210,7 +223,7 @@ namespace MediaBackupManager.Model
                         {
                             Guid = new Guid(reader["Guid"].ToString()),
                             RootDirectory = reader["RootDirectory"].ToString(),
-                            FileIndex = Database.Index
+                            Index = Database.Index
                         };
 
                         // Load related objects
@@ -260,6 +273,31 @@ namespace MediaBackupManager.Model
             return res;
         }
 
+
+        /// <summary>Retrieves list of all file exclusions from the database.</summary>
+        public static List<string> GetExclusions()
+        {
+            var res = new List<string>();
+
+            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            {
+                var sqlCmd = new SQLiteCommand(dbConn);
+
+                sqlCmd.CommandText = "SELECT * FROM Exclusion";
+                sqlCmd.CommandType = CommandType.Text;
+
+                dbConn.Open();
+                using (var reader = sqlCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        res.Add(reader["Value"].ToString());
+                    }
+                }
+            }
+
+            return res;
+        }
         /// <summary>Retrieves the specified FileDirectory and FileNode objects from the database.</summary>
         /// <param name="backupSet">Parent backup set of the nodes.</param>
         public static List<FileDirectory> GetFileNode(BackupSet backupSet)
@@ -302,7 +340,7 @@ namespace MediaBackupManager.Model
                             var crc = reader["File"].ToString();
                             Index.Hashes.TryGetValue(crc, out file);
 
-                            if(!(file is null))
+                            if (!(file is null))
                             {
                                 ((FileNode)node).File = file;
                                 file.AddNode((FileNode)node);
@@ -460,6 +498,24 @@ namespace MediaBackupManager.Model
             ExecuteNonQuery(sqlCmd);
         }
 
+        /// <summary>Inserts the specified object to the database.</summary>
+        public static void InsertExclusion(string exclusion)
+        {
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "INSERT INTO Exclusion (" +
+                "Value" +
+                ") VALUES (" +
+                "@Value" +
+                ")";
+
+            sqlCmd.CommandType = CommandType.Text;
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Value", DbType.String));
+            sqlCmd.Parameters["@Value"].Value = exclusion;
+
+            ExecuteNonQuery(sqlCmd);
+        }
+
         /// <summary>Deletes the specified object from the database.</summary>
         public static void DeleteFileHash(FileHash hash)
         {
@@ -515,7 +571,7 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
 
             // Only add name parameter if the provided object is of type fileNode
-            if(fileNode is FileNode)
+            if (fileNode is FileNode)
             {
                 cmdText.Append(" AND Name = @Name");
                 sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
@@ -524,6 +580,19 @@ namespace MediaBackupManager.Model
 
             sqlCmd.CommandText = cmdText.ToString();
             sqlCmd.CommandType = CommandType.Text;
+
+            ExecuteNonQuery(sqlCmd);
+        }
+
+        /// <summary>Deletes the specified object from the database.</summary>
+        public static void DeleteExclusion(string exclusion)
+        {
+            var sqlCmd = new SQLiteCommand();
+            sqlCmd.CommandText = "DELETE FROM Exclusion WHERE Value = @Value";
+            sqlCmd.CommandType = CommandType.Text;
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Value", DbType.String));
+            sqlCmd.Parameters["@Value"].Value = exclusion;
 
             ExecuteNonQuery(sqlCmd);
         }
@@ -596,7 +665,7 @@ namespace MediaBackupManager.Model
                             //}
                             ((FileNode)node).File = hash;
                             hash.AddNode(((FileNode)node));
-                            
+
                         }
 
                         // Don't use the AddFileNode function as it would 
@@ -607,5 +676,7 @@ namespace MediaBackupManager.Model
                 }
             }
         }
+
+        #endregion
     }
 }

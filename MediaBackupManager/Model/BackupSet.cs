@@ -11,13 +11,18 @@ namespace MediaBackupManager.Model
     /// Represents an index filesystem location.</summary>  
     public class BackupSet
     {
-        public FileIndex FileIndex { get; set; }
+        #region Properties
+
+        public FileIndex Index { get; set; }
         public Guid Guid { get; set; }
         public LogicalVolume Volume { get; set; }
         public string RootDirectory { get; set; }
         public string MountPoint { get => Volume.MountPoint; }
         public HashSet<FileDirectory> FileNodes { get; }
 
+        #endregion
+
+        #region Methods
         public BackupSet()
         {
             this.Guid = Guid.NewGuid();
@@ -29,7 +34,7 @@ namespace MediaBackupManager.Model
             this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
-            this.FileIndex = fileIndex;
+            this.Index = fileIndex;
         }
 
         /// <summary>
@@ -44,6 +49,9 @@ namespace MediaBackupManager.Model
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
         private void IndexDirectory(DirectoryInfo directory)
         {
+            if (Index.IsFileExcluded(directory.FullName))
+                return; //Don't index excluded directories at all
+
             // Call recursively to get all subdirectories
             foreach (var item in directory.GetDirectories())
                 IndexDirectory(item);
@@ -124,9 +132,15 @@ namespace MediaBackupManager.Model
             return RootDirectory.Contains(dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length));
         }
 
+        #endregion
+
+        #region Implementations
+
         public override string ToString()
         {
             return MountPoint + " " + RootDirectory;
         }
+
+        #endregion
     }
 }
