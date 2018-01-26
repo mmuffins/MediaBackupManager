@@ -99,7 +99,14 @@ namespace MediaBackupManager.Model
         /// Adds the specified file to the file index and returns its reference.</summary>  
         public FileHash IndexFile(string fileName)
         {
-            string checkSum = FileHash.CalculateChecksum(fileName);
+            string checkSum;
+            try { checkSum = FileHash.CalculateChecksum(fileName); }
+            catch (Exception)
+            {
+                // The file couldn't be hashed for some reason, don't add it to the index
+                //TODO: Inform the user that something went wrong
+                return null;
+            }
 
             if (Hashes.ContainsKey(checkSum))
             {

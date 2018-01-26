@@ -60,13 +60,19 @@ namespace MediaBackupManager.Model
         {
             foreach (var file in directory.GetFiles())
             {
+                if (Index.IsFileExcluded(file.FullName))
+                    continue;
+
                 // Make sure that the backup file is properly
                 // added to the index before creating a file node
-                FileHash hash = FileIndex.IndexFile(file.FullName);
+                FileHash hash = Index.IndexFile(file.FullName);
 
-                var fileNode = new FileNode(file, this, hash);
-                hash.AddNode(fileNode);
-                AddFileNode(fileNode);
+                if(!(hash is null))
+                {
+                    var fileNode = new FileNode(file, this, hash);
+                    hash.AddNode(fileNode);
+                    AddFileNode(fileNode);
+                }
             }
         }
 
