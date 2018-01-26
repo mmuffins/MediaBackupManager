@@ -45,16 +45,8 @@ namespace MediaBackupManager.Model
                     LogicalVolumes.Add(set.Volume);
                     RefreshMountPoint(set.Volume);
                 }
-
                 Database.LoadBackupSetNodes(set);
             }
-        }
-
-        /// <summary>
-        /// Populates the specified BackupSet with data stored in the database.</summary>  
-        private void LoadBackupSetData()
-        {
-
         }
 
         /// <summary>
@@ -154,7 +146,7 @@ namespace MediaBackupManager.Model
             if(Hashes.TryGetValue(node.File.CheckSum, out removeFile))
             {
                 removeFile.RemoveNode(node);
-                if (removeFile.NodeCount > 1)
+                if (removeFile.NodeCount <= 0)
                     RemoveHash(removeFile);
             }
         }
