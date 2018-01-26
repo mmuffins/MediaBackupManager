@@ -46,6 +46,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Scans all files below the root directory and adds them to the index.</summary>  
+        public async Task ScanFilesAsync()
+        {
+            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))));
+            return;
+            //TODO:Write more efficient function to mass-add indexed files to the DB
+        }
+
+        /// <summary>
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
         private void IndexDirectory(DirectoryInfo directory)
         {

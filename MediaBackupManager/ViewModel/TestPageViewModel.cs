@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -88,19 +89,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        private void LoadAdditionalData_Execute(object obj)
+        private async void LoadAdditionalData_Execute(object obj)
         {
 
             //Index.IndexDirectory(new DirectoryInfo(@"F:\NZB"));
-            //Index.IndexDirectory(new DirectoryInfo(@"F:\Archive"));
+            //await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
 
-            Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir\dd"));
-            Index.IndexDirectory(new DirectoryInfo(@"D:\indexdir"));
+            App.Current.Properties["cancelToken"] = new CancellationToken();
 
-            Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images"));
-            Index.IndexDirectory(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            //await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
+            await Index.IndexDirectoryAsync(new DirectoryInfo(@"D:\indexdir\dd"));
+            await Index.IndexDirectoryAsync(new DirectoryInfo(@"D:\indexdir"));
 
-
+            await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
+            await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
         }
 
         private bool LoadAdditionalData_CanExecute(object obj)

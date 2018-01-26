@@ -98,6 +98,26 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Adds the specified directory as new BackupSet to the file index.</summary>  
+        public async Task IndexDirectoryAsync(DirectoryInfo dir)
+        {
+            //TODO: Promt the user on what to do when the directory is already indexed
+            if (ContainsDirectory(dir) || IsSubsetOf(dir))
+                return;
+
+            //TODO: Inform the user if he tries to add a root directory on the exclusion list
+            if (IsFileExcluded(dir.FullName))
+                return;
+
+            var newDrive = new LogicalVolume(dir);
+            AddLogicalVolume(newDrive);
+
+            var scanSet = new BackupSet(dir, newDrive, this);
+            AddBackupSet(scanSet);
+            await scanSet.ScanFilesAsync();
+        }
+
+        /// <summary>
         /// Adds the specified backup set to the local collection.</summary>  
         private void AddBackupSet(BackupSet backupSet)
         {
@@ -130,8 +150,35 @@ namespace MediaBackupManager.Model
         /// Adds the specified file to the file index and returns its reference.</summary>  
         public FileHash IndexFile(string fileName)
         {
+
             string checkSum;
             try { checkSum = FileHash.CalculateChecksum(fileName); }
+            catch (Exception)
+            {
+                // The file couldn't be hashed for some reason, don't add it to the index
+                //TODO: Inform the user that something went wrong
+                return null;
+            }
+
+            if (Hashes.ContainsKey(checkSum))
+            {
+                return Hashes[checkSum];
+            }
+            else
+            {
+                var newFile = new FileHash(fileName, checkSum);
+                Hashes.Add(checkSum, newFile);
+                Database.InsertFileHash(newFile);
+                return newFile;
+            }
+        }
+
+        /// <summary>
+        /// Adds the specified file to the file index and returns its reference.</summary>  
+        public async Task<FileHash> IndexFileAsync(string fileName)
+        {
+            string checkSum;
+            try { checkSum = await Task<string>.Run(() => FileHash.CalculateChecksum(fileName)); }
             catch (Exception)
             {
                 // The file couldn't be hashed for some reason, don't add it to the index
