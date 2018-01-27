@@ -44,12 +44,12 @@ namespace MediaBackupManager.ViewModel
             return true;
         }
 
-        private void ClearData_Execute(object obj)
+        private async void ClearData_Execute(object obj)
         {
             for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
             {
                 var deleteElement = Index.BackupSets.ElementAt(i);
-                Index.RemoveBackupSet(deleteElement);
+                await Index.RemoveBackupSetAsync (deleteElement);
             }
         }
 
@@ -95,14 +95,24 @@ namespace MediaBackupManager.ViewModel
             //Index.IndexDirectory(new DirectoryInfo(@"F:\NZB"));
             //await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
 
-            App.Current.Properties["cancelToken"] = new CancellationToken();
+            var token = new CancellationToken();
+            App.Current.Properties["cancelToken"] = token;
 
-            //await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
-            await Index.IndexDirectoryAsync(new DirectoryInfo(@"D:\indexdir\dd"));
-            await Index.IndexDirectoryAsync(new DirectoryInfo(@"D:\indexdir"));
 
-            await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
-            await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            //await Database.BeginTransactionAsync();
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive\Anime\Anne Happy"));
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\dd"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir"));
+
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images2\b"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
+
+            //var stagingIndex = new FileIndex();
+            //await stagingIndex.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir"));
+            //Index.MergeFileIndex(stagingIndex);
+
         }
 
         private bool LoadAdditionalData_CanExecute(object obj)

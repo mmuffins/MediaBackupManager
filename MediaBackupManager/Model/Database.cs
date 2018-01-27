@@ -343,7 +343,7 @@ namespace MediaBackupManager.Model
 
                             if (!(file is null))
                             {
-                                ((FileNode)node).File = file;
+                                ((FileNode)node).Hash = file;
                                 file.AddNode((FileNode)node);
                             }
                         }
@@ -423,7 +423,7 @@ namespace MediaBackupManager.Model
                             //    ((FileNode)node).File = file;
                             //    file.AddNode((FileNode)node);
                             //}
-                            ((FileNode)node).File = hash;
+                            ((FileNode)node).Hash = hash;
                             hash.AddNode(((FileNode)node));
 
                         }
@@ -438,7 +438,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified FileDirectory or FileNode object to the database.</summary>
-        public static async Task InsertFileNode(FileDirectory fileNode)
+        public static async Task InsertFileNodeAsync(FileDirectory fileNode)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "INSERT INTO FileNode (" +
@@ -477,7 +477,7 @@ namespace MediaBackupManager.Model
             {
                 sqlCmd.Parameters["@Name"].Value = (fileNode as FileNode).Name;
                 sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
-                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).File.CheckSum;
+                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.CheckSum;
                 sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
                 sqlCmd.Parameters["@NodeType"].Value = 1;
             }
@@ -486,7 +486,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
-        public static async Task InsertBackupSet(BackupSet backupSet)
+        public static async Task InsertBackupSetAsync(BackupSet backupSet)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "INSERT INTO BackupSet (" +
@@ -513,7 +513,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
-        public static async Task InsertFileHash(FileHash hash)
+        public static async Task InsertFileHashAsync(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "INSERT INTO FileHash (" +
@@ -544,7 +544,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
-        public static async Task InsertLogicalVolume(LogicalVolume logicalVolume)
+        public static async Task InsertLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
             var sqlCmd = new SQLiteCommand();
 
@@ -580,7 +580,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Inserts the specified object to the database.</summary>
-        public static async Task InsertExclusion(string exclusion)
+        public static async Task InsertExclusionAsync(string exclusion)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "INSERT INTO Exclusion (" +
@@ -598,7 +598,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static async Task DeleteFileHash(FileHash hash)
+        public static async Task DeleteFileHashAsync(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "DELETE FROM FileHash WHERE CheckSum = @CheckSum";
@@ -611,7 +611,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static async Task DeleteLogicalVolume(LogicalVolume logicalVolume)
+        public static async Task DeleteLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "DELETE FROM LogicalVolume WHERE SerialNumber = @SerialNumber";
@@ -624,7 +624,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static async Task DeleteBackupSet(BackupSet backupSet)
+        public static async Task DeleteBackupSetAsync(BackupSet backupSet)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "DELETE FROM BackupSet WHERE Guid = @Guid";
@@ -637,7 +637,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static async Task DeleteFileNode(FileDirectory fileNode)
+        public static async Task DeleteFileNodeAsync(FileDirectory fileNode)
         {
             var sqlCmd = new SQLiteCommand();
             var cmdText = new StringBuilder("DELETE FROM FileNode WHERE");
@@ -666,7 +666,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Deletes the specified object from the database.</summary>
-        public static async Task DeleteExclusion(string exclusion)
+        public static async Task DeleteExclusionAsync(string exclusion)
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "DELETE FROM Exclusion WHERE Value = @Value";
@@ -832,7 +832,7 @@ namespace MediaBackupManager.Model
                             {
                                 sqlCmd.Parameters["@Name"].Value = (node as FileNode).Name;
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
-                                sqlCmd.Parameters["@File"].Value = (node as FileNode).File.CheckSum;
+                                sqlCmd.Parameters["@File"].Value = (node as FileNode).Hash.CheckSum;
                                 sqlCmd.Parameters["@BackupSet"].Value = (node as FileNode).BackupSet.Guid;
                                 sqlCmd.Parameters["@NodeType"].Value = 1;
                             }

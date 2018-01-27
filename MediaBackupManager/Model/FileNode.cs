@@ -18,7 +18,7 @@ namespace MediaBackupManager.Model
         // File Properties
         public string Name { get; set; }
         public string Extension { get; set; }
-        public FileHash File { get; set; }
+        public FileHash Hash { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
         public override string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName, Name); }
@@ -32,23 +32,27 @@ namespace MediaBackupManager.Model
 
         public FileNode() { }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file)
+        public FileNode(FileInfo fileInfo, BackupSet backupSet)
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
             this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
             this.BackupSet = backupSet;
-            this.File = file;
+        }
+
+        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file) : this (fileInfo, backupSet)
+        {
+            this.Hash = file;
         }
 
         public FileNode(string fileName, BackupSet backupSet, FileHash file)
             : this(new FileInfo(fileName), backupSet, file) { }
 
         /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
-        public override void RemoveFileReference()
+        public override async Task RemoveFileReferenceAsync()
         {
-            if (!(this.File is null)) // If the current object refers to a directory it has no file
-                this.BackupSet.Index.RemoveFileNode(this);
+            if (!(this.Hash is null)) // If the current object refers to a directory it has no file
+                await this.BackupSet.Index.RemoveFileNodeAsync(this);
             //this.File.RemoveNode(this);
         }
 

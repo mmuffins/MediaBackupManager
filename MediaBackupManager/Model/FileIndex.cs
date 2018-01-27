@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -79,15 +80,14 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public void IndexDirectory(DirectoryInfo dir)
+        public void CreateBackupSet(DirectoryInfo dir)
         {
-            //TODO: Promt the user on what to do when the directory is already indexed
+            //TODO: Remove this function if not needed anymore
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
                 return;
 
-            //TODO: Inform the user if he tries to add a root directory on the exclusion list
-            if (IsFileExcluded(dir.FullName))
-                return;
+            //if (IsFileExcluded(dir.FullName))
+            //    return;
 
             var newDrive = new LogicalVolume(dir);
             AddLogicalVolume(newDrive);
@@ -99,22 +99,34 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public async Task IndexDirectoryAsync(DirectoryInfo dir)
+        public async Task CreateBackupSetAsync(DirectoryInfo dir)
         {
+            if (!Directory.Exists(dir.FullName))
+                return;
+
             //TODO: Promt the user on what to do when the directory is already indexed
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
                 return;
 
+            var stagingVolume = new LogicalVolume(dir);
+            var stagingSet = new BackupSet(dir, stagingVolume, Exclusions);
+
+            //AddBackupSet(scanSet);
+            await stagingSet.ScanFilesAsync();
+
             //TODO: Inform the user if he tries to add a root directory on the exclusion list
-            if (IsFileExcluded(dir.FullName))
+            // There is either an issue with the provided directory or it's
+            // on the exclusion list. In either case, abort the function
+            if (stagingSet.FileNodes.Count == 0)
                 return;
 
-            var newDrive = new LogicalVolume(dir);
-            AddLogicalVolume(newDrive);
+            await stagingSet.HashFilesAsync();
 
-            var scanSet = new BackupSet(dir, newDrive, this);
-            AddBackupSet(scanSet);
-            await scanSet.ScanFilesAsync();
+            // At this point the staging set and all children have been properly created
+            // merge it into the main list and write new data into the db
+
+            await AppendBackupSetAsync(stagingSet);
+
         }
 
         /// <summary>
@@ -122,7 +134,7 @@ namespace MediaBackupManager.Model
         private void AddBackupSet(BackupSet backupSet)
         {
             BackupSets.Add(backupSet);
-            Database.InsertBackupSet(backupSet);
+            //Database.InsertBackupSet(backupSet);
         }
 
         /// <summary>
@@ -132,17 +144,17 @@ namespace MediaBackupManager.Model
             if (!LogicalVolumes.Contains(logicalVolume))
             {
                 LogicalVolumes.Add(logicalVolume);
-                Database.InsertLogicalVolume(logicalVolume);
+                //Database.InsertLogicalVolume(logicalVolume);
             }
         }
 
         /// <summary>
         /// Adds the specified string collection of file exclusions.</summary>  
-        private void AddExclusion(string exclusion)
+        private async Task AddExclusionAsync(string exclusion)
         {
             if (Exclusions.Add(exclusion))
             {
-                Database.InsertExclusion(exclusion);
+                await Database.InsertExclusionAsync(exclusion);
             }
         }
 
@@ -150,7 +162,7 @@ namespace MediaBackupManager.Model
         /// Adds the specified file to the file index and returns its reference.</summary>  
         public FileHash IndexFile(string fileName)
         {
-
+            //TODO: Not needed anymore?
             string checkSum;
             try { checkSum = FileHash.CalculateChecksum(fileName); }
             catch (Exception)
@@ -166,36 +178,10 @@ namespace MediaBackupManager.Model
             }
             else
             {
-                var newFile = new FileHash(fileName, checkSum);
-                Hashes.Add(checkSum, newFile);
-                Database.InsertFileHash(newFile);
-                return newFile;
-            }
-        }
-
-        /// <summary>
-        /// Adds the specified file to the file index and returns its reference.</summary>  
-        public async Task<FileHash> IndexFileAsync(string fileName)
-        {
-            string checkSum;
-            try { checkSum = await Task<string>.Run(() => FileHash.CalculateChecksum(fileName)); }
-            catch (Exception)
-            {
-                // The file couldn't be hashed for some reason, don't add it to the index
-                //TODO: Inform the user that something went wrong
-                return null;
-            }
-
-            if (Hashes.ContainsKey(checkSum))
-            {
-                return Hashes[checkSum];
-            }
-            else
-            {
-                var newFile = new FileHash(fileName, checkSum);
-                Hashes.Add(checkSum, newFile);
-                Database.InsertFileHash(newFile);
-                return newFile;
+                var newHash = new FileHash(fileName, checkSum);
+                Hashes.Add(checkSum, newHash);
+                //Database.InsertFileHash(newHash);
+                return newHash;
             }
         }
 
@@ -210,62 +196,62 @@ namespace MediaBackupManager.Model
             else
             {
                 Hashes.Add(file.CheckSum, file);
-                Database.InsertFileHash(file);
+                //Database.InsertFileHash(file);
                 return file;
             }
         }
 
         /// <summary>
         /// Removes the specified hash from the file index.</summary>  
-        public void RemoveHash(FileHash hash)
+        public async Task RemoveHashAsync(FileHash hash)
         {
             Hashes.Remove(hash.CheckSum);
-            Database.DeleteFileHash(hash);
+            await Database.DeleteFileHashAsync(hash);
         }
 
         /// <summary>
         /// Removes a file node from the index. The related hash will be automatically removed if the last file node was removed.</summary>  
-        public void RemoveFileNode(FileNode node)
+        public async Task RemoveFileNodeAsync(FileNode node)
         {
             FileHash removeFile;
-            if(Hashes.TryGetValue(node.File.CheckSum, out removeFile))
+            if(Hashes.TryGetValue(node.Hash.CheckSum, out removeFile))
             {
                 removeFile.RemoveNode(node);
                 if (removeFile.NodeCount <= 0)
-                    RemoveHash(removeFile);
+                    await RemoveHashAsync(removeFile);
             }
         }
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
-        public void RemoveBackupSet(BackupSet item)
+        public async Task RemoveBackupSetAsync(BackupSet item)
         {
             if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
-                RemoveLogicalVolume(item.Volume);
+                await RemoveLogicalVolumeAsync(item.Volume);
             }
 
-            item.Clear();
+            await item.ClearAsync();
             BackupSets.Remove(item);
-            Database.DeleteBackupSet(item);
+            await Database.DeleteBackupSetAsync (item);
         }
 
         /// <summary>
         /// Removes the specified logical volume.</summary>  
-        public void RemoveLogicalVolume(LogicalVolume volume)
+        public async Task RemoveLogicalVolumeAsync(LogicalVolume volume)
         {
             LogicalVolumes.Remove(volume);
-            Database.DeleteLogicalVolume(volume);
+            await Database.DeleteLogicalVolumeAsync(volume);
         }
 
         /// <summary>
         /// Removes the specified exclusion.</summary>  
-        public void RemoveExclusion(string exclusion)
+        public async Task RemoveExclusionAsync(string exclusion)
         {
             Exclusions.Remove(exclusion);
-            Database.DeleteExclusion(exclusion);
+            await Database.DeleteExclusionAsync(exclusion);
         }
 
         /// <summary>
@@ -305,29 +291,61 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
-        public void RestoreDefaultExclusions()
+        public async Task RestoreDefaultExclusionsAsync()
         {
             //TODO:Remove test exclusions before going live
-            AddExclusion(@".*usrclass.dat.log.*");
-            AddExclusion(@".*\\nzb.*");
-            AddExclusion(@".*\\filme.*");
-            AddExclusion(@".*\.zip");
+            await AddExclusionAsync(@".*usrclass.dat.log.*");
+            await AddExclusionAsync(@".*\\nzb.*");
+            await AddExclusionAsync(@".*\\filme.*");
+            await AddExclusionAsync(@".*\.zip");
         }
 
         /// <summary>
-        /// Determines whether the provided file or directory is excluded based on the file exclusion list.</summary>  
-        public bool IsFileExcluded(string path)
+        /// Appends the provided BackupSet to the index and writes new elements into the Database.</summary>  
+        public async Task AppendBackupSetAsync(BackupSet stagingSet)
         {
-            foreach (var item in Exclusions)
-            {
-                if (Regex.IsMatch(path, item, RegexOptions.IgnoreCase))
-                    return true;
+            // Hashes
+            // To prevent any issues, rebuild the hash index by looping through each filenode and
+            // reapplying the correct values/relations
+            var newHashes = new List<FileHash>();
 
-                //var dd = Regex.IsMatch("F:\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
-                //dd = Regex.IsMatch("F:\\SomeDir\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
-                //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
+            foreach (var file in stagingSet.FileNodes.OfType<FileNode>())
+            {
+                if (file.Hash is null)
+                    continue;
+
+                FileHash hash;
+                if (Hashes.TryGetValue(file.Hash.CheckSum, out hash))
+                {
+                    // Hash is already on the index, change the reference of the file node
+                    // and add the new node location to the hash
+                    hash.AddNode(file);
+                    file.Hash = hash;
+                }
+                else
+                {
+                    Hashes.Add(file.Hash.CheckSum, file.Hash);
+                    newHashes.Add(file.Hash); 
+                }
             }
-            return false;
+            await Database.BatchInsertFileHashAsync(newHashes);
+
+            // All filenodes are unique to a backup set so they can be added to the DB in any case
+            await Database.BatchInsertFileNodeAsync(stagingSet.FileNodes.ToList());
+
+            if (!LogicalVolumes.Contains(stagingSet.Volume))
+            {
+                LogicalVolumes.Add(stagingSet.Volume);
+                await Database.InsertLogicalVolumeAsync(stagingSet.Volume);
+            }
+            else
+            {
+                // Update the reference to make sure the set points to the correct object
+                stagingSet.Volume = LogicalVolumes.FirstOrDefault((x => x.Equals(stagingSet.Volume)));
+            }
+
+            BackupSets.Add(stagingSet);
+            await Database.InsertBackupSetAsync(stagingSet);
         }
 
         #endregion

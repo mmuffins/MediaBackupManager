@@ -37,7 +37,7 @@ namespace MediaBackupManager.ViewModel
         public MainWindowViewModel(FileIndex index)
         {
             this.Index = index;
-            PrepareDatabase(index);
+            PrepareDatabaseAsync(index);
             Index.LoadData();
 
             //TODO:Remove using directives for MediaBackupManager.View and System.Windows once done testing
@@ -46,7 +46,7 @@ namespace MediaBackupManager.ViewModel
             testPage.Show();
         }
 
-        private void PrepareDatabase(FileIndex index)
+        private async Task PrepareDatabaseAsync(FileIndex index)
         {
             Database.Index = index;
             bool newDB = Database.CreateDatabase();
@@ -54,7 +54,7 @@ namespace MediaBackupManager.ViewModel
 
             // Add the default exclusions if a new db was created
             if (newDB)
-                index.RestoreDefaultExclusions();
+                await index.RestoreDefaultExclusionsAsync();
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaBackupManager.Model
@@ -19,6 +22,7 @@ namespace MediaBackupManager.Model
         public string RootDirectory { get; set; }
         public string MountPoint { get => Volume.MountPoint; }
         public HashSet<FileDirectory> FileNodes { get; }
+        public HashSet<string> Exclusions { get; set; }
 
         #endregion
 
@@ -31,42 +35,52 @@ namespace MediaBackupManager.Model
 
         public BackupSet(DirectoryInfo directory, LogicalVolume drive, FileIndex fileIndex) : this()
         {
+            //TODO: Is this constructor still needed?
             this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
             this.Index = fileIndex;
         }
 
+        public BackupSet(DirectoryInfo directory, LogicalVolume drive, HashSet<string> exclusions) : this()
+        {
+            this.Volume = drive;
+            //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
+            this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
+            this.Exclusions = exclusions;
+        }
+
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public void ScanFiles()
         {
+            //TODO: Remove this function if not needed anymore
             IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
-            //TODO:Write more efficient function to mass-add indexed files to the DB
         }
 
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public async Task ScanFilesAsync()
         {
-            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))));
+            if (IsFileExcluded((Path.Combine(MountPoint, RootDirectory)).ToString()))
+                return;
+
+            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))), (CancellationToken)App.Current.Properties["cancelToken"]);
             return;
-            //TODO:Write more efficient function to mass-add indexed files to the DB
         }
 
         /// <summary>
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
         private void IndexDirectory(DirectoryInfo directory)
         {
-            if (Index.IsFileExcluded(directory.FullName))
+            if (IsFileExcluded(directory.FullName))
                 return; //Don't index excluded directories at all
 
             // Call recursively to get all subdirectories
             foreach (var item in directory.GetDirectories())
                 IndexDirectory(item);
 
-            var dir = new FileDirectory(directory, this);
-            AddFileNode(dir);
+            FileNodes.Add(new FileDirectory(directory, this));
 
             IndexFile(directory);
         }
@@ -77,19 +91,21 @@ namespace MediaBackupManager.Model
         {
             foreach (var file in directory.GetFiles())
             {
-                if (Index.IsFileExcluded(file.FullName))
+                if (IsFileExcluded(file.FullName))
                     continue;
 
                 // Make sure that the backup file is properly
                 // added to the index before creating a file node
-                FileHash hash = Index.IndexFile(file.FullName);
+                //FileHash hash = Index.IndexFile(file.FullName);
 
-                if(!(hash is null))
-                {
-                    var fileNode = new FileNode(file, this, hash);
-                    hash.AddNode(fileNode);
-                    AddFileNode(fileNode);
-                }
+                //if(!(hash is null))
+                //{
+                //    var fileNode = new FileNode(file, this, hash);
+                //    hash.AddNode(fileNode);
+                //    AddFileNode(fileNode);
+                //}
+
+                FileNodes.Add(new FileNode(file, this));
             }
         }
 
@@ -97,26 +113,64 @@ namespace MediaBackupManager.Model
         /// Adds the specified element to the file node index.</summary>  
         private void AddFileNode(FileDirectory node)
         {
+            //TODO: Not needed anymore?
             if (node is FileNode)
             {
                 FileNodes.Add(node);
-                Database.InsertFileNode(node as FileNode);
+                //Database.InsertFileNode(node as FileNode);
             }
             else
             {
                 FileNodes.Add(node);
-                Database.InsertFileNode(node as FileDirectory);
+                //Database.InsertFileNode(node as FileDirectory);
             }
         }
 
         /// <summary>
+        /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
+        public async Task HashFilesAsync()
+        {
+            await Task.Run(() =>
+            {
+                foreach (FileNode node in FileNodes.OfType<FileNode>())
+                {
+                    string checkSum;
+                    try { checkSum = FileHash.CalculateChecksum(node.FullSessionName); }
+                    catch (Exception)
+                    {
+                        // The file couldn't be hashed for some reason, don't add it to the index
+                        //TODO: Inform the user that something went wrong
+                        continue;
+                    }
+
+                    node.Hash = new FileHash(node.FullSessionName, checkSum);
+                    node.Hash.AddNode(node);
+
+                    //FileHash hash;
+                    //if (!Index.Hashes.TryGetValue(checkSum, out hash))
+                    //{
+                    //    // If a hash already exist use that, if not create a new one
+                    //    hash = new FileHash(node.FullSessionName, checkSum);
+                    //    Index.Hashes.Add(checkSum, hash);
+
+                    //}
+                    //if (!(hash is null))
+                    //{
+                    //    node.File = hash;
+                    //    hash.AddNode(node);
+                    //}
+                }
+            }, (CancellationToken)App.Current.Properties["cancelToken"]);
+        }
+
+        /// <summary>
         /// Removes all Elements from the collection.</summary>  
-        public void Clear()
+        public async Task ClearAsync()
         {
             foreach (var item in FileNodes)
             {
-                item.RemoveFileReference();
-                Database.DeleteFileNode(item);
+                await item.RemoveFileReferenceAsync();
+                await Database.DeleteFileNodeAsync (item);
             }
 
             FileNodes.Clear();
@@ -129,7 +183,7 @@ namespace MediaBackupManager.Model
             if (MountPoint != dir.Root.Name)
                 return false;
 
-            return dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length).Contains(RootDirectory);
+            return (dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length) + "\\").Contains(RootDirectory + "\\");
         }
 
         /// <summary>
@@ -138,7 +192,23 @@ namespace MediaBackupManager.Model
         {
             if (MountPoint != dir.Root.Name)
                 return false;
-            return RootDirectory.Contains(dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length));
+            return (RootDirectory + "\\").Contains((dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length)) + "\\");
+        }
+
+        /// <summary>
+        /// Determines whether the provided file or directory is excluded based on the file exclusion list.</summary>  
+        public bool IsFileExcluded(string path)
+        {
+            foreach (var item in Exclusions)
+            {
+                if (Regex.IsMatch(path, item, RegexOptions.IgnoreCase))
+                    return true;
+
+                //var dd = Regex.IsMatch("F:\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
+                //dd = Regex.IsMatch("F:\\SomeDir\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
+                //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
+            }
+            return false;
         }
 
         #endregion

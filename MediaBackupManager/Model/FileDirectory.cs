@@ -45,7 +45,7 @@ namespace MediaBackupManager.Model
         // so the class is not implemented here, but still needed for
         // compatibility reasons
         /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
-        public virtual void RemoveFileReference() { }
+        public virtual async Task RemoveFileReferenceAsync() { }
 
         #endregion
 
