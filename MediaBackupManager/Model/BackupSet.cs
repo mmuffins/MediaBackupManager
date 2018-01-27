@@ -52,14 +52,6 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
-        public void ScanFiles()
-        {
-            //TODO: Remove this function if not needed anymore
-            IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint,RootDirectory)));
-        }
-
-        /// <summary>
-        /// Scans all files below the root directory and adds them to the index.</summary>  
         public async Task ScanFilesAsync()
         {
             if (IsFileExcluded((Path.Combine(MountPoint, RootDirectory)).ToString()))
