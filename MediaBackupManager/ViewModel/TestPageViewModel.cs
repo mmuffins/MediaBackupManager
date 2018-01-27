@@ -33,23 +33,40 @@ namespace MediaBackupManager.ViewModel
             {
                 if (clearData == null)
                 {
-                    clearData = new RelayCommand.RelayCommand(ClearData_Execute, ClearData_CanExecute);
+                    clearData = new RelayCommand.RelayCommand(ClearData_Execute, param => true);
                 }
                 return clearData;
             }
         }
-
-        private bool ClearData_CanExecute(object obj)
-        {
-            return true;
-        }
-
         private async void ClearData_Execute(object obj)
         {
             for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
             {
                 var deleteElement = Index.BackupSets.ElementAt(i);
                 await Index.RemoveBackupSetAsync(deleteElement);
+            }
+        }
+
+
+        private RelayCommand.RelayCommand removeNewData;
+        public RelayCommand.RelayCommand RemoveNewData
+        {
+            get
+            {
+                if (removeNewData == null)
+                {
+                    removeNewData = new RelayCommand.RelayCommand(RemoveNewData_Execute, param => true);
+                }
+                return removeNewData;
+            }
+        }
+        private async void RemoveNewData_Execute(object obj)
+        {
+            var deleteSet = Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "\\indexdir");
+
+            if(!(deleteSet is null))
+            {
+                await Index.RemoveBackupSetAsync(deleteSet);
             }
         }
 
@@ -60,17 +77,11 @@ namespace MediaBackupManager.ViewModel
             {
                 if (loadData == null)
                 {
-                    loadData = new RelayCommand.RelayCommand(LoadData_Execute, LoadData_CanExecute);
+                    loadData = new RelayCommand.RelayCommand(LoadData_Execute, param => true);
                 }
                 return loadData;
             }
         }
-
-        private bool LoadData_CanExecute(object obj)
-        {
-            return true;
-        }
-
         private async void LoadData_Execute(object obj)
         {
             await Index.LoadDataAsync();
@@ -83,10 +94,27 @@ namespace MediaBackupManager.ViewModel
             {
                 if (loadAdditionalData == null)
                 {
-                    loadAdditionalData = new RelayCommand.RelayCommand(LoadAdditionalData_Execute, LoadAdditionalData_CanExecute);
+                    loadAdditionalData = new RelayCommand.RelayCommand(LoadAdditionalData_Execute, param => true);
                 }
                 return loadAdditionalData;
             }
+        }
+
+        private RelayCommand.RelayCommand scanNewData;
+        public RelayCommand.RelayCommand ScanNewData
+        {
+            get
+            {
+                if (scanNewData == null)
+                {
+                    scanNewData = new RelayCommand.RelayCommand(ScanNewData_Execute, param => true);
+                }
+                return scanNewData;
+            }
+        }
+        private async void ScanNewData_Execute(object obj)
+        {
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
         }
 
         private async void LoadAdditionalData_Execute(object obj)
@@ -113,11 +141,6 @@ namespace MediaBackupManager.ViewModel
             //await stagingIndex.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir"));
             //Index.MergeFileIndex(stagingIndex);
 
-        }
-
-        private bool LoadAdditionalData_CanExecute(object obj)
-        {
-            return true;
         }
 
         public TestPageViewModel(FileIndex index)

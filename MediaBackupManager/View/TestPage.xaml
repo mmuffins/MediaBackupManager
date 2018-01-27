@@ -17,8 +17,10 @@
         </TreeView>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
             <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearData}"></Button>
-            <Button x:Name="btnLoadData" Content="Load" Command="{Binding LoadData}"></Button>
-            <Button x:Name="btnLoadAdditionalData" Content="Load 2" Command="{Binding LoadAdditionalData}"></Button>
+            <Button x:Name="btnLoadData" Content="LoadDB" Command="{Binding LoadData}"></Button>
+            <Button x:Name="btnScanFiles" Content="Scan base" Command="{Binding LoadAdditionalData}"></Button>
+            <Button x:Name="btnScanAdditional" Content="Scan add." Command="{Binding ScanNewData}"></Button>
+            <Button x:Name="btnDeleteAdditional" Content="Delete add." Command="{Binding RemoveNewData}"></Button>
         </StackPanel>
             <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" ItemsSource="{Binding Path=BackupSets.BackupSets}"></DataGrid>
     </DockPanel>
