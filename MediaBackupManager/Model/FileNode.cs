@@ -19,6 +19,7 @@ namespace MediaBackupManager.Model
         public string Name { get; set; }
         public string Extension { get; set; }
         public FileHash Hash { get; set; }
+        public string Checksum { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
         public override string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName, Name); }
@@ -43,6 +44,7 @@ namespace MediaBackupManager.Model
         public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file) : this (fileInfo, backupSet)
         {
             this.Hash = file;
+            this.Checksum = file.Checksum;
         }
 
         public FileNode(string fileName, BackupSet backupSet, FileHash file)

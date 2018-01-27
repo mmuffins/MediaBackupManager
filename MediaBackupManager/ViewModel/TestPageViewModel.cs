@@ -71,9 +71,9 @@ namespace MediaBackupManager.ViewModel
             return true;
         }
 
-        private void LoadData_Execute(object obj)
+        private async void LoadData_Execute(object obj)
         {
-            Index.LoadData();
+            await Index.LoadDataAsync();
         }
 
         private RelayCommand.RelayCommand loadAdditionalData;

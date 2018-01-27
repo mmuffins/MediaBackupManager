@@ -45,25 +45,44 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
-        public void LoadData()
+        public async Task LoadDataAsync()
         {
-            this.Exclusions = new HashSet<string>(Database.GetExclusions());
-
-            this.BackupSets = Database.GetBackupSet();
+            this.Exclusions = new HashSet<string>(await Database.GetExclusionsAsync());
+            this.Hashes = (await Database.GetFileHashAsync()).ToDictionary(x => x.Checksum);
+            this.BackupSets = await Database.GetBackupSetAsync();
 
             foreach (var set in BackupSets)
             {
+                set.Index = this;
+
                 // Add the logical volume to the collection and
                 // refresh its mountpoint
+                set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
                 if (!LogicalVolumes.Contains(set.Volume))
                 {
                     LogicalVolumes.Add(set.Volume);
                     RefreshMountPoint(set.Volume);
                 }
 
-                // populate the set with filenodes and add 
-                // the related hashes to the index                
-                Database.LoadBackupSetNodes(set);
+                // Load all nodes for the set, then iterate through each item
+                // and rebuild the relationship between nodes and hashes
+                foreach (var item in await Database.GetFileNodeAsync(set.Guid.ToString()))
+                {
+                    item.BackupSet = set;
+                    set.FileNodes.Add(item);
+
+                    if(item is FileNode)
+                    {
+                        FileHash hash;
+                        if (Hashes.TryGetValue(((FileNode)item).Checksum, out hash))
+                        {
+                            hash.AddNode((FileNode)item);
+                            ((FileNode)item).Hash = hash;
+                        }
+
+                    }
+                }
+
             }
         }
 
@@ -76,25 +95,6 @@ namespace MediaBackupManager.Model
             {
                 volume.MountPoint = mountPoint.Name;
             }
-        }
-
-        /// <summary>
-        /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public void CreateBackupSet(DirectoryInfo dir)
-        {
-            //TODO: Remove this function if not needed anymore
-            if (ContainsDirectory(dir) || IsSubsetOf(dir))
-                return;
-
-            //if (IsFileExcluded(dir.FullName))
-            //    return;
-
-            var newDrive = new LogicalVolume(dir);
-            AddLogicalVolume(newDrive);
-            
-            var scanSet = new BackupSet(dir, newDrive, this);
-            AddBackupSet(scanSet);
-            scanSet.ScanFiles();
         }
 
         /// <summary>
@@ -130,25 +130,6 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Adds the specified backup set to the local collection.</summary>  
-        private void AddBackupSet(BackupSet backupSet)
-        {
-            BackupSets.Add(backupSet);
-            //Database.InsertBackupSet(backupSet);
-        }
-
-        /// <summary>
-        /// Adds the specified logical volume to the local collection.</summary>  
-        private void AddLogicalVolume(LogicalVolume logicalVolume)
-        {
-            if (!LogicalVolumes.Contains(logicalVolume))
-            {
-                LogicalVolumes.Add(logicalVolume);
-                //Database.InsertLogicalVolume(logicalVolume);
-            }
-        }
-
-        /// <summary>
         /// Adds the specified string collection of file exclusions.</summary>  
         private async Task AddExclusionAsync(string exclusion)
         {
@@ -160,42 +141,15 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified file to the file index and returns its reference.</summary>  
-        public FileHash IndexFile(string fileName)
+        public FileHash AddHash(FileHash file)
         {
-            //TODO: Not needed anymore?
-            string checkSum;
-            try { checkSum = FileHash.CalculateChecksum(fileName); }
-            catch (Exception)
+            if (Hashes.ContainsKey(file.Checksum))
             {
-                // The file couldn't be hashed for some reason, don't add it to the index
-                //TODO: Inform the user that something went wrong
-                return null;
-            }
-
-            if (Hashes.ContainsKey(checkSum))
-            {
-                return Hashes[checkSum];
+                return Hashes[file.Checksum];
             }
             else
             {
-                var newHash = new FileHash(fileName, checkSum);
-                Hashes.Add(checkSum, newHash);
-                //Database.InsertFileHash(newHash);
-                return newHash;
-            }
-        }
-
-        /// <summary>
-        /// Adds the specified file to the file index and returns its reference.</summary>  
-        public FileHash IndexFile(FileHash file)
-        {
-            if (Hashes.ContainsKey(file.CheckSum))
-            {
-                return Hashes[file.CheckSum];
-            }
-            else
-            {
-                Hashes.Add(file.CheckSum, file);
+                Hashes.Add(file.Checksum, file);
                 //Database.InsertFileHash(file);
                 return file;
             }
@@ -205,7 +159,7 @@ namespace MediaBackupManager.Model
         /// Removes the specified hash from the file index.</summary>  
         public async Task RemoveHashAsync(FileHash hash)
         {
-            Hashes.Remove(hash.CheckSum);
+            Hashes.Remove(hash.Checksum);
             await Database.DeleteFileHashAsync(hash);
         }
 
@@ -214,7 +168,7 @@ namespace MediaBackupManager.Model
         public async Task RemoveFileNodeAsync(FileNode node)
         {
             FileHash removeFile;
-            if(Hashes.TryGetValue(node.Hash.CheckSum, out removeFile))
+            if(Hashes.TryGetValue(node.Hash.Checksum, out removeFile))
             {
                 removeFile.RemoveNode(node);
                 if (removeFile.NodeCount <= 0)
@@ -315,7 +269,7 @@ namespace MediaBackupManager.Model
                     continue;
 
                 FileHash hash;
-                if (Hashes.TryGetValue(file.Hash.CheckSum, out hash))
+                if (Hashes.TryGetValue(file.Hash.Checksum, out hash))
                 {
                     // Hash is already on the index, change the reference of the file node
                     // and add the new node location to the hash
@@ -324,7 +278,7 @@ namespace MediaBackupManager.Model
                 }
                 else
                 {
-                    Hashes.Add(file.Hash.CheckSum, file.Hash);
+                    Hashes.Add(file.Hash.Checksum, file.Hash);
                     newHashes.Add(file.Hash); 
                 }
             }

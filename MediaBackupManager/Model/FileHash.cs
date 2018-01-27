@@ -18,7 +18,7 @@ namespace MediaBackupManager.Model
         public long Length { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime LastWriteTime { get; set; }
-        public string CheckSum { get; set; }
+        public string Checksum { get; set; }
         public HashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
@@ -37,7 +37,7 @@ namespace MediaBackupManager.Model
             this.Length = fileInfo.Length;
             this.CreationTime = fileInfo.CreationTime;
             this.LastWriteTime = fileInfo.LastWriteTime;
-            this.CheckSum = checkSum;
+            this.Checksum = checkSum;
         }
 
         public FileHash(string fileName, string checkSum) : this(new FileInfo(fileName), checkSum) { }
@@ -76,7 +76,7 @@ namespace MediaBackupManager.Model
 
         public override int GetHashCode()
         {
-            return CheckSum.GetHashCode();
+            return Checksum.GetHashCode();
         }
 
         public bool Equals(FileHash other)
@@ -84,7 +84,7 @@ namespace MediaBackupManager.Model
             if (other == null)
                 return false;
 
-            return this.CheckSum.Equals(other.CheckSum);
+            return this.Checksum.Equals(other.Checksum);
         }
 
         public override bool Equals(object obj)
@@ -101,7 +101,7 @@ namespace MediaBackupManager.Model
 
         public override string ToString()
         {
-            return CheckSum;
+            return Checksum;
         }
 
         #endregion

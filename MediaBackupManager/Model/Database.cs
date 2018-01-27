@@ -90,7 +90,7 @@ namespace MediaBackupManager.Model
                 sqlCmd.ExecuteNonQuery();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileHash (" +
-                    "CheckSum TEXT PRIMARY KEY" +
+                    "Checksum TEXT PRIMARY KEY" +
                     ", Length INTEGER" +
                     ", CreationTime TEXT" +
                     ", LastWriteTime TEXT" +
@@ -102,7 +102,7 @@ namespace MediaBackupManager.Model
                     ", DirectoryName TEXT NOT NULL" +
                     ", Name TEXT" +
                     ", Extension TEXT" +
-                    ", File TEXT" +
+                    ", Checksum TEXT" +
                     ", NodeType INTEGER" +
                     ", PRIMARY KEY (BackupSet, DirectoryName, Name)" +
                     ")";
@@ -151,29 +151,32 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Retrieves the specified LogicalVolume objects from the database.</summary>
-        /// <param name="serialNumber">Volume Serial Number of the object that should be retrieved.</param>
-        public static List<LogicalVolume> GetLogicalVolume(string serialNumber = "")
+        /// <param name="guid">Guid of the Backupset containing the logical volume.</param>
+        public static async Task<List<LogicalVolume>> GetLogicalVolumeAsync(string guid = "")
         {
             var res = new List<LogicalVolume>();
 
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
-                var cmdText = new StringBuilder("SELECT * FROM LogicalVolume");
-                if (!string.IsNullOrWhiteSpace(serialNumber))
+                var cmdText = new StringBuilder("SELECT v.*FROM LogicalVolume AS v " +
+                    "INNER JOIN BackupSet AS s " +
+                    "ON v.SerialNumber = s.Volume");
+
+                if (!string.IsNullOrWhiteSpace(guid))
                 {
-                    cmdText.Append(" WHERE SerialNumber = @SerialNumber");
-                    sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
-                    sqlCmd.Parameters["@SerialNumber"].Value = serialNumber;
+                    cmdText.Append(" WHERE s.Guid = @Guid");
+                    sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+                    sqlCmd.Parameters["@Guid"].Value = guid;
                 }
 
                 sqlCmd.CommandText = cmdText.ToString();
                 sqlCmd.CommandType = CommandType.Text;
 
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
+                await dbConn.OpenAsync();
+                using (var reader = await sqlCmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         res.Add(new LogicalVolume()
                         {
@@ -191,7 +194,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>Retrieves the specified BackupSet objects from the database and creates related child objects.</summary>
         /// <param name="guid">Guid of the object that should be retrieved.</param>
-        public static List<BackupSet> GetBackupSet(string guid = "")
+        public static async Task<List<BackupSet>> GetBackupSetAsync(string guid = "")
         {
             // To build a complete backup set:
             // load base data from Backupset
@@ -215,10 +218,10 @@ namespace MediaBackupManager.Model
                 sqlCmd.CommandText = cmdText.ToString();
                 sqlCmd.CommandType = CommandType.Text;
 
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
+                await dbConn.OpenAsync();
+                using (var reader = await sqlCmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         var newSet = new BackupSet()
                         {
@@ -228,13 +231,7 @@ namespace MediaBackupManager.Model
                         };
 
                         // Load related objects
-                        newSet.Volume = GetLogicalVolume(reader["Volume"].ToString()).FirstOrDefault();
-
-                        // Don't use the AddFileNode function as it would 
-                        // try to rescan the nodes that we just downloaded 
-                        // right back to the database causing duplicate errors
-                        GetFileNode(newSet).ForEach(n => newSet.FileNodes.Add(n));
-
+                        //newSet.Volume = (await GetLogicalVolumeAsync(reader["Volume"].ToString())).FirstOrDefault();
                         res.Add(newSet);
                     }
                 }
@@ -243,8 +240,9 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Retrieves list of all backup files from the database.</summary>
-        public static List<FileHash> GetFileHash()
+        /// <summary>Retrieves the specified FileHash objects from the database.</summary>
+        /// <param name="guid">Guid of the Backupset containing the File hashes.</param>
+        public static async Task<List<FileHash>> GetFileHashAsync(string guid = "")
         {
             var res = new List<FileHash>();
 
@@ -252,17 +250,29 @@ namespace MediaBackupManager.Model
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
-                sqlCmd.CommandText = "SELECT * FROM FileHash";
+                var cmdText = new StringBuilder("SELECT h.* FROM FileHash AS h");
+
+                if (!string.IsNullOrWhiteSpace(guid))
+                {
+                    cmdText.Append(" INNER JOIN FileNode As n ON h.Checksum = n.Checksum");
+                    cmdText.Append(" INNER JOIN BackupSet AS s ON n.BackupSet = s.Guid ");
+
+                    cmdText.Append(" WHERE s.Guid = @Guid");
+                    sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+                    sqlCmd.Parameters["@Guid"].Value = guid;
+                }
+
+                sqlCmd.CommandText = cmdText.ToString();
                 sqlCmd.CommandType = CommandType.Text;
 
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
+                await dbConn.OpenAsync();
+                using (var reader = await sqlCmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         res.Add(new FileHash()
                         {
-                            CheckSum = reader["CheckSum"].ToString(),
+                            Checksum = reader["Checksum"].ToString(),
                             CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
                             LastWriteTime = DateTime.Parse(reader["LastWriteTime"].ToString()),
                             Length = long.Parse(reader["Length"].ToString())
@@ -275,7 +285,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Retrieves list of all file exclusions from the database.</summary>
-        public static List<string> GetExclusions()
+        public static async Task<List<string>> GetExclusionsAsync()
         {
             var res = new List<string>();
 
@@ -286,10 +296,10 @@ namespace MediaBackupManager.Model
                 sqlCmd.CommandText = "SELECT * FROM Exclusion";
                 sqlCmd.CommandType = CommandType.Text;
 
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
+                await dbConn.OpenAsync();
+                using (var reader = await sqlCmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         res.Add(reader["Value"].ToString());
                     }
@@ -300,8 +310,8 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Retrieves the specified FileDirectory and FileNode objects from the database.</summary>
-        /// <param name="backupSet">Parent backup set of the nodes.</param>
-        public static List<FileDirectory> GetFileNode(BackupSet backupSet)
+        /// <param name="guid">Guid of the Backupset containing the File nodes.</param>
+        public static async Task<List<FileDirectory>> GetFileNodeAsync(string guid = "")
         {
             var res = new List<FileDirectory>();
 
@@ -311,19 +321,19 @@ namespace MediaBackupManager.Model
                 sqlCmd.CommandText = "SELECT * FROM FileNode WHERE BackupSet = @Guid";
                 sqlCmd.CommandType = CommandType.Text;
                 sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-                sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+                sqlCmd.Parameters["@Guid"].Value = guid;
 
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
+                await dbConn.OpenAsync();
+                using (var reader = await sqlCmd.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         var node = new FileDirectory();
 
                         if (int.Parse(reader["NodeType"].ToString()) == 0)  // 0 => Directory, 1 => Node
                         {
                             node.DirectoryName = reader["DirectoryName"].ToString();
-                            node.BackupSet = backupSet;
+                            //node.BackupSet = backupSet;
                         }
                         else
                         {
@@ -332,22 +342,22 @@ namespace MediaBackupManager.Model
                             node = new FileNode();
 
                             node.DirectoryName = reader["DirectoryName"].ToString();
-                            node.BackupSet = backupSet;
+                            //node.BackupSet = backupSet;
                             ((FileNode)node).Name = reader["DirectoryName"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
+                            ((FileNode)node).Checksum = reader["Checksum"].ToString();
 
                             // Make sure to also properly set the relations between nodes and files
-                            FileHash file;
-                            var crc = reader["File"].ToString();
-                            Index.Hashes.TryGetValue(crc, out file);
+                            //FileHash file;
+                            //var crc = reader["File"].ToString();
+                            //Index.Hashes.TryGetValue(crc, out file);
 
-                            if (!(file is null))
-                            {
-                                ((FileNode)node).Hash = file;
-                                file.AddNode((FileNode)node);
-                            }
+                            //if (!(file is null))
+                            //{
+                            //    ((FileNode)node).Hash = file;
+                            //    file.AddNode((FileNode)node);
+                            //}
                         }
-
 
                         res.Add(node);
                     }
@@ -364,7 +374,7 @@ namespace MediaBackupManager.Model
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
                 sqlCmd.CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
-                    " INNER JOIN FileHash h ON n.file = h.Checksum" +
+                    " INNER JOIN FileHash h ON n.Checksum = h.Checksum" +
                     " WHERE BackupSet = @Guid";
 
                 sqlCmd.CommandType = CommandType.Text;
@@ -381,18 +391,18 @@ namespace MediaBackupManager.Model
 
                         FileHash hash;
 
-                        if (!Index.Hashes.TryGetValue(reader["CheckSum"].ToString(), out hash))
+                        if (!Index.Hashes.TryGetValue(reader["Checksum"].ToString(), out hash))
                         {
                             // Only create a new hash if it doesn't exist in the index yet
                             hash = new FileHash()
                             {
-                                CheckSum = reader["CheckSum"].ToString(),
+                                Checksum = reader["Checksum"].ToString(),
                                 CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
                                 LastWriteTime = DateTime.Parse(reader["LastWriteTime"].ToString()),
                                 Length = long.Parse(reader["Length"].ToString())
                             };
 
-                            Index.Hashes.Add(hash.CheckSum, hash);
+                            Index.Hashes.Add(hash.Checksum, hash);
                         }
 
                         var node = new FileDirectory();
@@ -477,7 +487,7 @@ namespace MediaBackupManager.Model
             {
                 sqlCmd.Parameters["@Name"].Value = (fileNode as FileNode).Name;
                 sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
-                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.CheckSum;
+                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.Checksum;
                 sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
                 sqlCmd.Parameters["@NodeType"].Value = 1;
             }
@@ -517,12 +527,12 @@ namespace MediaBackupManager.Model
         {
             var sqlCmd = new SQLiteCommand();
             sqlCmd.CommandText = "INSERT INTO FileHash (" +
-                "CheckSum" +
+                "Checksum" +
                 ", Length" +
                 ", CreationTime" +
                 ", LastWriteTime" +
                 ") VALUES (" +
-                "@CheckSum" +
+                "@Checksum" +
                 ", @Length" +
                 ", @CreationTime" +
                 ", @LastWriteTime" +
@@ -530,12 +540,12 @@ namespace MediaBackupManager.Model
 
             sqlCmd.CommandType = CommandType.Text;
 
-            sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
             sqlCmd.Parameters.Add(new SQLiteParameter("@CreationTime", DbType.DateTime));
             sqlCmd.Parameters.Add(new SQLiteParameter("@LastWriteTime", DbType.DateTime));
 
-            sqlCmd.Parameters["@CheckSum"].Value = hash.CheckSum;
+            sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
             sqlCmd.Parameters["@Length"].Value = hash.Length;
             sqlCmd.Parameters["@CreationTime"].Value = hash.CreationTime;
             sqlCmd.Parameters["@LastWriteTime"].Value = hash.LastWriteTime;
@@ -601,11 +611,11 @@ namespace MediaBackupManager.Model
         public static async Task DeleteFileHashAsync(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM FileHash WHERE CheckSum = @CheckSum";
+            sqlCmd.CommandText = "DELETE FROM FileHash WHERE Checksum = @Checksum";
             sqlCmd.CommandType = CommandType.Text;
 
-            sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
-            sqlCmd.Parameters["@CheckSum"].Value = hash.CheckSum;
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
+            sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -732,12 +742,12 @@ namespace MediaBackupManager.Model
         public static async Task BatchInsertFileHashAsync(List<FileHash> hashes)
         {
             var commandText = "INSERT INTO FileHash (" +
-                "CheckSum" +
+                "Checksum" +
                 ", Length" +
                 ", CreationTime" +
                 ", LastWriteTime" +
                 ") VALUES (" +
-                "@CheckSum" +
+                "@Checksum" +
                 ", @Length" +
                 ", @CreationTime" +
                 ", @LastWriteTime" +
@@ -756,12 +766,12 @@ namespace MediaBackupManager.Model
                             var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
                             sqlCmd.CommandType = CommandType.Text;
 
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@CheckSum", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@CreationTime", DbType.DateTime));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@LastWriteTime", DbType.DateTime));
 
-                            sqlCmd.Parameters["@CheckSum"].Value = hash.CheckSum;
+                            sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
                             sqlCmd.Parameters["@Length"].Value = hash.Length;
                             sqlCmd.Parameters["@CreationTime"].Value = hash.CreationTime;
                             sqlCmd.Parameters["@LastWriteTime"].Value = hash.LastWriteTime;
@@ -789,14 +799,14 @@ namespace MediaBackupManager.Model
                 ", DirectoryName" +
                 ", Name" +
                 ", Extension" +
-                ", File" +
+                ", Checksum" +
                 ", NodeType" +
                 ") VALUES (" +
                 "@BackupSet" +
                 ", @DirectoryName" +
                 ", @Name" +
                 ", @Extension" +
-                ", @File" +
+                ", @Checksum" +
                 ", @NodeType" +
                 ")";
 
@@ -817,7 +827,7 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@File", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
 
@@ -825,14 +835,14 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
                             sqlCmd.Parameters["@Name"].Value = "";
                             sqlCmd.Parameters["@Extension"].Value = "";
-                            sqlCmd.Parameters["@File"].Value = "";
+                            sqlCmd.Parameters["@Checksum"].Value = "";
                             sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
 
                             if (node is FileNode)
                             {
                                 sqlCmd.Parameters["@Name"].Value = (node as FileNode).Name;
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
-                                sqlCmd.Parameters["@File"].Value = (node as FileNode).Hash.CheckSum;
+                                sqlCmd.Parameters["@Checksum"].Value = (node as FileNode).Hash.Checksum;
                                 sqlCmd.Parameters["@BackupSet"].Value = (node as FileNode).BackupSet.Guid;
                                 sqlCmd.Parameters["@NodeType"].Value = 1;
                             }
