@@ -38,8 +38,7 @@ namespace MediaBackupManager.ViewModel
         {
             this.Index = index;
             PrepareDatabaseAsync(index);
-            Index.LoadData();
-
+            
             //TODO:Remove using directives for MediaBackupManager.View and System.Windows once done testing
             var testPage = new TestPage(index);
             testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -50,11 +49,13 @@ namespace MediaBackupManager.ViewModel
         {
             Database.Index = index;
             bool newDB = Database.CreateDatabase();
-            Database.PrepareDatabase();
+            await Database.PrepareDatabaseAsync();
 
             // Add the default exclusions if a new db was created
             if (newDB)
                 await index.RestoreDefaultExclusionsAsync();
+
+            await Index.LoadDataAsync();
         }
     }
 }
