@@ -58,7 +58,11 @@ namespace MediaBackupManager.Model
                 // Add the logical volume to the collection and
                 // refresh its mountpoint
                 set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
-                if (!LogicalVolumes.Contains(set.Volume))
+                if (LogicalVolumes.Contains(set.Volume))
+                {
+                    set.Volume = LogicalVolumes.Where(x => x.SerialNumber.Equals(set.Volume.SerialNumber)).FirstOrDefault();
+                }
+                else
                 {
                     LogicalVolumes.Add(set.Volume);
                     RefreshMountPoint(set.Volume);
@@ -156,48 +160,37 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Removes the specified hash from the file index.</summary>  
-        public async Task RemoveHashAsync(FileHash hash)
-        {
-            Hashes.Remove(hash.Checksum);
-            await Database.DeleteFileHashAsync(hash);
-        }
-
-        /// <summary>
-        /// Removes a file node from the index. The related hash will be automatically removed if the last file node was removed.</summary>  
-        public async Task RemoveFileNodeAsync(FileNode node)
+        /// Removes a file node from the index.</summary>  
+        public void RemoveFileNode(FileNode node)
         {
             FileHash removeFile;
-            if(Hashes.TryGetValue(node.Hash.Checksum, out removeFile))
-            {
+            if (Hashes.TryGetValue(node.Hash.Checksum, out removeFile))
                 removeFile.RemoveNode(node);
-                if (removeFile.NodeCount <= 0)
-                    await RemoveHashAsync(removeFile);
-            }
         }
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
-        public async Task RemoveBackupSetAsync(BackupSet item)
+        public async Task RemoveBackupSetAsync(BackupSet set)
         {
-            if(BackupSets.Where(x => x.Volume.Equals(item.Volume)).Count() < 2)
+            if(BackupSets.Where(x => x.Volume.Equals(set.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
-                await RemoveLogicalVolumeAsync(item.Volume);
+                LogicalVolumes.Remove(set.Volume);
+                await Database.DeleteLogicalVolumeAsync(set.Volume);
             }
 
-            await item.ClearAsync();
-            BackupSets.Remove(item);
-            await Database.DeleteBackupSetAsync (item);
-        }
+            // Get a list of all hashes related to the current set,
+            // remove all nodes from these hashes.
+            var setHashes = set.GetFileHashes();
+            await set.ClearAsync();
 
-        /// <summary>
-        /// Removes the specified logical volume.</summary>  
-        public async Task RemoveLogicalVolumeAsync(LogicalVolume volume)
-        {
-            LogicalVolumes.Remove(volume);
-            await Database.DeleteLogicalVolumeAsync(volume);
+            // All hashes in the collection without any other node 
+            // can be clearly removed from the index
+            await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
+
+            BackupSets.Remove(set);
+            await Database.DeleteBackupSetAsync(set);
         }
 
         /// <summary>

@@ -71,13 +71,13 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Ensures that all needed database objects are created.</summary>
-        public static void PrepareDatabase()
+        public static async Task PrepareDatabaseAsync()
         {
             using (var dbConn = new SQLiteConnection(GetConnectionString()))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
-                dbConn.Open();
+                await dbConn.OpenAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS LogicalVolume (" +
                     "SerialNumber TEXT PRIMARY KEY" +
@@ -87,7 +87,7 @@ namespace MediaBackupManager.Model
                     ", Label TEXT" +
                     ")";
 
-                sqlCmd.ExecuteNonQuery();
+                await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileHash (" +
                     "Checksum TEXT PRIMARY KEY" +
@@ -95,7 +95,7 @@ namespace MediaBackupManager.Model
                     ", CreationTime TEXT" +
                     ", LastWriteTime TEXT" +
                     ")";
-                sqlCmd.ExecuteNonQuery();
+                await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
                     "BackupSet TEXT NOT NULL" +
@@ -106,19 +106,19 @@ namespace MediaBackupManager.Model
                     ", NodeType INTEGER" +
                     ", PRIMARY KEY (BackupSet, DirectoryName, Name)" +
                     ")";
-                sqlCmd.ExecuteNonQuery();
+                await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS BackupSet (" +
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
                     ", RootDirectory TEXT" +
                     ")";
-                sqlCmd.ExecuteNonQuery();
+                await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS Exclusion (" +
                     "Value TEXT PRIMARY KEY" +
                     ")";
-                sqlCmd.ExecuteNonQuery();
+                await sqlCmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -343,7 +343,7 @@ namespace MediaBackupManager.Model
 
                             node.DirectoryName = reader["DirectoryName"].ToString();
                             //node.BackupSet = backupSet;
-                            ((FileNode)node).Name = reader["DirectoryName"].ToString();
+                            ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
                             ((FileNode)node).Checksum = reader["Checksum"].ToString();
 
@@ -653,21 +653,20 @@ namespace MediaBackupManager.Model
             var cmdText = new StringBuilder("DELETE FROM FileNode WHERE");
             cmdText.Append(" BackupSet = @BackupSet");
             cmdText.Append(" AND DirectoryName = @DirectoryName");
+            cmdText.Append(" AND Name = @Name");
 
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
 
             sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
+            sqlCmd.Parameters["@Name"].Value = "";
 
             // Only add name parameter if the provided object is of type fileNode
             if (fileNode is FileNode)
-            {
-                cmdText.Append(" AND Name = @Name");
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
                 sqlCmd.Parameters["@Name"].Value = ((FileNode)fileNode).Name;
-            }
 
             sqlCmd.CommandText = cmdText.ToString();
             sqlCmd.CommandType = CommandType.Text;
@@ -686,6 +685,90 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters["@Value"].Value = exclusion;
 
             await ExecuteNonQueryAsync(sqlCmd);
+        }
+
+        /// <summary>
+        /// Deletes the specified list from the database via transaction.</summary>
+        public static async Task BatchDeleteFileNodeAsync(List<FileDirectory> nodes)
+        {
+            var commandText = "DELETE FROM FileNode WHERE" +
+            " BackupSet = @BackupSet" +
+            " AND DirectoryName = @DirectoryName" +
+            " AND Name = @Name";
+
+            var dbConn = new SQLiteConnection(GetConnectionString());
+
+            using (dbConn.OpenAsync())
+            {
+                using (var transaction = dbConn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (var node in nodes)
+                        {
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
+                            sqlCmd.CommandType = CommandType.Text;
+
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
+
+                            sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
+                            sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
+                            sqlCmd.Parameters["@Name"].Value = "";
+
+                            if (node is FileNode)
+                                sqlCmd.Parameters["@Name"].Value = (node as FileNode).Name;
+
+                            await sqlCmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes the specified list from the database via transaction.</summary>
+        public static async Task BatchDeleteFileHashAsync(List<FileHash> hashes)
+        {
+            var commandText = "DELETE FROM FileHash WHERE" +
+            " Checksum = @Checksum";
+
+            var dbConn = new SQLiteConnection(GetConnectionString());
+
+            using (dbConn.OpenAsync())
+            {
+                using (var transaction = dbConn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (var hash in hashes)
+                        {
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
+                            sqlCmd.CommandType = CommandType.Text;
+
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
+                            sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
+
+                            await sqlCmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+
+                    transaction.Commit();
+                }
+            }
         }
 
         /// <summary>

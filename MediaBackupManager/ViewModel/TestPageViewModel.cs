@@ -49,7 +49,7 @@ namespace MediaBackupManager.ViewModel
             for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
             {
                 var deleteElement = Index.BackupSets.ElementAt(i);
-                await Index.RemoveBackupSetAsync (deleteElement);
+                await Index.RemoveBackupSetAsync(deleteElement);
             }
         }
 

@@ -51,11 +51,12 @@ namespace MediaBackupManager.Model
             : this(new FileInfo(fileName), backupSet, file) { }
 
         /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
-        public override async Task RemoveFileReferenceAsync()
+        public override void RemoveFileReference()
         {
             if (!(this.Hash is null)) // If the current object refers to a directory it has no file
-                await this.BackupSet.Index.RemoveFileNodeAsync(this);
-            //this.File.RemoveNode(this);
+                this.Hash.RemoveNode(this);
+                //this.BackupSet.Index.RemoveFileNode(this);
+                //this.File.RemoveNode(this);
         }
 
         #endregion

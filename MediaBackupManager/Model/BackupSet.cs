@@ -167,12 +167,12 @@ namespace MediaBackupManager.Model
         /// Removes all Elements from the collection.</summary>  
         public async Task ClearAsync()
         {
-            foreach (var item in FileNodes)
+            foreach (var item in FileNodes.OfType<FileNode>())
             {
-                await item.RemoveFileReferenceAsync();
-                await Database.DeleteFileNodeAsync (item);
+                item.RemoveFileReference();
+                //await Database.DeleteFileNodeAsync (item);
             }
-
+            await Database.BatchDeleteFileNodeAsync(FileNodes.ToList());
             FileNodes.Clear();
         }
 
@@ -209,6 +209,17 @@ namespace MediaBackupManager.Model
                 //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns a list of all Hashes related to the nodes in the current BackupSet.</summary>  
+        public List<FileHash> GetFileHashes()
+        {
+            return FileNodes
+                .OfType<FileNode>()
+                .Select(x => x.Hash)
+                .Distinct()
+                .ToList();
         }
 
         #endregion
