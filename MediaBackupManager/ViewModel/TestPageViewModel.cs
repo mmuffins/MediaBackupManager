@@ -13,12 +13,20 @@ namespace MediaBackupManager.ViewModel
 {
     class TestPageViewModel : ViewModelBase.ViewModelBase
     {
-        private FileIndex index;
-        public FileIndex Index
+        //private FileIndex index;
+        //public FileIndex Index
+        //{
+        //    get { return index; }
+        //    set { index = value; }
+        //}
+
+        private FileIndexViewModel index;
+        public FileIndexViewModel Index
         {
             get { return index; }
             set { index = value; }
         }
+
 
         BackupSetViewModel backupSets = new BackupSetViewModel();
         public BackupSetViewModel BackupSets { get => backupSets; }
@@ -43,7 +51,7 @@ namespace MediaBackupManager.ViewModel
             for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
             {
                 var deleteElement = Index.BackupSets.ElementAt(i);
-                await Index.RemoveBackupSetAsync(deleteElement);
+                await Index.Index.RemoveBackupSetAsync(deleteElement);
             }
         }
 
@@ -62,11 +70,11 @@ namespace MediaBackupManager.ViewModel
         }
         private async void RemoveNewData_Execute(object obj)
         {
-            var deleteSet = Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "\\indexdir");
+            var deleteSet = Index.Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "indexdir" && x.MountPoint == "C:\\");
 
             if(!(deleteSet is null))
             {
-                await Index.RemoveBackupSetAsync(deleteSet);
+                await Index.Index.RemoveBackupSetAsync(deleteSet);
             }
         }
 
@@ -84,7 +92,7 @@ namespace MediaBackupManager.ViewModel
         }
         private async void LoadData_Execute(object obj)
         {
-            await Index.LoadDataAsync();
+            await Index.Index.LoadDataAsync();
         }
 
         private RelayCommand.RelayCommand loadAdditionalData;
@@ -114,38 +122,37 @@ namespace MediaBackupManager.ViewModel
         }
         private async void ScanNewData_Execute(object obj)
         {
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
         }
 
         private async void LoadAdditionalData_Execute(object obj)
         {
 
-            //Index.IndexDirectory(new DirectoryInfo(@"F:\NZB"));
-            //await Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
-
-            var token = new CancellationToken();
-            App.Current.Properties["cancelToken"] = token;
+            //Index.Index.IndexDirectory(new DirectoryInfo(@"F:\NZB"));
+            //await Index.Index.IndexDirectoryAsync(new DirectoryInfo(@"F:\Archive"));
 
 
             //await Database.BeginTransactionAsync();
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive\Anime\Anne Happy"));
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive"));
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\dd"));
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir"));
+            //await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive\Anime\Anne Happy"));
+            //await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\Archive"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\dd"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir"));
 
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images2\b"));
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images2\b"));
+            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
 
             //var stagingIndex = new FileIndex();
             //await stagingIndex.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir"));
-            //Index.MergeFileIndex(stagingIndex);
+            //Index.Index.MergeFileIndex(stagingIndex);
 
         }
 
         public TestPageViewModel(FileIndex index)
         {
-            this.Index = index;
+            this.Index = new FileIndexViewModel(index);
+            var token = new CancellationToken();
+            App.Current.Properties["cancelToken"] = token;
             //FileIndex.LoadData();
             //this.backupSets = new ObservableCollection<BackupSet>(FileIndex.BackupSets);
 

@@ -22,6 +22,6 @@
             <Button x:Name="btnScanAdditional" Content="Scan add." Command="{Binding ScanNewData}"></Button>
             <Button x:Name="btnDeleteAdditional" Content="Delete add." Command="{Binding RemoveNewData}"></Button>
         </StackPanel>
-            <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" ItemsSource="{Binding Path=BackupSets.BackupSets}"></DataGrid>
+            <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" ItemsSource="{Binding Path=Index.BackupSets}"></DataGrid>
     </DockPanel>
 </Window>
