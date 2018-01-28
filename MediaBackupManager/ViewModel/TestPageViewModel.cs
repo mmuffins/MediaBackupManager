@@ -27,10 +27,6 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
-
-        BackupSetViewModel backupSets = new BackupSetViewModel();
-        public BackupSetViewModel BackupSets { get => backupSets; }
-
         //ObservableCollection<BackupSet> backupSets = new ObservableCollection<BackupSet>();
         //public ObservableCollection<BackupSet> BackupSets { get => backupSets; }
 
@@ -48,9 +44,9 @@ namespace MediaBackupManager.ViewModel
         }
         private async void ClearData_Execute(object obj)
         {
-            for (int i = Index.BackupSets.Count - 1; i >= 0; i--)
+            for (int i = Index.Index.BackupSets.Count - 1; i >= 0; i--)
             {
-                var deleteElement = Index.BackupSets.ElementAt(i);
+                var deleteElement = Index.Index.BackupSets.ElementAt(i);
                 await Index.Index.RemoveBackupSetAsync(deleteElement);
             }
         }
@@ -70,12 +66,7 @@ namespace MediaBackupManager.ViewModel
         }
         private async void RemoveNewData_Execute(object obj)
         {
-            var deleteSet = Index.Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "indexdir" && x.MountPoint == "C:\\");
-
-            if(!(deleteSet is null))
-            {
-                await Index.Index.RemoveBackupSetAsync(deleteSet);
-            }
+            await Index.DeleteNewData();
         }
 
         private RelayCommand.RelayCommand loadData;
@@ -122,7 +113,7 @@ namespace MediaBackupManager.ViewModel
         }
         private async void ScanNewData_Execute(object obj)
         {
-            await Index.Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
+            await Index.LoadNewData(new DirectoryInfo(@"C:\indexdir"));
         }
 
         private async void LoadAdditionalData_Execute(object obj)

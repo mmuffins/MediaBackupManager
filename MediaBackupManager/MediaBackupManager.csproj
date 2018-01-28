@@ -92,6 +92,7 @@
     <Compile Include="Model\FileNode.cs" />
     <Compile Include="Model\LogicalVolume.cs" />
     <Compile Include="ViewModel\BackupSetViewModel.cs" />
+    <Compile Include="ViewModel\FileHashViewModel.cs" />
     <Compile Include="ViewModel\FileIndexViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TestPageViewModel.cs" />

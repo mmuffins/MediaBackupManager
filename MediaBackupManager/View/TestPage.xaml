@@ -5,16 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaBackupManager.View"
         xmlns:model="clr-namespace:MediaBackupManager.Model"
+        xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
         mc:Ignorable="d"
         Title="TestPage" Height="300" SizeToContent="WidthAndHeight" Width="300">
     <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
-        <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="80">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:BackupSet}" ItemsSource="{Binding Path=BackupSets}">
-                    <TextBlock Text="{Binding RootDirectory}"/>
+        <!--<TreeView x:Name="treeDirectory4" DockPanel.Dock="Left" Width="350" ItemsSource="{Binding Path=Index.BackupSets}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" ItemsSource="{Binding Path=RootDirectoryObject.SubDirectories}">
+                    <TreeViewItem Header="{Binding Path=Guid}"/>
                 </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
+                <DataTemplate DataType="{x:Type model:FileDirectory}">
+                    <TreeViewItem Header="{Binding DirectoryName}" ItemsSource="{Binding Path=SubDirectories}"/>
+                </DataTemplate>
+            </TreeView.Resources>
+        </TreeView>-->
+        <TreeView x:Name="treeDirectory3" DockPanel.Dock="Left" Width="350" ItemsSource="{Binding Path=Index.BackupSets}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" ItemsSource="{Binding Path=RootDirectoryObject.SubDirectories}">
+                    <TreeViewItem Header="{Binding Path=RootDirectoryObject.FullName}"/>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type model:FileDirectory}" ItemsSource="{Binding Path=SubDirectories}">
+                    <TreeViewItem Header="{Binding Path=Name}"/>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
         </TreeView>
+
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
             <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearData}"></Button>
             <Button x:Name="btnLoadData" Content="LoadDB" Command="{Binding LoadData}"></Button>
