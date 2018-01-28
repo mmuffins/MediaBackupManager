@@ -84,7 +84,6 @@ namespace MediaBackupManager.Model
                     ", Size INTEGER" +
                     ", Type INTEGER" +
                     ", VolumeName TEXT" +
-                    ", Label TEXT" +
                     ")";
 
                 await sqlCmd.ExecuteNonQueryAsync();
@@ -112,6 +111,7 @@ namespace MediaBackupManager.Model
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
                     ", RootDirectory TEXT" +
+                    ", Label TEXT" +
                     ")";
                 await sqlCmd.ExecuteNonQueryAsync();
 
@@ -180,7 +180,6 @@ namespace MediaBackupManager.Model
                     {
                         res.Add(new LogicalVolume()
                         {
-                            Label = reader["Label"].ToString(),
                             Size = ulong.Parse(reader["Size"].ToString()),
                             Type = (DriveType)Enum.Parse(typeof(DriveType), reader["Type"].ToString()),
                             VolumeName = reader["VolumeName"].ToString(),
@@ -227,6 +226,7 @@ namespace MediaBackupManager.Model
                         {
                             Guid = new Guid(reader["Guid"].ToString()),
                             RootDirectory = reader["RootDirectory"].ToString(),
+                            Label = reader["Label"].ToString(),
                             Index = Database.Index
                         };
 
@@ -333,7 +333,7 @@ namespace MediaBackupManager.Model
                         if (int.Parse(reader["NodeType"].ToString()) == 0)  // 0 => Directory, 1 => Node
                         {
                             node.DirectoryName = reader["DirectoryName"].ToString();
-                            //node.BackupSet = backupSet;
+                            node.Name = reader["Name"].ToString();
                         }
                         else
                         {
@@ -342,7 +342,6 @@ namespace MediaBackupManager.Model
                             node = new FileNode();
 
                             node.DirectoryName = reader["DirectoryName"].ToString();
-                            //node.BackupSet = backupSet;
                             ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
                             ((FileNode)node).Checksum = reader["Checksum"].ToString();
@@ -478,14 +477,13 @@ namespace MediaBackupManager.Model
 
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
             sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
-            sqlCmd.Parameters["@Name"].Value = "";
+            sqlCmd.Parameters["@Name"].Value = fileNode.Name;
             sqlCmd.Parameters["@Extension"].Value = "";
             sqlCmd.Parameters["@File"].Value = "";
             sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
 
             if (fileNode is FileNode)
             {
-                sqlCmd.Parameters["@Name"].Value = (fileNode as FileNode).Name;
                 sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
                 sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.Checksum;
                 sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
@@ -503,10 +501,12 @@ namespace MediaBackupManager.Model
                 "Guid" +
                 ", Volume" +
                 ", RootDirectory" +
+                ", Label" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
                 ", @RootDirectory" +
+                ", @Label" +
                 ")";
 
             sqlCmd.CommandType = CommandType.Text;
@@ -514,10 +514,12 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
             sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
             sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
             sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
+            sqlCmd.Parameters["@Label"].Value = backupSet.Label;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -563,13 +565,11 @@ namespace MediaBackupManager.Model
                 ", Size" +
                 ", Type" +
                 ", VolumeName" +
-                ", Label" +
                 ") VALUES (" +
                 "@SerialNumber " +
                 ", @Size" +
                 ", @Type" +
                 ", @VolumeName" +
-                ", @Label" +
                 ")";
 
             sqlCmd.CommandType = CommandType.Text;
@@ -578,13 +578,11 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Type", DbType.Int16));
             sqlCmd.Parameters.Add(new SQLiteParameter("@VolumeName", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
             sqlCmd.Parameters["@SerialNumber"].Value = logicalVolume.SerialNumber;
             sqlCmd.Parameters["@Size"].Value = logicalVolume.Size;
             sqlCmd.Parameters["@Type"].Value = (int)logicalVolume.Type;
             sqlCmd.Parameters["@VolumeName"].Value = logicalVolume.VolumeName;
-            sqlCmd.Parameters["@Label"].Value = logicalVolume.Label;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -779,10 +777,12 @@ namespace MediaBackupManager.Model
                 "Guid" +
                 ", Volume" +
                 ", RootDirectory" +
+                ", Label" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
                 ", @RootDirectory" +
+                ", @Label" +
                 ")";
 
             var dbConn = new SQLiteConnection(GetConnectionString());
@@ -801,10 +801,12 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
                             sqlCmd.Parameters["@Guid"].Value = set.Guid;
                             sqlCmd.Parameters["@Volume"].Value = set.Volume.SerialNumber;
                             sqlCmd.Parameters["@RootDirectory"].Value = set.RootDirectory;
+                            sqlCmd.Parameters["@Label"].Value = set.Label;
 
                             await sqlCmd.ExecuteNonQueryAsync();
                         }
@@ -916,14 +918,13 @@ namespace MediaBackupManager.Model
 
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
                             sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
-                            sqlCmd.Parameters["@Name"].Value = "";
+                            sqlCmd.Parameters["@Name"].Value = node.Name;
                             sqlCmd.Parameters["@Extension"].Value = "";
                             sqlCmd.Parameters["@Checksum"].Value = "";
                             sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
 
                             if (node is FileNode)
                             {
-                                sqlCmd.Parameters["@Name"].Value = (node as FileNode).Name;
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
                                 sqlCmd.Parameters["@Checksum"].Value = (node as FileNode).Hash.Checksum;
                                 sqlCmd.Parameters["@BackupSet"].Value = (node as FileNode).BackupSet.Guid;
@@ -953,13 +954,11 @@ namespace MediaBackupManager.Model
                 ", Size" +
                 ", Type" +
                 ", VolumeName" +
-                ", Label" +
                 ") VALUES (" +
                 "@SerialNumber " +
                 ", @Size" +
                 ", @Type" +
                 ", @VolumeName" +
-                ", @Label" +
                 ")";
 
             var dbConn = new SQLiteConnection(GetConnectionString());
@@ -979,13 +978,11 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Type", DbType.Int16));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@VolumeName", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
                             sqlCmd.Parameters["@SerialNumber"].Value = volume.SerialNumber;
                             sqlCmd.Parameters["@Size"].Value = volume.Size;
                             sqlCmd.Parameters["@Type"].Value = (int)volume.Type;
                             sqlCmd.Parameters["@VolumeName"].Value = volume.VolumeName;
-                            sqlCmd.Parameters["@Label"].Value = volume.Label;
 
                             await sqlCmd.ExecuteNonQueryAsync();
                         }

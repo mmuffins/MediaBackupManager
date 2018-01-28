@@ -24,6 +24,9 @@ namespace MediaBackupManager.Model
         public HashSet<FileDirectory> FileNodes { get; }
         public HashSet<string> Exclusions { get; set; }
 
+        /// <summary>User defined label for the drive</summary>
+        public string Label { get; set; }
+
         #endregion
 
         #region Methods
@@ -31,6 +34,8 @@ namespace MediaBackupManager.Model
         {
             this.Guid = Guid.NewGuid();
             this.FileNodes = new HashSet<FileDirectory>();
+            if (string.IsNullOrWhiteSpace(this.Label))
+                this.Label = this.Guid.ToString();
         }
 
         public BackupSet(DirectoryInfo directory, LogicalVolume drive, FileIndex fileIndex) : this()
@@ -40,6 +45,9 @@ namespace MediaBackupManager.Model
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
             this.Index = fileIndex;
+
+            if (string.IsNullOrWhiteSpace(this.Label))
+                this.Label = drive.MountPoint;
         }
 
         public BackupSet(DirectoryInfo directory, LogicalVolume drive, HashSet<string> exclusions) : this()
@@ -48,6 +56,9 @@ namespace MediaBackupManager.Model
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
             this.Exclusions = exclusions;
+
+            if (string.IsNullOrWhiteSpace(this.Label))
+                this.Label = drive.MountPoint;
         }
 
         /// <summary>
@@ -212,6 +223,20 @@ namespace MediaBackupManager.Model
                 .Select(x => x.Hash)
                 .Distinct()
                 .ToList();
+        }
+
+        /// <summary>
+        /// Returns an IEnumerable object of all File Directory objects that lie directly below the provided object.</summary>  
+        public IEnumerable<FileDirectory> GetSubDirectories(FileDirectory parent)
+        {
+            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName); ;
+        }
+
+        /// <summary>
+        /// Returns the root file directory object.</summary>  
+        public FileDirectory GetRootDirectoryObject()
+        {
+            return FileNodes.FirstOrDefault(x => x.DirectoryName.Equals(RootDirectory));
         }
 
         #endregion

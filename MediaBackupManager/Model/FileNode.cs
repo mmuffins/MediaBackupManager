@@ -15,8 +15,6 @@ namespace MediaBackupManager.Model
 
         #region Properties
 
-        // File Properties
-        public string Name { get; set; }
         public string Extension { get; set; }
         public FileHash Hash { get; set; }
         public string Checksum { get; set; }
@@ -26,6 +24,12 @@ namespace MediaBackupManager.Model
 
         /// <summary>Full path name including mount point of the current session.</summary>
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
+
+        /// <summary>Returns the path of the parent directory.</summary>
+        public override string ParentDirectoryName { get => DirectoryName; }
+
+        /// <summary>Returns a list of all subdirectories of the current object.</summary>
+        public override IEnumerable<FileDirectory> SubDirectories { get => null; }
 
         #endregion
 

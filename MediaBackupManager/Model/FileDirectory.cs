@@ -14,7 +14,7 @@ namespace MediaBackupManager.Model
 
         #region Properties
 
-        // Directory Properties
+        public string Name { get; set; }
         public BackupSet BackupSet { get; set; }
 
         /// <summary>Name of the containing directory.</summary>
@@ -26,6 +26,18 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName); }
 
+        /// <summary>Returns the path of the parent directory.</summary>
+        public virtual string ParentDirectoryName {
+            get
+            {
+                int lastIndex = DirectoryName.LastIndexOf("\\");
+                return lastIndex >= 0 ? DirectoryName.Substring(0, DirectoryName.LastIndexOf("\\")) : null;
+            }
+        }
+
+        /// <summary>Returns a list of all subdirectories of the current object.</summary>
+        public virtual IEnumerable<FileDirectory> SubDirectories { get => this.BackupSet.GetSubDirectories(this); }
+
         #endregion
 
         #region Methods
@@ -34,6 +46,7 @@ namespace MediaBackupManager.Model
 
         public FileDirectory(DirectoryInfo directoryInfo, BackupSet backupSet)
         {
+            this.Name = directoryInfo.Name;
             this.DirectoryName = directoryInfo.FullName.Substring(Path.GetPathRoot(directoryInfo.FullName).Length);
             this.BackupSet = backupSet;
         }

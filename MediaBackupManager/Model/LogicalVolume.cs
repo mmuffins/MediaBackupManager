@@ -14,11 +14,6 @@ namespace MediaBackupManager.Model
     public class LogicalVolume : IEquatable<LogicalVolume>
     {
         #region Properties
-
-        /// <summary>User defined label for the drive</summary>
-        public string Label { get; set; }
-
-        // Logical Disk
         public string SerialNumber { get; set; }
         public ulong Size { get; set; }
         public DriveType Type { get; set; }
@@ -36,7 +31,6 @@ namespace MediaBackupManager.Model
         public LogicalVolume(DirectoryInfo directory)
         {
             this.MountPoint = directory.Root.Name;
-            this.Label = directory.Root.Name;
             this.VolumeName = directory.Root.Name;
 
             GetLogicalDriveInformation();

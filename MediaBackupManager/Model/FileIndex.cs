@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,7 +14,7 @@ namespace MediaBackupManager.Model
     /// <summary>
     /// Manages a collection of FileHash objects.</summary>  
 
-    public class FileIndex
+    public class FileIndex : INotifyPropertyChanged
     {
         #region Fields
 
@@ -20,6 +22,7 @@ namespace MediaBackupManager.Model
         //private List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
         //private List<BackupSet> backupSets = new List<BackupSet>();
         //private HashSet<string> exclusions = new HashSet<string>();
+        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -42,6 +45,7 @@ namespace MediaBackupManager.Model
             this.BackupSets = new List<BackupSet>();
             this.Exclusions = new HashSet<string>();
         }
+
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
@@ -130,7 +134,7 @@ namespace MediaBackupManager.Model
             // merge it into the main list and write new data into the db
 
             await AppendBackupSetAsync(stagingSet);
-
+            NotifyPropertyChanged("BackupSets");
         }
 
         /// <summary>
@@ -190,6 +194,7 @@ namespace MediaBackupManager.Model
             await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
 
             BackupSets.Remove(set);
+            NotifyPropertyChanged("BackupSets");
             await Database.DeleteBackupSetAsync(set);
         }
 
@@ -296,5 +301,18 @@ namespace MediaBackupManager.Model
         }
 
         #endregion
+
+        #region Implementations
+
+        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            // take a copy to prevent thread issues
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+
     }
 }
