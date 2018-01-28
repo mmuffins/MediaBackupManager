@@ -134,7 +134,6 @@ namespace MediaBackupManager.Model
             // merge it into the main list and write new data into the db
 
             await AppendBackupSetAsync(stagingSet);
-            NotifyPropertyChanged("BackupSets");
         }
 
         /// <summary>
@@ -143,24 +142,18 @@ namespace MediaBackupManager.Model
         {
             if (Exclusions.Add(exclusion))
             {
+                NotifyPropertyChanged("Exclusion");
                 await Database.InsertExclusionAsync(exclusion);
             }
         }
 
         /// <summary>
-        /// Adds the specified file to the file index and returns its reference.</summary>  
-        public FileHash AddHash(FileHash file)
+        /// Adds the provided Backup set to the collection.</summary>  
+        private async Task AddBackupSet(BackupSet backupSet)
         {
-            if (Hashes.ContainsKey(file.Checksum))
-            {
-                return Hashes[file.Checksum];
-            }
-            else
-            {
-                Hashes.Add(file.Checksum, file);
-                //Database.InsertFileHash(file);
-                return file;
-            }
+            BackupSets.Add(backupSet);
+            NotifyPropertyChanged("BackupSet");
+            await Database.InsertBackupSetAsync(backupSet);
         }
 
         /// <summary>
@@ -181,6 +174,7 @@ namespace MediaBackupManager.Model
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
                 LogicalVolumes.Remove(set.Volume);
+                NotifyPropertyChanged("LogicalVolume");
                 await Database.DeleteLogicalVolumeAsync(set.Volume);
             }
 
@@ -194,7 +188,7 @@ namespace MediaBackupManager.Model
             await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
 
             BackupSets.Remove(set);
-            NotifyPropertyChanged("BackupSets");
+            NotifyPropertyChanged("BackupSet");
             await Database.DeleteBackupSetAsync(set);
         }
 
@@ -254,7 +248,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Appends the provided BackupSet to the index and writes new elements into the Database.</summary>  
-        public async Task AppendBackupSetAsync(BackupSet stagingSet)
+        private async Task AppendBackupSetAsync(BackupSet stagingSet)
         {
             // Hashes
             // To prevent any issues, rebuild the hash index by looping through each filenode and
@@ -276,7 +270,8 @@ namespace MediaBackupManager.Model
                 }
                 else
                 {
-                    Hashes.Add(file.Hash.Checksum, file.Hash);
+                    Hashes.Add(file.Hash.Checksum, file.Hash); // Hashes are written to the DB in batches, so no reason for a dedicated method here
+                    NotifyPropertyChanged("FileHash");
                     newHashes.Add(file.Hash); 
                 }
             }
@@ -296,8 +291,7 @@ namespace MediaBackupManager.Model
                 stagingSet.Volume = LogicalVolumes.FirstOrDefault((x => x.Equals(stagingSet.Volume)));
             }
 
-            BackupSets.Add(stagingSet);
-            await Database.InsertBackupSetAsync(stagingSet);
+            await AddBackupSet(stagingSet);
         }
 
         #endregion

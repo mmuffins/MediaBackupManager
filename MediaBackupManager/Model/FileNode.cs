@@ -20,7 +20,7 @@ namespace MediaBackupManager.Model
         public string Checksum { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
-        public override string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName, Name); }
+        public override string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
 
         /// <summary>Full path name including mount point of the current session.</summary>
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }

@@ -21,7 +21,7 @@ namespace MediaBackupManager.Model
         public string DirectoryName { get; set; }
 
         /// <summary>Full path name including volume serial.</summary>
-        public virtual string FullName { get => Path.Combine(BackupSet.Volume.SerialNumber, DirectoryName); }
+        public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName); }
 
         /// <summary>Full path name including mount point of the current session.</summary>
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName); }

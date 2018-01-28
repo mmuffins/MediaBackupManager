@@ -12,7 +12,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents an index filesystem location.</summary>  
-    public class BackupSet
+    public class BackupSet : IEquatable<BackupSet>
     {
         #region Properties
 
@@ -243,9 +243,38 @@ namespace MediaBackupManager.Model
 
         #region Implementations
 
+        public override int GetHashCode()
+        {
+            return Guid.GetHashCode() ^
+                Label.GetHashCode() ^ 
+                RootDirectory.GetHashCode();
+        }
+
         public override string ToString()
         {
-            return MountPoint + " " + RootDirectory;
+            return Label + " " + RootDirectory;
+        }
+
+        public bool Equals(BackupSet other)
+        {
+            if (other == null)
+                return false;
+
+            return this.Guid.Equals(other.Guid) 
+                && this.Label.Equals(other.Label)
+                && this.RootDirectory.Equals(other.RootDirectory);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            BackupSet otherObj = obj as BackupSet;
+            if (otherObj == null)
+                return false;
+            else
+                return Equals(otherObj);
         }
 
         #endregion

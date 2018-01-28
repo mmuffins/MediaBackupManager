@@ -36,7 +36,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-
         #endregion
 
         #region Methods
@@ -47,26 +46,19 @@ namespace MediaBackupManager.ViewModel
             this.BackupSets = new ObservableCollection<BackupSetViewModel>();
             UpdateBackupSets();
 
-            //PropertyChanged += (obj, args) => { System.Diagnostics.Debug.WriteLine("Property " + args.PropertyName + " changed"); };
-            Index.PropertyChanged += new PropertyChangedEventHandler(Index_PropertyChanged);
-            GetSubDirs();
+            Index.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
         }
 
-        public void GetSubDirs()
+        private void OnIndexPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //var parent1 = BackupSets[0].FileNodes[10];
-            //var ab = BackupSets[0].GetSubDirectories(parent1);
-
-            //var parent2 = BackupSets[0].FileNodes[20];
-            //var ab2 = BackupSets[0].GetSubDirectories(parent2);
-
-        }
-
-        private void Index_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if(e.PropertyName == "BackupSets")
+            switch (e.PropertyName)
             {
-                UpdateBackupSets();
+                case "BackupSet":
+                    UpdateBackupSets();
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -74,7 +66,6 @@ namespace MediaBackupManager.ViewModel
         public async Task LoadNewData(DirectoryInfo dir)
         {
             await Index.CreateBackupSetAsync(dir);
-            //UpdateBackupSets();
         }
 
         public async Task DeleteNewData()
@@ -89,14 +80,18 @@ namespace MediaBackupManager.ViewModel
 
         private void UpdateBackupSets()
         {
-            foreach (var item in Index.BackupSets)
+            for (int i = this.BackupSets.Count-1; i >= 0; i--)
             {
-                var itm = new BackupSetViewModel(item);
+                if (!Index.BackupSets.Contains(this.BackupSets.ElementAt(i).BackupSet))
+                    this.BackupSets.RemoveAt(i); // set was removed from the model, update accordingly
+            }
 
-                if (!this.BackupSets.Contains(itm))
-                {
-                    this.BackupSets.Add(itm);
-                }
+            var newSets = Index.BackupSets
+                .Except(this.BackupSets.Select(x => x.BackupSet));
+
+            foreach (var item in newSets)
+            {
+                this.BackupSets.Add(new BackupSetViewModel(item));
             }
         }
 

@@ -13,6 +13,7 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         private BackupSet backupSet;
+        private FileDirectory rootDirectory;
 
         #endregion
 
@@ -44,16 +45,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public FileDirectory RootDirectoryObject { get; set; }
-
-        public string RootDirectory
+        public FileDirectory RootDirectory
         {
-            get { return backupSet.RootDirectory; }
+            get
+            {
+                if(this.rootDirectory is null)
+                    this.rootDirectory = backupSet.GetRootDirectoryObject();
+
+                return this.rootDirectory;
+            }
             set
             {
-                if (value != backupSet.RootDirectory)
+                if (value != this.RootDirectory)
                 {
-                    backupSet.RootDirectory = value;
+                    this.RootDirectory = value;
                     NotifyPropertyChanged("");
                 }
             }
@@ -69,16 +74,7 @@ namespace MediaBackupManager.ViewModel
         {
             this.BackupSet = backupSet;
             this.FileNodes = new ObservableCollection<FileDirectory>(BackupSet.FileNodes);
-            this.RootDirectoryObject = backupSet.GetRootDirectoryObject();
-
-            //FileIndex.LoadDatau
-            //this.backupSets = new ObservableCollection<BackupSet>(FileIndex.BackupSets);
-            //var ab
-        }
-
-        public IEnumerable<FileDirectory> GetSubDirectories(FileDirectory parent)
-        {
-            return BackupSet.GetSubDirectories(parent);
+            this.RootDirectory = backupSet.GetRootDirectoryObject();
         }
 
         #endregion
@@ -87,7 +83,7 @@ namespace MediaBackupManager.ViewModel
 
         public override int GetHashCode()
         {
-            return this.Guid.GetHashCode();
+            return this.BackupSet.GetHashCode();
         }
 
         public virtual bool Equals(BackupSetViewModel other)
@@ -95,7 +91,7 @@ namespace MediaBackupManager.ViewModel
             if (other == null)
                 return false;
 
-            return this.Guid.Equals(other.Guid);
+            return this.BackupSet.Equals(other.BackupSet);
         }
 
         public override bool Equals(object obj)
