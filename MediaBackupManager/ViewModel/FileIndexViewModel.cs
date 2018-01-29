@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    class FileIndexViewModel : ViewModelBase.ViewModelBase
+    public class FileIndexViewModel : ViewModelBase.ViewModelBase
     {
         #region Fields
 
-        FileIndex index = new FileIndex();
+        FileIndex index;
         private ObservableCollection<BackupSetViewModel> backupSets;
 
         #endregion
@@ -62,7 +62,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-
         public async Task LoadNewData(DirectoryInfo dir)
         {
             await Index.CreateBackupSetAsync(dir);
@@ -78,9 +77,11 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Syncronizes the local BackupSet collection with the model.</summary>  
         private void UpdateBackupSets()
         {
-            for (int i = this.BackupSets.Count-1; i >= 0; i--)
+            for (int i = this.BackupSets.Count - 1; i >= 0; i--)
             {
                 if (!Index.BackupSets.Contains(this.BackupSets.ElementAt(i).BackupSet))
                     this.BackupSets.RemoveAt(i); // set was removed from the model, update accordingly
@@ -95,12 +96,26 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Adds the default exclusions to the collection if they don't already exist.</summary>  
+        public async Task RestoreDefaultExclusionsAsync()
+        {
+            await Index.RestoreDefaultExclusionsAsync();
+        }
+
+        /// <summary>
+        /// Populates the index with data stored in the database.</summary>  
+        public async Task LoadDataAsync()
+        {
+            await Index.LoadDataAsync();
+        }
+
         #endregion
 
         #region Implementations
 
         #endregion
 
-        
+
     }
 }

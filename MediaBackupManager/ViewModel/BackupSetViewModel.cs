@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    class BackupSetViewModel : ViewModelBase.ViewModelBase, IEquatable<BackupSetViewModel>
+    public class BackupSetViewModel : ViewModelBase.ViewModelBase, IEquatable<BackupSetViewModel>
     {
         #region Fields
 

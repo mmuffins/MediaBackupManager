@@ -57,6 +57,7 @@ namespace MediaBackupManager.Model
         /// <returns>Returns true if a new database was created.</returns>
         public static bool CreateDatabase()
         {
+            //TODO: Handle cases where the DB is on a network drive
             string dbPath = GetFullName();
 
             if (!Directory.Exists(GetPath()))
