@@ -82,22 +82,18 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO:Properly implement this
+            //TODO:Properly implement the cancellation token
             var token = new System.Threading.CancellationToken();
             App.Current.Properties["cancelToken"] = token;
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
+            //TODO: Implement view showing a list of hashes related to a single node
             CommandBarViewModel = new CommandBarViewModel(Index);
 
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
-
-            //TODO:Remove using directives for MediaBackupManager.View and System.Windows once done testing
-            //var testPage = new TestPage(Index.Index);
-            //testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            //testPage.Show();
         }
 
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>

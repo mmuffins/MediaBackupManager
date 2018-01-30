@@ -24,14 +24,30 @@ namespace MediaBackupManager.View
         public DirectoryBrowserView()
         {
             InitializeComponent();
+
+        }
+
+        private void SetTreeViewItem(object sender, object e)
+        {
+            var sX = sender;
+            var evArts = e;
         }
 
         private void treeDirectory_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // SelectedItem on treeView is readonly for some reason, 
             // so we need to raise an event instead of directly binding
-            //((DirectoryBrowserViewModel)this.DataContext).CurrentDirectory = e.NewValue;
+            ((DirectoryBrowserViewModel)this.DataContext).CurrentDirectory = ((RoutedPropertyChangedEventArgs<object>)e).NewValue;
+        }
 
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            this.CommandBindings.Clear();
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            ((DirectoryBrowserViewModel)this.DataContext).SelectedDirectoryChangedEvent += SetTreeViewItem;
         }
     }
 }

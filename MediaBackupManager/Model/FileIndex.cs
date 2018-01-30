@@ -115,7 +115,7 @@ namespace MediaBackupManager.Model
             if (!Directory.Exists(dir.FullName))
                 return;
 
-            //TODO: Promt the user on what to do when the directory is already indexed
+            //TODO: Prompt the user on what to do when the directory is already indexed
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
                 return;
 

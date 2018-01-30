@@ -24,5 +24,10 @@ namespace MediaBackupManager.View
         {
             InitializeComponent();
         }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            this.CommandBindings.Clear();
+        }
     }
 }

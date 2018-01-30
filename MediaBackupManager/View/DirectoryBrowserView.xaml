@@ -7,7 +7,7 @@
              xmlns:model="clr-namespace:MediaBackupManager.Model"
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="100">
+             d:DesignHeight="50" d:DesignWidth="100" Unloaded="UserControl_Unloaded" Loaded="UserControl_Loaded">
     
     <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
         <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="350" 

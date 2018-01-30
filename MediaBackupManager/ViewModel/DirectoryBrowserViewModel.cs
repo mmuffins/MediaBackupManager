@@ -12,8 +12,13 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         private FileIndexViewModel index;
-        private FileDirectory currentDirectory;
+
+        private object currentDirectory;
+
         private BackupSetViewModel selectedSet;
+
+        private event EventHandler<object> selectedDirectoryChangedEvent = delegate { };
+
 
         #endregion
 
@@ -25,17 +30,28 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
-        public FileDirectory CurrentDirectory
-        {
-            get { return currentDirectory; }
-            set { currentDirectory = value; }
-        }
-
         public BackupSetViewModel SelectedGridItem
         {
             get { return selectedSet; }
             set { selectedSet = value; }
         }
+
+        public object CurrentDirectory
+        {
+            get { return currentDirectory; }
+            set
+            {
+                currentDirectory = value;
+                selectedDirectoryChangedEvent(this, new EventArgs());
+            }
+        }
+
+        public EventHandler<object> SelectedDirectoryChangedEvent
+        {
+            get { return selectedDirectoryChangedEvent; }
+            set { selectedDirectoryChangedEvent = value; }
+        }
+        
         #endregion
 
         #region Methods
