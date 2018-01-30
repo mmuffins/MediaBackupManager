@@ -51,6 +51,8 @@ namespace MediaBackupManager.Model
         /// Populates the index with data stored in the database.</summary>  
         public async Task LoadDataAsync()
         {
+            // Don't use the 
+
             this.Exclusions = new HashSet<string>(await Database.GetExclusionsAsync());
             this.Hashes = (await Database.GetFileHashAsync()).ToDictionary(x => x.Checksum);
             this.BackupSets = await Database.GetBackupSetAsync();
@@ -64,7 +66,7 @@ namespace MediaBackupManager.Model
                 set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
                 if (LogicalVolumes.Contains(set.Volume))
                 {
-                    set.Volume = LogicalVolumes.Where(x => x.SerialNumber.Equals(set.Volume.SerialNumber)).FirstOrDefault();
+                    set.Volume = LogicalVolumes.FirstOrDefault(x => x.SerialNumber.Equals(set.Volume.SerialNumber));
                 }
                 else
                 {
@@ -78,8 +80,9 @@ namespace MediaBackupManager.Model
                 {
                     item.BackupSet = set;
                     set.FileNodes.Add(item);
+                    NotifyPropertyChanged("BackupSet");
 
-                    if(item is FileNode)
+                    if (item is FileNode)
                     {
                         FileHash hash;
                         if (Hashes.TryGetValue(((FileNode)item).Checksum, out hash))
@@ -138,36 +141,34 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified string collection of file exclusions.</summary>  
-        private async Task AddExclusionAsync(string exclusion)
+        /// <param name="writeToDb">If true, the object will be written to the Database.</param>
+        private async Task AddExclusionAsync(string exclusion, bool writeToDb)
         {
             if (Exclusions.Add(exclusion))
             {
                 NotifyPropertyChanged("Exclusion");
-                await Database.InsertExclusionAsync(exclusion);
+
+                if (writeToDb)
+                    await Database.InsertExclusionAsync(exclusion);
             }
         }
 
         /// <summary>
         /// Adds the provided Backup set to the collection.</summary>  
-        private async Task AddBackupSet(BackupSet backupSet)
+        /// <param name="writeToDb">If true, the object will be written to the Database.</param>
+        private async Task AddBackupSet(BackupSet backupSet, bool writeToDb)
         {
             BackupSets.Add(backupSet);
             NotifyPropertyChanged("BackupSet");
-            await Database.InsertBackupSetAsync(backupSet);
-        }
 
-        /// <summary>
-        /// Removes a file node from the index.</summary>  
-        public void RemoveFileNode(FileNode node)
-        {
-            FileHash removeFile;
-            if (Hashes.TryGetValue(node.Hash.Checksum, out removeFile))
-                removeFile.RemoveNode(node);
+            if (writeToDb)
+                await Database.InsertBackupSetAsync(backupSet);
         }
 
         /// <summary>
         /// Removes the specified backup set and all children from the index.</summary>  
-        public async Task RemoveBackupSetAsync(BackupSet set)
+        /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
+        public async Task RemoveBackupSetAsync(BackupSet set, bool writeToDb)
         {
             if(BackupSets.Where(x => x.Volume.Equals(set.Volume)).Count() < 2)
             {
@@ -175,7 +176,8 @@ namespace MediaBackupManager.Model
                 // set that's about to be deleted, it can therefore be removed
                 LogicalVolumes.Remove(set.Volume);
                 NotifyPropertyChanged("LogicalVolume");
-                await Database.DeleteLogicalVolumeAsync(set.Volume);
+                if(writeToDb)
+                    await Database.DeleteLogicalVolumeAsync(set.Volume);
             }
 
             // Get a list of all hashes related to the current set,
@@ -185,19 +187,24 @@ namespace MediaBackupManager.Model
 
             // All hashes in the collection without any other node 
             // can be clearly removed from the index
-            await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
+            if(writeToDb)
+                await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
 
             BackupSets.Remove(set);
             NotifyPropertyChanged("BackupSet");
-            await Database.DeleteBackupSetAsync(set);
+            if(writeToDb)
+                await Database.DeleteBackupSetAsync(set);
         }
 
         /// <summary>
         /// Removes the specified exclusion.</summary>  
-        public async Task RemoveExclusionAsync(string exclusion)
+        /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
+        public async Task RemoveExclusionAsync(string exclusion, bool writeToDb)
         {
             Exclusions.Remove(exclusion);
-            await Database.DeleteExclusionAsync(exclusion);
+
+            if(writeToDb)
+                await Database.DeleteExclusionAsync(exclusion);
         }
 
         /// <summary>
@@ -240,10 +247,10 @@ namespace MediaBackupManager.Model
         public async Task RestoreDefaultExclusionsAsync()
         {
             //TODO:Remove test exclusions before going live
-            await AddExclusionAsync(@".*usrclass.dat.log.*");
-            await AddExclusionAsync(@".*\\nzb.*");
-            await AddExclusionAsync(@".*\\filme.*");
-            await AddExclusionAsync(@".*\.zip");
+            await AddExclusionAsync(@".*usrclass.dat.log.*", true);
+            await AddExclusionAsync(@".*\\nzb.*", true);
+            await AddExclusionAsync(@".*\\filme.*", true);
+            await AddExclusionAsync(@".*\.zip", true);
         }
 
         /// <summary>
@@ -291,7 +298,7 @@ namespace MediaBackupManager.Model
                 stagingSet.Volume = LogicalVolumes.FirstOrDefault((x => x.Equals(stagingSet.Volume)));
             }
 
-            await AddBackupSet(stagingSet);
+            await AddBackupSet(stagingSet, true);
         }
 
         #endregion
