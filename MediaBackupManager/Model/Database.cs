@@ -39,7 +39,7 @@ namespace MediaBackupManager.Model
 
         public static string GetFullName()
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), folderName, fileName);
+            return Path.Combine(GetPath(), fileName);
         }
 
         public static string GetConnectionString()
@@ -74,7 +74,7 @@ namespace MediaBackupManager.Model
         /// <summary>Ensures that all needed database objects are created.</summary>
         public static async Task PrepareDatabaseAsync()
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(),true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
@@ -127,7 +127,7 @@ namespace MediaBackupManager.Model
         /// <param name="command">The command object that will be executed.</param>
         private static async Task<int> ExecuteNonQueryAsync(SQLiteCommand command)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(),true))
             {
                 try
                 {
@@ -157,7 +157,7 @@ namespace MediaBackupManager.Model
         {
             var res = new List<LogicalVolume>();
 
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
                 var cmdText = new StringBuilder("SELECT v.*FROM LogicalVolume AS v " +
@@ -203,7 +203,7 @@ namespace MediaBackupManager.Model
 
             var res = new List<BackupSet>();
 
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
@@ -247,7 +247,7 @@ namespace MediaBackupManager.Model
         {
             var res = new List<FileHash>();
 
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
@@ -290,7 +290,7 @@ namespace MediaBackupManager.Model
         {
             var res = new List<string>();
 
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
@@ -316,7 +316,7 @@ namespace MediaBackupManager.Model
         {
             var res = new List<FileDirectory>();
 
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
                 sqlCmd.CommandText = "SELECT * FROM FileNode WHERE BackupSet = @Guid";
@@ -370,7 +370,7 @@ namespace MediaBackupManager.Model
         /// <summary>Populates the specified BackupSet with filenodes from the database.</summary>
         public static void LoadBackupSetNodes(BackupSet backupSet)
         {
-            using (var dbConn = new SQLiteConnection(GetConnectionString()))
+            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
                 sqlCmd.CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
@@ -695,7 +695,7 @@ namespace MediaBackupManager.Model
             " AND DirectoryName = @DirectoryName" +
             " AND Name = @Name";
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
@@ -740,7 +740,7 @@ namespace MediaBackupManager.Model
             var commandText = "DELETE FROM FileHash WHERE" +
             " Checksum = @Checksum";
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
@@ -786,7 +786,7 @@ namespace MediaBackupManager.Model
                 ", @Label" +
                 ")";
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
@@ -839,7 +839,7 @@ namespace MediaBackupManager.Model
                 ", @LastWriteTime" +
                 ")";
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
@@ -897,7 +897,7 @@ namespace MediaBackupManager.Model
                 ")";
 
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
@@ -962,7 +962,7 @@ namespace MediaBackupManager.Model
                 ", @VolumeName" +
                 ")";
 
-            var dbConn = new SQLiteConnection(GetConnectionString());
+            var dbConn = new SQLiteConnection(GetConnectionString(), true);
 
             using (dbConn.OpenAsync())
             {
