@@ -98,7 +98,6 @@
     <Compile Include="ViewModel\FileHashViewModel.cs" />
     <Compile Include="ViewModel\FileIndexViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Compile Include="ViewModel\TestPageViewModel.cs" />
     <Compile Include="View\CommandBarView.xaml.cs">
       <DependentUpon>CommandBarView.xaml</DependentUpon>
     </Compile>
@@ -107,9 +106,6 @@
     </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\TestPage.xaml.cs">
-      <DependentUpon>TestPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -149,10 +145,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\TestPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
