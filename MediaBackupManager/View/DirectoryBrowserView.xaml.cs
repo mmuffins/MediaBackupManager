@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,14 @@ namespace MediaBackupManager.View
         public DirectoryBrowserView()
         {
             InitializeComponent();
+        }
+
+        private void treeDirectory_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            // SelectedItem on treeView is readonly for some reason, 
+            // so we need to raise an event instead of directly binding
+            //((DirectoryBrowserViewModel)this.DataContext).CurrentDirectory = e.NewValue;
+
         }
     }
 }

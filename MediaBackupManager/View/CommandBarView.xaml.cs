@@ -1,6 +1,4 @@
-﻿using MediaBackupManager.Model;
-using MediaBackupManager.ViewModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,24 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace MediaBackupManager.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for CommandBarView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class CommandBarView : UserControl
     {
-        public MainWindow()
+        public CommandBarView()
         {
             InitializeComponent();
-            this.DataContext = new MainWindowViewModel(); ;
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            this.CommandBindings.Clear();
         }
     }
 }

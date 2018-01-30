@@ -8,24 +8,24 @@
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="100">
+    
     <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
-        <TreeView x:Name="treeDirectory3" DockPanel.Dock="Left" Width="350" ItemsSource="{Binding Path=Index.BackupSets}">
+        <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="350" 
+                  ItemsSource="{Binding Path=Index.BackupSets}"
+                  SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
+                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
+                                          ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
                     <TreeViewItem Header="{Binding Path=RootDirectory.FullName}"/>
                 </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:FileDirectory}" ItemsSource="{Binding Path=SubDirectories}">
+                <HierarchicalDataTemplate DataType="{x:Type model:FileDirectory}" 
+                                          ItemsSource="{Binding Path=SubDirectories}">
                     <TreeViewItem Header="{Binding Path=Name}"/>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
-            <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearData}"></Button>
-            <Button x:Name="btnLoadData" Content="LoadDB" Command="{Binding LoadData}"></Button>
-            <Button x:Name="btnScanFiles" Content="Scan base" Command="{Binding LoadAdditionalData}"></Button>
-            <Button x:Name="btnScanAdditional" Content="Scan add." Command="{Binding ScanNewData}"></Button>
-            <Button x:Name="btnDeleteAdditional" Content="Delete add." Command="{Binding RemoveNewData}"></Button>
-        </StackPanel>
-        <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" ItemsSource="{Binding Path=Index.BackupSets}"></DataGrid>
+        <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" 
+                  ItemsSource="{Binding Path=Index.BackupSets}"
+                  SelectedItem="{Binding Path=SelectedGridItem}"></DataGrid>
     </DockPanel>
 </UserControl>

@@ -14,14 +14,28 @@ namespace MediaBackupManager.ViewModel
     {
         #region Fields
 
-        FileIndex index;
         private ObservableCollection<BackupSetViewModel> backupSets;
+
+        private FileDirectory currentDirectory;
 
         #endregion
 
         #region Properties
 
-        public FileIndex Index { get; set; }
+        public FileIndex Index { get; }
+
+        public FileDirectory CurrentDirectory
+        {
+            get { return currentDirectory; }
+            set
+            {
+                if(currentDirectory != value)
+                {
+                    currentDirectory = value;
+                    NotifyPropertyChanged("");
+                }
+            }
+        }
 
         public ObservableCollection<BackupSetViewModel> BackupSets
         {
@@ -44,8 +58,6 @@ namespace MediaBackupManager.ViewModel
         {
             this.Index = index;
             this.BackupSets = new ObservableCollection<BackupSetViewModel>();
-            UpdateBackupSets();
-
             Index.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
         }
 
@@ -62,19 +74,14 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public async Task LoadNewData(DirectoryInfo dir)
+        public async Task CreateBackupSetAsync(DirectoryInfo dir)
         {
             await Index.CreateBackupSetAsync(dir);
         }
 
-        public async Task DeleteNewData()
+        public async Task RemoveBackupSetAsync(BackupSet backupSet)
         {
-            var deleteSet = Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "indexdir" && x.MountPoint == "C:\\");
-
-            if (!(deleteSet is null))
-            {
-                await Index.RemoveBackupSetAsync(deleteSet);
-            }
+            await Index.RemoveBackupSetAsync(backupSet, true);
         }
 
         /// <summary>
@@ -109,6 +116,7 @@ namespace MediaBackupManager.ViewModel
         {
             await Index.LoadDataAsync();
         }
+
 
         #endregion
 

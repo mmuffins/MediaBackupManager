@@ -16,6 +16,7 @@ namespace MediaBackupManager.ViewModel
 
         private RelayCommand.RelayCommand changePageCommand;
         private ViewModelBase.ViewModelBase currentAppViewModel = new ViewModelBase.ViewModelBase();
+        private ViewModelBase.ViewModelBase commandBarViewModel = new ViewModelBase.ViewModelBase();
         private List<ViewModelBase.ViewModelBase> appViewModels = new List<ViewModelBase.ViewModelBase>();
         private FileIndexViewModel index;
 
@@ -31,6 +32,8 @@ namespace MediaBackupManager.ViewModel
 
         public List<ViewModelBase.ViewModelBase> AppViewModels { get => appViewModels; }
 
+        /// <summary>
+        /// The viewmodel used to present content in the main window</summary>
         public ViewModelBase.ViewModelBase CurrentAppViewModel
         {
             get { return currentAppViewModel; }
@@ -39,6 +42,21 @@ namespace MediaBackupManager.ViewModel
                 if (value != currentAppViewModel)
                 {
                     currentAppViewModel = value;
+                    NotifyPropertyChanged("");
+                }
+            }
+        }
+
+        /// <summary>
+        /// The viewmodel used as command bar</summary>
+        public ViewModelBase.ViewModelBase CommandBarViewModel
+        {
+            get { return commandBarViewModel; }
+            set
+            {
+                if (value != commandBarViewModel)
+                {
+                    commandBarViewModel = value;
                     NotifyPropertyChanged("");
                 }
             }
@@ -62,32 +80,38 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public MainWindowViewModel(FileIndex index)
+        public MainWindowViewModel()
         {
-            this.Index = new FileIndexViewModel(index);
-            PrepareDatabaseAsync(Index).Wait();
+            //TODO:Properly implement this
+            var token = new System.Threading.CancellationToken();
+            App.Current.Properties["cancelToken"] = token;
 
-            appViewModels.Add(new DirectoryBrowserViewModel(Index.Index));
+            this.Index = new FileIndexViewModel(new FileIndex());
+            PrepareDatabaseAsync(Index.Index).Wait();
+
+            CommandBarViewModel = new CommandBarViewModel(Index);
+
+            appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
 
             //TODO:Remove using directives for MediaBackupManager.View and System.Windows once done testing
-            var testPage = new TestPage(Index.Index);
-            testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            testPage.Show();
+            //var testPage = new TestPage(Index.Index);
+            //testPage.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            //testPage.Show();
         }
 
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
-        private async Task PrepareDatabaseAsync(FileIndexViewModel index)
+        private async Task PrepareDatabaseAsync(FileIndex index)
         {
-            Database.Index = Index.Index;
+            Database.Index = index;
             bool newDB = Database.CreateDatabase();
             await Database.PrepareDatabaseAsync();
 
             // Add the default exclusions if a new db was created
             if (newDB)
-                await this.Index.RestoreDefaultExclusionsAsync();
+                await index.RestoreDefaultExclusionsAsync();
 
-            await Index.LoadDataAsync();
+            await index.LoadDataAsync();
         }
 
         /// <summary>Changes the currently displayed viewmodel.</summary>

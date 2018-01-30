@@ -12,8 +12,12 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         private FileIndexViewModel index;
+        private FileDirectory currentDirectory;
+        private BackupSetViewModel selectedSet;
 
         #endregion
+
+        #region Properties
 
         public FileIndexViewModel Index
         {
@@ -21,13 +25,26 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
+        public FileDirectory CurrentDirectory
+        {
+            get { return currentDirectory; }
+            set { currentDirectory = value; }
+        }
+
+        public BackupSetViewModel SelectedGridItem
+        {
+            get { return selectedSet; }
+            set { selectedSet = value; }
+        }
+        #endregion
+
         #region Methods
 
-        public DirectoryBrowserViewModel(FileIndex index)
+        public DirectoryBrowserViewModel(FileIndexViewModel index)
         {
-            this.Index = new FileIndexViewModel(index);
-            //this.Index = index;
+            this.Index = index;
         }
+
 
         #endregion
     }

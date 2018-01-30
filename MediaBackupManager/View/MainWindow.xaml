@@ -12,9 +12,15 @@
         <DataTemplate DataType="{x:Type viewmodel:DirectoryBrowserViewModel}">
             <local:DirectoryBrowserView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodel:CommandBarViewModel}">
+            <local:CommandBarView />
+        </DataTemplate>
     </Window.Resources>
-
+    
     <DockPanel LastChildFill="True">
-        <ContentControl Content="{Binding Path=CurrentAppViewModel}" DockPanel.Dock="Bottom"/>
+        <ContentControl DockPanel.Dock="Top" 
+                        Content="{Binding Path=CommandBarViewModel}" />
+        <ContentControl DockPanel.Dock="Bottom" 
+                        Content="{Binding Path=CurrentAppViewModel}"/>
     </DockPanel>
 </Window>
