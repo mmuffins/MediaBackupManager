@@ -71,7 +71,7 @@ namespace MediaBackupManager.Model
 
         public override int GetHashCode()
         {
-            return (BackupSet.Guid + DirectoryName).GetHashCode();
+            return (BackupSet.Guid + DirectoryName + Name).GetHashCode();
         }
 
         public virtual bool Equals(FileDirectory other)
@@ -79,8 +79,9 @@ namespace MediaBackupManager.Model
             if (other == null)
                 return false;
 
-            return this.DirectoryName.Equals(other.DirectoryName)
-                && this.BackupSet.Guid.Equals(other.BackupSet.Guid);
+            return this.Name.Equals(other.Name)
+                && this.DirectoryName.Equals(other.DirectoryName)
+                && this.BackupSet.Equals(other.BackupSet);
         }
 
         public override bool Equals(object obj)

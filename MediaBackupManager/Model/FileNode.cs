@@ -79,7 +79,7 @@ namespace MediaBackupManager.Model
 
             return this.Name.Equals(other.Name)
                 && this.DirectoryName.Equals(other.DirectoryName)
-                && this.BackupSet.Volume.SerialNumber.Equals(other.BackupSet.Volume.SerialNumber);
+                && this.BackupSet.Equals(other.BackupSet);
         }
 
         public override bool Equals(object obj)

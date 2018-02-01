@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.Model
 {
-    static class Database
+    public static class Database
     {
         #region Fields
 
