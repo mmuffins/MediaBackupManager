@@ -83,15 +83,15 @@ namespace MediaBackupManager.ViewModel
         public MainWindowViewModel()
         {
             //TODO:Properly implement the cancellation token
-            var token = new System.Threading.CancellationToken();
-            App.Current.Properties["cancelToken"] = token;
+            //var token = new System.Threading.CancellationToken();
+            //App.Current.Properties["cancelToken"] = token;
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
             //TODO: Implement view showing a list of hashes related to a single node
             CommandBarViewModel = new CommandBarViewModel(Index);
-
+            
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
         }

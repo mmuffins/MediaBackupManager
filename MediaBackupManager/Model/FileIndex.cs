@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaBackupManager.Model
@@ -110,33 +111,46 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public async Task CreateBackupSetAsync(DirectoryInfo dir)
+        public async Task<CancellationTokenSource> CreateBackupSetAsync(DirectoryInfo dir)
         {
+            var tokenSource = new CancellationTokenSource();
+            var cancelToken = tokenSource.Token;
+
             if (!Directory.Exists(dir.FullName))
-                return;
+            {
+                tokenSource.Cancel();
+                return tokenSource;
+            }
 
             //TODO: Prompt the user on what to do when the directory is already indexed
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
-                return;
+            {
+                tokenSource.Cancel();
+                return tokenSource;
+            }
 
             var stagingVolume = new LogicalVolume(dir);
             var stagingSet = new BackupSet(dir, stagingVolume, Exclusions);
 
             //AddBackupSet(scanSet);
-            await stagingSet.ScanFilesAsync();
+            await stagingSet.ScanFilesAsync(cancelToken);
 
             //TODO: Inform the user if he tries to add a root directory on the exclusion list
             // There is either an issue with the provided directory or it's
             // on the exclusion list. In either case, abort the function
             if (stagingSet.FileNodes.Count == 0)
-                return;
+            {
+                tokenSource.Cancel();
+                return tokenSource;
+            }
 
-            await stagingSet.HashFilesAsync();
+            await stagingSet.HashFilesAsync(cancelToken);
 
             // At this point the staging set and all children have been properly created
             // merge it into the main list and write new data into the db
 
             await AppendBackupSetAsync(stagingSet);
+            return tokenSource;
         }
 
         /// <summary>

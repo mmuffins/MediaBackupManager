@@ -63,12 +63,12 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
-        public async Task ScanFilesAsync()
+        public async Task ScanFilesAsync(CancellationToken cancellationToken)
         {
             if (IsFileExcluded((Path.Combine(MountPoint, RootDirectory)).ToString()))
                 return;
 
-            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))), (CancellationToken)App.Current.Properties["cancelToken"]);
+            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))), cancellationToken);
             return;
         }
 
@@ -131,7 +131,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
-        public async Task HashFilesAsync()
+        public async Task HashFilesAsync(CancellationToken cancellationToken)
         {
             await Task.Run(() =>
             {
@@ -163,7 +163,7 @@ namespace MediaBackupManager.Model
                     //    hash.AddNode(node);
                     //}
                 }
-            }, (CancellationToken)App.Current.Properties["cancelToken"]);
+            }, cancellationToken);
         }
 
         /// <summary>
