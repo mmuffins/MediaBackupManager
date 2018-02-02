@@ -42,11 +42,8 @@ namespace MediaBackupManager.View
 
                 // Get the new directory
                 var newDir = "";
-                newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
-                //if (((DirectoryBrowserViewModel)sender).CurrentDirectory is FileDirectory)
-                //    newDir = ((FileDirectory)((DirectoryBrowserViewModel)sender).CurrentDirectory).FullName;
-                //else if (((DirectoryBrowserViewModel)sender).CurrentDirectory is BackupSetViewModel)
-                //    newDir = ((BackupSetViewModel)(((DirectoryBrowserViewModel)sender).CurrentDirectory)).RootDirectory.FullName;
+                if (((DirectoryBrowserViewModel)sender).CurrentDirectory != null)
+                    newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
 
                 if (currentDir != newDir)
                 {

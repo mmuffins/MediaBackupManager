@@ -32,7 +32,7 @@ namespace MediaBackupManager.ViewModel
                 if(currentDirectory != value)
                 {
                     currentDirectory = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -91,7 +91,9 @@ namespace MediaBackupManager.ViewModel
             for (int i = this.BackupSets.Count - 1; i >= 0; i--)
             {
                 if (!Index.BackupSets.Contains(this.BackupSets.ElementAt(i).BackupSet))
+                {
                     this.BackupSets.RemoveAt(i); // set was removed from the model, update accordingly
+                }
             }
 
             var newSets = Index.BackupSets

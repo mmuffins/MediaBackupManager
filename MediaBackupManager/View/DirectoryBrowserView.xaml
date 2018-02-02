@@ -7,9 +7,37 @@
              xmlns:model="clr-namespace:MediaBackupManager.Model"
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="100" Unloaded="UserControl_Unloaded" Loaded="UserControl_Loaded">
+             d:DesignHeight="50" d:DesignWidth="100" 
+             Unloaded="UserControl_Unloaded" 
+             Loaded="UserControl_Loaded">
+    <Control.Resources>
+        <Style TargetType="TreeViewItem">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Name}" Value="Fiddler">
+                    <Setter Property="Foreground" Value="BlueViolet" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TreeViewItem" x:Key="BackupStatusColor">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=BackupStatus}" Value="False">
+                    <Setter Property="Foreground" Value="Red" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Control.Resources>
     
     <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="30">
+            <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}"></Button>
+            <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}"></Button>
+            <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}"></Button>
+            <Button x:Name="btnScanAdditional" Content="Scan Test 2" Command="{Binding ScanNewData}"></Button>
+            <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}"></Button>
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}"></Button>
+            <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
+        </StackPanel>
+        
         <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="350" 
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
@@ -20,7 +48,7 @@
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type model:FileDirectory}" 
                                           ItemsSource="{Binding Path=SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Name}"/>
+                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}"/>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>

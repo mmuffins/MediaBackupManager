@@ -1,9 +1,11 @@
 ﻿using MediaBackupManager.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
@@ -12,14 +14,17 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         private FileIndexViewModel index;
-
         private FileDirectory currentDirectory;
-
         private object selectedDirectoryTreeItem;
-
         private FileDirectory selectedFileGridItem;
 
-        //private event EventHandler<object> selectedDirectoryChangedEvent = delegate { };
+        private RelayCommand.RelayCommand clearDataCommand;
+        private RelayCommand.RelayCommand removeNewData;
+        private RelayCommand.RelayCommand removeBackupSetCommand;
+        private RelayCommand.RelayCommand loadData;
+        private RelayCommand.RelayCommand loadAdditionalData;
+        private RelayCommand.RelayCommand scanNewData;
+        private RelayCommand.RelayCommand createBackupSetCommand;
 
         #endregion
 
@@ -50,11 +55,6 @@ namespace MediaBackupManager.ViewModel
                     else
                     {
                         CurrentDirectory = (FileDirectory)value;
-                        var ab = currentDirectory.SubDirectories;
-                        var de = currentDirectory.Files;
-                        var ab2 = ab.OfType<FileDirectory>();
-                        var de2 = de.OfType<FileNode>();
-
                     }
 
                     NotifyPropertyChanged();
@@ -71,17 +71,96 @@ namespace MediaBackupManager.ViewModel
                 {
                     currentDirectory = value;
                     NotifyPropertyChanged();
-                    //selectedDirectoryChangedEvent(this, new EventArgs());
                 }
             }
         }
 
-        //public EventHandler<object> SelectedDirectoryChangedEvent
-        //{
-        //    get { return selectedDirectoryChangedEvent; }
-        //    set { selectedDirectoryChangedEvent = value; }
-        //}
-        
+        public RelayCommand.RelayCommand ClearDataCommand
+        {
+            get
+            {
+                if (clearDataCommand == null)
+                {
+                    clearDataCommand = new RelayCommand.RelayCommand(ClearData_Execute, param => true);
+                }
+                return clearDataCommand;
+            }
+        }
+
+        public RelayCommand.RelayCommand RemoveNewData
+        {
+            get
+            {
+                if (removeNewData == null)
+                {
+                    removeNewData = new RelayCommand.RelayCommand(RemoveNewData_Execute, param => true);
+                }
+                return removeNewData;
+            }
+        }
+
+        public RelayCommand.RelayCommand LoadData
+        {
+            get
+            {
+                if (loadData == null)
+                {
+                    loadData = new RelayCommand.RelayCommand(LoadData_Execute, param => true);
+                }
+                return loadData;
+            }
+        }
+
+        public RelayCommand.RelayCommand LoadAdditionalData
+        {
+            get
+            {
+                if (loadAdditionalData == null)
+                {
+                    loadAdditionalData = new RelayCommand.RelayCommand(TestLoadAdditionalData_Execute, param => true);
+                }
+                return loadAdditionalData;
+            }
+        }
+
+        public RelayCommand.RelayCommand ScanNewData
+        {
+            get
+            {
+                if (scanNewData == null)
+                {
+                    scanNewData = new RelayCommand.RelayCommand(ScanNewData_Execute, param => true);
+                }
+                return scanNewData;
+            }
+        }
+
+        public RelayCommand.RelayCommand CreateBackupSetCommand
+        {
+            get
+            {
+                if (createBackupSetCommand == null)
+                {
+                    createBackupSetCommand = new RelayCommand.RelayCommand(CreateBackupSet_Execute, param => true);
+                }
+                return createBackupSetCommand;
+            }
+        }
+
+        public RelayCommand.RelayCommand RemoveBackupSetCommand
+        {
+            get
+            {
+                if (removeBackupSetCommand == null)
+                {
+                    removeBackupSetCommand = new RelayCommand.RelayCommand(
+                        p => RemoveBackupSet(p as BackupSetViewModel), 
+                        p => p is BackupSetViewModel);
+                }
+                return removeBackupSetCommand;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -91,6 +170,66 @@ namespace MediaBackupManager.ViewModel
             this.Index = index;
         }
 
+        private async void ClearData_Execute(object obj)
+        {
+            for (int i = Index.Index.BackupSets.Count - 1; i >= 0; i--)
+            {
+                var deleteElement = Index.Index.BackupSets.ElementAt(i);
+                await Index.Index.RemoveBackupSetAsync(deleteElement, true);
+            }
+        }
+
+        private async void RemoveNewData_Execute(object obj)
+        {
+            var deleteSet = Index.Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "indexdir" && x.MountPoint == "C:\\");
+
+            if (!(deleteSet is null))
+            {
+                await Index.RemoveBackupSetAsync(deleteSet);
+            }
+        }
+
+        private async void LoadData_Execute(object obj)
+        {
+            await Index.Index.LoadDataAsync();
+        }
+
+        private async void ScanNewData_Execute(object obj)
+        {
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir"));
+        }
+
+        private async void CreateBackupSet_Execute(object obj)
+        {
+            var browser = new FolderBrowserDialog();
+            browser.Description = "Please Select a folder";
+
+            if (browser.ShowDialog() == DialogResult.OK)
+            {
+                await Index.CreateBackupSetAsync(new DirectoryInfo(browser.SelectedPath));
+            }
+        }
+
+        private async void RemoveBackupSet(BackupSetViewModel backupSet)
+        {
+            
+            if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
+            {
+                await Index.RemoveBackupSetAsync(backupSet.BackupSet);
+            }
+        }
+
+        public async void TestLoadAdditionalData_Execute(object obj)
+        {
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\dd"));
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
+
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images"));
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\main\images2\b"));
+            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
+
+        }
 
         #endregion
     }

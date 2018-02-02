@@ -49,16 +49,16 @@ namespace MediaBackupManager.ViewModel
         {
             get
             {
-                if(this.rootDirectory is null)
-                    this.rootDirectory = backupSet.GetRootDirectoryObject();
+                //if (this.rootDirectory is null)
+                //    this.rootDirectory = backupSet.GetRootDirectoryObject();
 
                 return this.rootDirectory;
             }
             set
             {
-                if (value != this.RootDirectory)
+                if (value != this.rootDirectory)
                 {
-                    this.RootDirectory = value;
+                    this.rootDirectory = value;
                     NotifyPropertyChanged("");
                 }
             }

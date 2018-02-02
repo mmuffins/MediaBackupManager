@@ -16,7 +16,6 @@ namespace MediaBackupManager.ViewModel
 
         private RelayCommand.RelayCommand changePageCommand;
         private ViewModelBase.ViewModelBase currentAppViewModel = new ViewModelBase.ViewModelBase();
-        private ViewModelBase.ViewModelBase commandBarViewModel = new ViewModelBase.ViewModelBase();
         private List<ViewModelBase.ViewModelBase> appViewModels = new List<ViewModelBase.ViewModelBase>();
         private FileIndexViewModel index;
 
@@ -42,21 +41,6 @@ namespace MediaBackupManager.ViewModel
                 if (value != currentAppViewModel)
                 {
                     currentAppViewModel = value;
-                    NotifyPropertyChanged("");
-                }
-            }
-        }
-
-        /// <summary>
-        /// The viewmodel used as command bar</summary>
-        public ViewModelBase.ViewModelBase CommandBarViewModel
-        {
-            get { return commandBarViewModel; }
-            set
-            {
-                if (value != commandBarViewModel)
-                {
-                    commandBarViewModel = value;
                     NotifyPropertyChanged("");
                 }
             }
@@ -90,7 +74,6 @@ namespace MediaBackupManager.ViewModel
             PrepareDatabaseAsync(Index.Index).Wait();
 
             //TODO: Implement view showing a list of hashes related to a single node
-            CommandBarViewModel = new CommandBarViewModel(Index);
             
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
