@@ -470,9 +470,15 @@ namespace UnitTests
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
 
+            var exclusionString1 = @"\.exe";
+            var exclusionString2 = @".*\subdir1";
+
+
             // Act
             var refFi = new FileIndex();
             await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            await refFi.CreateFileExclusionAsync(exclusionString1);
+            await refFi.CreateFileExclusionAsync(exclusionString2);
 
             var diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
@@ -506,7 +512,8 @@ namespace UnitTests
                 Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Key), "FileHash not found.");
                 Assert.AreEqual(refHash.Value, diffFi.Hashes[refHash.Key], "FileHash not equal.");
             }
-
+            Assert.IsTrue(diffFi.Exclusions.Contains(exclusionString1), "Exclusion not found.");
+            Assert.IsTrue(diffFi.Exclusions.Contains(exclusionString2), "Exclusion not found.");
 
         }
 
@@ -668,15 +675,15 @@ namespace UnitTests
 
             // Assert
             Assert.AreEqual(4, diffFi.Hashes.Count, "FileHash count incorrect.");
-            Assert.AreEqual(1, nodeCount11.Hash.BackupCount, "FileHash count incorrect.");
-            Assert.AreEqual(1, nodeCount12.Hash.BackupCount, "FileHash count incorrect.");
-            Assert.AreEqual(2, nodeCount23.Hash.BackupCount, "FileHash count incorrect.");
-            Assert.AreEqual(3, nodeCount33.Hash.BackupCount, "FileHash count incorrect.");
+            Assert.AreEqual(1, nodeCount11.Hash.BackupCount, "Backup count incorrect.");
+            Assert.AreEqual(1, nodeCount12.Hash.BackupCount, "Backup count incorrect.");
+            Assert.AreEqual(2, nodeCount23.Hash.BackupCount, "Backup count incorrect.");
+            Assert.AreEqual(3, nodeCount33.Hash.BackupCount, "Backup count incorrect.");
 
-            Assert.AreEqual(1, nodeCount11.Hash.NodeCount, "FileHash count incorrect.");
-            Assert.AreEqual(2, nodeCount12.Hash.NodeCount, "FileHash count incorrect.");
-            Assert.AreEqual(3, nodeCount23.Hash.NodeCount, "FileHash count incorrect.");
-            Assert.AreEqual(3, nodeCount33.Hash.NodeCount, "FileHash count incorrect.");
+            Assert.AreEqual(1, nodeCount11.Hash.NodeCount, "Node count incorrect.");
+            Assert.AreEqual(2, nodeCount12.Hash.NodeCount, "Node count incorrect.");
+            Assert.AreEqual(3, nodeCount23.Hash.NodeCount, "Node count incorrect.");
+            Assert.AreEqual(3, nodeCount33.Hash.NodeCount, "Node count incorrect.");
 
         }
 
@@ -684,7 +691,39 @@ namespace UnitTests
         [Description("Tests whether files are excluded from scans if they match an entry on the exclusion list.")]
         public async Task FileExclusion()
         {
-            return;
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+            var targetDir = Path.Combine(testDirD, "dir1");
+            var targetDir2 = Path.Combine(testDirD, @"dir2\subdir1");
+
+            // should be scanned
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+
+            // should not be scanned
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir2, "0266554465.jpeg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir2, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir2, "umlaut_äü(&テスト.txt"));
+
+            // Act
+            var diffFi = new FileIndex();
+            await diffFi.CreateFileExclusionAsync(@"\.exe");
+            await diffFi.CreateFileExclusionAsync(@".*\\subdir1");
+
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(testDirD));
+
+            // Assert
+            Assert.AreEqual(1, diffFi.Hashes.Count, "FileHash count incorrect.");
+
+            var hash = diffFi.Hashes.FirstOrDefault().Value;
+            Assert.AreEqual(1, hash.NodeCount, "Node count incorrect.");
+            var node = hash.Nodes.FirstOrDefault();
+
+            Assert.AreEqual(Path.Combine(targetDir, "KeyMap.txt"), node.FullSessionName, "Node count incorrect.");
+            Assert.AreEqual(Path.Combine(targetDir, "KeyMap.txt"), node.FullName, "Nodex count incorrect.");
         }
     }
 }

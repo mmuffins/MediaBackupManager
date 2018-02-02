@@ -204,9 +204,12 @@ namespace MediaBackupManager.Model
         {
             foreach (var item in Exclusions)
             {
-                if (Regex.IsMatch(path, item, RegexOptions.IgnoreCase))
+                var ab = Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase);
+                if (Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase))
                     return true;
 
+                //var pathX = path.Replace("\\\\", "\\");
+                //var itemX = item;
                 //var dd = Regex.IsMatch("F:\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
                 //dd = Regex.IsMatch("F:\\SomeDir\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
                 //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
