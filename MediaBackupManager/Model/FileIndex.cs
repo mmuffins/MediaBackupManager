@@ -203,10 +203,13 @@ namespace MediaBackupManager.Model
             var setHashes = set.GetFileHashes();
             await set.ClearAsync();
 
-            // All hashes in the collection without any other node 
-            // can be clearly removed from the index
-            if(writeToDb)
-                await Database.BatchDeleteFileHashAsync(setHashes.Where(x => x.NodeCount.Equals(0)).ToList());
+            // Get hashes in the collection with node count 0 
+            // these can be removed from the index
+            var emptyHashes = setHashes.Where(x => x.NodeCount.Equals(0)).ToList();
+            emptyHashes.ForEach(x => Hashes.Remove(x.Checksum));
+
+            if (writeToDb)
+                await Database.BatchDeleteFileHashAsync(emptyHashes);
 
             BackupSets.Remove(set);
             NotifyPropertyChanged("BackupSet");
