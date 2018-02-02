@@ -27,6 +27,9 @@ namespace MediaBackupManager.Model
         /// <summary>Returns the path of the parent directory.</summary>
         public override string ParentDirectoryName { get => DirectoryName; }
 
+        /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
+        public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
+
         /// <summary>Returns a list of all subdirectories of the current object.</summary>
         public override IEnumerable<FileDirectory> SubDirectories { get => null; }
 

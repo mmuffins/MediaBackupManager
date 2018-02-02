@@ -35,6 +35,16 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
+        public virtual bool BackupStatus
+        {
+            get
+            {
+                var ab = Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
+                return Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
+            }
+        }
+
         /// <summary>Returns a list of all directories below the current object.</summary>
         public virtual IEnumerable<FileDirectory> SubDirectories
         {
@@ -45,6 +55,9 @@ namespace MediaBackupManager.Model
 
         /// <summary>Returns a list of all files below the current object.</summary>
         public virtual IEnumerable<FileDirectory> Files { get => this.BackupSet.GetChildElements(this).OfType<FileNode>(); }
+
+        /// <summary>Returns a list of all directories and files below the current object.</summary>
+        public virtual IEnumerable<FileDirectory> Children { get => this.BackupSet.GetChildElements(this); }
 
         #endregion
 
