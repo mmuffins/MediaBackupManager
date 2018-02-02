@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -161,7 +160,6 @@ namespace MediaBackupManager.Model
                         //TODO: Inform the user that something went wrong
                         continue;
                     }
-
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
                     node.Hash.AddNode(node);
                 }
@@ -224,6 +222,7 @@ namespace MediaBackupManager.Model
         {
             return FileNodes
                 .OfType<FileNode>()
+                .Where(x => x.Hash != null)
                 .Select(x => x.Hash)
                 .Distinct()
                 .ToList();

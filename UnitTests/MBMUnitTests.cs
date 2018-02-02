@@ -597,6 +597,32 @@ namespace UnitTests
             Assert.AreEqual(0, diffFi.BackupSets.Count, "BackupSet count incorrect.");
             Assert.AreEqual(0, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
             Assert.AreEqual(0, diffFi.Hashes.Count, "FileHash count incorrect.");
+
+
+            // Also make sure that all data was removed from the database
+
+            using (var dbConn = new SQLiteConnection(Database.GetConnectionString(), true))
+            {
+                await dbConn.OpenAsync();
+
+                foreach (var tableName in dbTables)
+                {
+                    var sqlCmd = new SQLiteCommand("SELECT count(*) AS tableCount FROM " + tableName, dbConn);
+
+                    using (var reader = await sqlCmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            Assert.AreEqual(0, int.Parse(reader["tableCount"].ToString()), "Not all entries were deleted in table " + tableName);
+                        }
+                    }
+                }
+
+                if (dbConn.State == ConnectionState.Open)
+                {
+                    dbConn.Close();
+                }
+            }
         }
 
         private void DeleteBackupSet_CheckEquality(List<BackupSet> refSets, FileIndex diffFi)

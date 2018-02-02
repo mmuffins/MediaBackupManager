@@ -713,10 +713,7 @@ namespace MediaBackupManager.Model
 
                             sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
-                            sqlCmd.Parameters["@Name"].Value = "";
-
-                            if (node is FileNode)
-                                sqlCmd.Parameters["@Name"].Value = (node as FileNode).Name;
+                            sqlCmd.Parameters["@Name"].Value = node.Name;
 
                             await sqlCmd.ExecuteNonQueryAsync();
                         }
@@ -906,8 +903,6 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var node in nodes)
                         {
-                            System.Diagnostics.Debug.WriteLine(node.FullName);
-
                             var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
                             sqlCmd.CommandType = CommandType.Text;
 
