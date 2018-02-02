@@ -644,8 +644,6 @@ namespace UnitTests
 
             // node count 1
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
-
-            //TODO: This creates a single file hash, but shouldnt it create two since they are on the same volume?
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir2, "0266554465.jpeg"));
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir3, "0266554465.jpeg"));
 
