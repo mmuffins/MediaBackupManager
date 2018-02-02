@@ -17,7 +17,7 @@ namespace MediaBackupManager.ViewModel
 
         private object selectedDirectoryTreeItem;
 
-        private FileDirectory selectedFileGridItem = new FileDirectory();
+        private FileDirectory selectedFileGridItem;
 
         //private event EventHandler<object> selectedDirectoryChangedEvent = delegate { };
 
@@ -48,7 +48,14 @@ namespace MediaBackupManager.ViewModel
                     if (value is BackupSetViewModel)
                         CurrentDirectory = ((BackupSetViewModel)value).RootDirectory;
                     else
+                    {
                         CurrentDirectory = (FileDirectory)value;
+                        var ab = currentDirectory.SubDirectories;
+                        var de = currentDirectory.Files;
+                        var ab2 = ab.OfType<FileDirectory>();
+                        var de2 = de.OfType<FileNode>();
+
+                    }
 
                     NotifyPropertyChanged();
                 }

@@ -229,10 +229,10 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Returns an IEnumerable object of all File Directory objects that lie directly below the provided object.</summary>  
-        public IEnumerable<FileDirectory> GetSubDirectories(FileDirectory parent)
+        /// Returns an IEnumerable object of all elements below the provided directory.</summary>  
+        public IEnumerable<FileDirectory> GetChildElements(FileDirectory parent)
         {
-            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName); ;
+            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName); 
         }
 
         /// <summary>

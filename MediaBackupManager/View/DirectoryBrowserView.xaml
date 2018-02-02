@@ -25,9 +25,7 @@
             </TreeView.Resources>
         </TreeView>
         <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" 
-                  ItemsSource="{Binding Path=CurrentDirectory.SubDirectories}"
+                  ItemsSource="{Binding Path=CurrentDirectory.Files}"
                   SelectedItem="{Binding Path=SelectedFileGridItem}"></DataGrid>
-        <!--<DataGrid x:Name="gridSets" DockPanel.Dock="Right" 
-                  ItemsSource="{Binding Path=Index.BackupSets}"></DataGrid>-->
     </DockPanel>
 </UserControl>

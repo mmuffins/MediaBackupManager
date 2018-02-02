@@ -35,8 +35,16 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Returns a list of all subdirectories of the current object.</summary>
-        public virtual IEnumerable<FileDirectory> SubDirectories { get => this.BackupSet.GetSubDirectories(this); }
+        /// <summary>Returns a list of all directories below the current object.</summary>
+        public virtual IEnumerable<FileDirectory> SubDirectories
+        {
+            get => this.BackupSet.GetChildElements(this)
+                .OfType<FileDirectory>()
+                .Where(x => x.GetType() == typeof(FileDirectory));
+        }
+
+        /// <summary>Returns a list of all files below the current object.</summary>
+        public virtual IEnumerable<FileDirectory> Files { get => this.BackupSet.GetChildElements(this).OfType<FileNode>(); }
 
         #endregion
 
