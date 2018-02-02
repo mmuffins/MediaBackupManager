@@ -157,6 +157,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Creates a new file exclusion which prevents files from being scanned if they match the provided string.</summary>  
+        /// <param name="exclusion">A regex string matching a file or path name.</param>
+        public async Task CreateFileExclusionAsync(string exclusion)
+        {
+            // public wrapper function for AddExclusionAsync to avoid exposing the writeToDB swich
+            await AddExclusionAsync(exclusion, true);
+        }
+
+        /// <summary>
         /// Adds the specified string collection of file exclusions.</summary>  
         /// <param name="writeToDb">If true, the object will be written to the Database.</param>
         private async Task AddExclusionAsync(string exclusion, bool writeToDb)
