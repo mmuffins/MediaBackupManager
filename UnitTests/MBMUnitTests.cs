@@ -723,7 +723,6 @@ namespace UnitTests
             var node = hash.Nodes.FirstOrDefault();
 
             Assert.AreEqual(Path.Combine(targetDir, "KeyMap.txt"), node.FullSessionName, "Node count incorrect.");
-            Assert.AreEqual(Path.Combine(targetDir, "KeyMap.txt"), node.FullName, "Nodex count incorrect.");
         }
     }
 }
