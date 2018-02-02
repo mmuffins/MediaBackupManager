@@ -624,7 +624,60 @@ namespace UnitTests
         [Description("Tests whether file node duplication is correctly counted between backup sets.")]
         public async Task FileDuplication()
         {
-            return;
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+
+            var targetDir = Path.Combine(testDirC, "dir1");
+            var targetDir2 = Path.Combine(testDirD, "dir1");
+            var targetDir3 = Path.Combine(testDirD, "dir2");
+            var targetDir4 = Path.Combine(testDirF, "dir1");
+
+            // node count 1
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+
+            //TODO: This creates a single file hash, but shouldnt it create two since they are on the same volume?
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir2, "0266554465.jpeg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir3, "0266554465.jpeg"));
+
+            // node count 2
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir2, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir3, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir4, "Nikon-1-V3-sample-photo.jpg"));
+
+            // node count 3
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir2, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir4, "randomExe.exe"));
+
+
+            // Act
+            var diffFi = new FileIndex();
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir4));
+
+            var allNodes = diffFi.BackupSets.SelectMany(x => x.FileNodes);
+            var nodeCount11 = (FileNode)allNodes.FirstOrDefault(x => x.Name.Equals("KeyMap.txt"));
+            var nodeCount12 = (FileNode)allNodes.FirstOrDefault(x => x.Name.Equals("0266554465.jpeg"));
+            var nodeCount23 = (FileNode)allNodes.FirstOrDefault(x => x.Name.Equals("Nikon-1-V3-sample-photo.jpg"));
+            var nodeCount33 = (FileNode)allNodes.FirstOrDefault(x => x.Name.Equals("randomExe.exe"));
+
+            // Assert
+            Assert.AreEqual(4, diffFi.Hashes.Count, "FileHash count incorrect.");
+            Assert.AreEqual(1, nodeCount11.Hash.BackupCount, "FileHash count incorrect.");
+            Assert.AreEqual(1, nodeCount12.Hash.BackupCount, "FileHash count incorrect.");
+            Assert.AreEqual(2, nodeCount23.Hash.BackupCount, "FileHash count incorrect.");
+            Assert.AreEqual(3, nodeCount33.Hash.BackupCount, "FileHash count incorrect.");
+
+            Assert.AreEqual(1, nodeCount11.Hash.NodeCount, "FileHash count incorrect.");
+            Assert.AreEqual(2, nodeCount12.Hash.NodeCount, "FileHash count incorrect.");
+            Assert.AreEqual(3, nodeCount23.Hash.NodeCount, "FileHash count incorrect.");
+            Assert.AreEqual(3, nodeCount33.Hash.NodeCount, "FileHash count incorrect.");
+
         }
 
         [TestMethod]
