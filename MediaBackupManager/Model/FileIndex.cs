@@ -111,7 +111,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public async Task<CancellationTokenSource> CreateBackupSetAsync(DirectoryInfo dir)
+        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo dir)
         {
             var tokenSource = new CancellationTokenSource();
             var cancelToken = tokenSource.Token;
@@ -119,14 +119,14 @@ namespace MediaBackupManager.Model
             if (!Directory.Exists(dir.FullName))
             {
                 tokenSource.Cancel();
-                return tokenSource;
+                return null;
             }
 
             //TODO: Prompt the user on what to do when the directory is already indexed
             if (ContainsDirectory(dir) || IsSubsetOf(dir))
             {
                 tokenSource.Cancel();
-                return tokenSource;
+                return null;
             }
 
             var stagingVolume = new LogicalVolume(dir);
@@ -141,7 +141,7 @@ namespace MediaBackupManager.Model
             if (stagingSet.FileNodes.Count == 0)
             {
                 tokenSource.Cancel();
-                return tokenSource;
+                return null;
             }
 
             await stagingSet.HashFilesAsync(cancelToken);
@@ -149,8 +149,11 @@ namespace MediaBackupManager.Model
             // At this point the staging set and all children have been properly created
             // merge it into the main list and write new data into the db
 
+            if(!tokenSource.IsCancellationRequested)
+                //TODO:Abort operation before writing to the database
+
             await AppendBackupSetAsync(stagingSet);
-            return tokenSource;
+            return stagingSet;
         }
 
         /// <summary>
@@ -184,6 +187,7 @@ namespace MediaBackupManager.Model
         /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
         public async Task RemoveBackupSetAsync(BackupSet set, bool writeToDb)
         {
+            //TODO: Does the writetodb switch here make sense?
             if(BackupSets.Where(x => x.Volume.Equals(set.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 
