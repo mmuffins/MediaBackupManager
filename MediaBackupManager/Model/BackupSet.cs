@@ -239,7 +239,9 @@ namespace MediaBackupManager.Model
         /// Returns the root file directory object.</summary>  
         public FileDirectory GetRootDirectoryObject()
         {
-            return FileNodes.FirstOrDefault(x => x.DirectoryName.Equals(RootDirectory));
+            return FileNodes
+                .OfType<FileDirectory>()
+                .FirstOrDefault(x => x.DirectoryName.Equals(RootDirectory) && x.GetType() == typeof(FileDirectory));
         }
 
         #endregion

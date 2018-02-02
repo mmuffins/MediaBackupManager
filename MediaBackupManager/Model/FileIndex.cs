@@ -80,7 +80,7 @@ namespace MediaBackupManager.Model
                 {
                     item.BackupSet = set;
                     set.FileNodes.Add(item);
-                    NotifyPropertyChanged("BackupSet");
+                    //NotifyPropertyChanged("BackupSet");
 
                     if (item is FileNode)
                     {
@@ -93,7 +93,7 @@ namespace MediaBackupManager.Model
 
                     }
                 }
-
+                NotifyPropertyChanged("BackupSet");
             }
         }
 

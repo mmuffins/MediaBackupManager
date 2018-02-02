@@ -196,7 +196,7 @@ namespace MediaBackupManager.ViewModel
 
         private async void ScanNewData_Execute(object obj)
         {
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"));
         }
 
         private async void CreateBackupSet_Execute(object obj)
@@ -224,7 +224,7 @@ namespace MediaBackupManager.ViewModel
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\dd"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
 
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main"));
             await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\main\images2\b"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));

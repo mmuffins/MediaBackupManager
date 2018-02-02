@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace MediaBackupManager.ViewModel
                 if (value != backupSet)
                 {
                     backupSet = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -40,7 +41,7 @@ namespace MediaBackupManager.ViewModel
                 if (value != backupSet.Guid)
                 {
                     backupSet.Guid = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -49,8 +50,8 @@ namespace MediaBackupManager.ViewModel
         {
             get
             {
-                //if (this.rootDirectory is null)
-                //    this.rootDirectory = backupSet.GetRootDirectoryObject();
+                if (this.rootDirectory is null)
+                    this.rootDirectory = backupSet.GetRootDirectoryObject();
 
                 return this.rootDirectory;
             }
@@ -75,6 +76,7 @@ namespace MediaBackupManager.ViewModel
             this.BackupSet = backupSet;
             this.FileNodes = new ObservableCollection<FileDirectory>(BackupSet.FileNodes);
             this.RootDirectory = backupSet.GetRootDirectoryObject();
+            //BackupSet.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
         }
 
         #endregion
