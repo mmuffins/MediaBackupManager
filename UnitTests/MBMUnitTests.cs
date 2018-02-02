@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Data;
 using UnitTests.Properties;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace UnitTests
 {
@@ -14,7 +16,6 @@ namespace UnitTests
     public class MBMUnitTests
     {
         #region files
-
 
         //var cDrive = new LogicalVolume()
         //{
@@ -138,61 +139,57 @@ namespace UnitTests
         private const string testDirC = @"C:\indexdir\unit";
         private const string testDirD = @"D:\indexdir\unit";
         private const string testDirF = @"F:\indexdir\unit";
+        private const string testFileDir = @"..\..\testfiles";
+        private string[] dbTables = { "LogicalVolume", "FileHash", "FileNode", "BackupSet", "Exclusion" };
+
 
         private async Task<bool> ResetDatabase()
         {
             // Reset the database to a known state
 
-            try
+            if (File.Exists(Database.GetFullName()))
             {
-                File.Delete(Database.GetFullName());
-                if(File.Exists(Database.GetFullName()))
-                    return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            try
-            {
-                Database.CreateDatabase();
-                if (!File.Exists(Database.GetFullName()))
-                    return false;
-
-                await Database.PrepareDatabaseAsync();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private async Task<int> ExecuteNonQueryAsync(SQLiteCommand command)
-        {
-            using (var dbConn = new SQLiteConnection(Database.GetConnectionString(), true))
-            {
-                try
+                using (var dbConn = new SQLiteConnection(Database.GetConnectionString(), true))
                 {
-                    command.Connection = dbConn;
-                    dbConn.Open();
-                    var rowCount = await command.ExecuteNonQueryAsync();
-                    return rowCount;
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    if (dbConn.State == ConnectionState.Open)
+                    try
                     {
-                        dbConn.Close();
+                        await dbConn.OpenAsync();
+
+                        foreach (var tableName in dbTables)
+                        {
+                            var sqlCmd = new SQLiteCommand("DROP TABLE " + tableName, dbConn);
+                            await sqlCmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        if (dbConn.State == ConnectionState.Open)
+                            dbConn.Close();
                     }
                 }
             }
+            else
+            {
+                try
+                {
+                    Database.CreateDatabase();
+                    if (!File.Exists(Database.GetFullName()))
+                        return false;
 
+                    await Database.PrepareDatabaseAsync();
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+
+            await Database.PrepareDatabaseAsync();
+            return true;
         }
 
         private bool PrepareDirectories()
@@ -227,9 +224,6 @@ namespace UnitTests
                     return false;
                 }
             }
-
-
-
             return true;
         }
 
@@ -239,14 +233,12 @@ namespace UnitTests
         {
             Assert.IsTrue(await ResetDatabase(), "Could not create database");
 
-            string[] tables = { "LogicalVolume", "FileHash", "FileNode", "BackupSet", "Exclusion" };
-
             // Check if all tables are created correctly
             using (var dbConn = new SQLiteConnection(Database.GetConnectionString(), true))
             {
                 await dbConn.OpenAsync();
 
-                foreach (var tableName in tables)
+                foreach (var tableName in dbTables)
                 {
                     var sqlCmd = new SQLiteCommand("SELECT count(*) AS tableCount " +
                         "FROM sqlite_master " +
@@ -282,32 +274,32 @@ namespace UnitTests
             Assert.IsTrue(PrepareDirectories());
             Assert.IsTrue(await ResetDatabase(), "Could not create database");
 
-            var targetDir = Path.Combine(testDirC, "dir1");
+            var targetDir = Path.Combine(testDirD, "dir1");
 
-            File.Copy(Path.GetFullPath(@"..\..\testfiles/KeyMap.txt"), Path.Combine(targetDir, "KeyMap.txt"));
-            File.Copy(Path.GetFullPath(@"..\..\testfiles/0266554465.jpeg"), Path.Combine(targetDir, "0266554465.jpeg"));
-            File.Copy(Path.GetFullPath(@"..\..\testfiles/Nikon-1-V3-sample-photo.jpg"), Path.Combine(targetDir, "Nikon-1-V3-sample-photo.jpg"));
-            File.Copy(Path.GetFullPath(@"..\..\testfiles/randomExe.exe"), Path.Combine(targetDir, "randomExe.exe"));
-            File.Copy(Path.GetFullPath(@"..\..\testfiles/umlaut_äü(&テスト.txt"), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir, "0266554465.jpeg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
 
             // Create reference file index
             var fileRootDir = Path.GetFullPath(targetDir).Substring(Path.GetPathRoot(targetDir).Length);
 
             var refFi = new FileIndex();
-            var cDrive = new LogicalVolume()
+            var dDrive = new LogicalVolume()
             {
-                SerialNumber = "B8917EA9",
-                Size = 255043366912,
+                SerialNumber = "2822F77D",
+                Size = 499971518464,
                 Type = DriveType.Fixed,
-                VolumeName = "",
-                MountPoint = "C:\\"
+                VolumeName = "Games",
+                MountPoint = "D:\\"
             };
-            refFi.LogicalVolumes.Add(cDrive);
+            refFi.LogicalVolumes.Add(dDrive);
 
             var refSet = new BackupSet()
             {
                 RootDirectory = fileRootDir,
-                Volume = cDrive,
+                Volume = dDrive,
                 Index = refFi
             };
             refFi.BackupSets.Add(refSet);
@@ -459,10 +451,187 @@ namespace UnitTests
             {
                 Assert.IsTrue(diffSet.FileNodes.Contains(refNode), "FileNode not found.");
             }
+        }
 
-            //Assert.AreEqual(refFi.fi.Count, diffFi.Hashes.Count, "FileNode count incorrect.");
+        [TestMethod]
+        [Description("Tests whether data is correctly written to and read from the database.")]
+        public async Task WriteToDatabase()
+        {
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+            var targetDir = Path.Combine(testDirD, "dir1");
+
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir, "0266554465.jpeg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
+
+            // Act
+            var refFi = new FileIndex();
+            await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+
+            var diffFi = new FileIndex();
+            await diffFi.LoadDataAsync();
+
+            // Assert
+            Assert.AreEqual(refFi.BackupSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+
+            foreach (var refSet in refFi.BackupSets)
+            {
+                Assert.IsTrue(diffFi.BackupSets.Contains(refSet), "BackupSet not found.");
+
+                var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Equals(refSet));
+
+                Assert.AreEqual(refSet.FileNodes.Count, diffSet.FileNodes.Count, "FileNodes count incorrect.");
+                foreach (var refNode in refSet.FileNodes)
+                {
+                    Assert.IsTrue(diffSet.FileNodes.Contains(refNode), "FileNode not found.");
+                }
+            }
+
+            Assert.AreEqual(refFi.LogicalVolumes.Count, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
+
+            foreach (var refVolume in refFi.LogicalVolumes)
+            {
+                Assert.IsTrue(diffFi.LogicalVolumes.Contains(refVolume), "LogicalVolume not found.");
+            }
+
+            Assert.AreEqual(refFi.Hashes.Count, diffFi.Hashes.Count, "FileHash count incorrect.");
+            foreach (var refHash in refFi.Hashes)
+            {
+                Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Key), "FileHash not found.");
+                Assert.AreEqual(refHash.Value, diffFi.Hashes[refHash.Key], "FileHash not equal.");
+            }
 
 
+        }
+
+        [TestMethod]
+        [Description("Tests whether all data is properly cleaned up after deleting a backup set.")]
+        public async Task DeleteBackupSet()
+        {
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+            var targetDir = Path.Combine(testDirD, "dir1");
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir, "0266554465.jpeg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir, "Nikon-1-V3-sample-photo.jpg"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
+
+            var targetDir2 = Path.Combine(testDirD, "dir2");
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir2, "KeyMap.txt"));
+
+            var targetDir3 = Path.Combine(testDirF, "dir1");
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir3, "0266554465.jpeg"));
+
+
+            // Act
+            var refFi = new FileIndex();
+
+            List<BackupSet> refSets = new List<BackupSet>();
+            var set1 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            refSets.Add(set1);
+
+            // Backupset on same volume       
+            var set2 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2));
+            refSets.Add(set2);
+
+            // Backupset on different volume
+            var set3 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3));
+            refSets.Add(set3);
+
+            // Assert
+            // Remove each set from the index and check if all data
+            // (and only data from the deleted set) has been removed
+            // from the file index in memory and the db after each deletion
+
+            // Remove first set
+            await refFi.RemoveBackupSetAsync(set1, true);
+            refSets.Remove(set1);
+            set1 = null;
+            var diffFi = refFi;
+            DeleteBackupSet_CheckEquality(refSets, diffFi);
+
+            diffFi = new FileIndex();
+            await diffFi.LoadDataAsync();
+            DeleteBackupSet_CheckEquality(refSets, diffFi);
+
+            // Remove second set
+            await refFi.RemoveBackupSetAsync(set2, true);
+            refSets.Remove(set2);
+            set2 = null;
+            diffFi = refFi;
+            DeleteBackupSet_CheckEquality(refSets, diffFi);
+
+            diffFi = new FileIndex();
+            await diffFi.LoadDataAsync();
+            DeleteBackupSet_CheckEquality(refSets, diffFi);
+
+            // Remove third set, all data should now be removed
+            await refFi.RemoveBackupSetAsync(set3, true);
+            refSets.Remove(set3);
+            set3 = null;
+            diffFi = refFi;
+
+            Assert.AreEqual(0, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(0, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
+            Assert.AreEqual(0, diffFi.Hashes.Count, "FileHash count incorrect.");
+
+            diffFi = new FileIndex();
+            await diffFi.LoadDataAsync();
+            Assert.AreEqual(0, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(0, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
+            Assert.AreEqual(0, diffFi.Hashes.Count, "FileHash count incorrect.");
+        }
+
+        private void DeleteBackupSet_CheckEquality(List<BackupSet> refSets, FileIndex diffFi)
+        {
+            Assert.AreEqual(refSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            refSets
+                .ForEach(refSet => Assert.IsTrue(diffFi.BackupSets.Contains(refSet), "BackupSet not found."));
+
+            // No need to check for file nodes since they are child elements of a backup set
+
+            var refVolumes = refSets.Select(set => set.Volume).Distinct().ToList();
+
+            Assert.AreEqual(refVolumes.Count, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
+            refVolumes
+                .ForEach(refVolume => Assert.IsTrue(diffFi.LogicalVolumes.Contains(refVolume), "LogicalVolume not found."));
+
+
+            var totalHashCount = refSets.Sum(set => set.GetFileHashes().Count);
+            Assert.AreEqual(totalHashCount, diffFi.Hashes.Count, "FileHash count incorrect.");
+
+            refSets.ForEach(refSet =>
+            {
+                refSet.GetFileHashes().ForEach(refHash =>
+                {
+                    Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Checksum), "FileHash not found.");
+                    Assert.AreEqual(refHash, diffFi.Hashes[refHash.Checksum], "FileHash not equal.");
+                });
+            });
+        }
+
+        [TestMethod]
+        [Description("Tests whether file node duplication is correctly counted between backup sets.")]
+        public async Task FileDuplication()
+        {
+            return;
+        }
+
+        [TestMethod]
+        [Description("Tests whether files are excluded from scans if they match an entry on the exclusion list.")]
+        public async Task FileExclusion()
+        {
+            return;
         }
     }
 }
