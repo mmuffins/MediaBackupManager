@@ -9,7 +9,6 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents the location of a FileHash object in the file system.</summary>  
-
     public class FileNode : FileDirectory
     {
 

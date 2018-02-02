@@ -46,6 +46,9 @@ namespace MediaBackupManager.Model
         /// <param name="filePath">The fully qualified or relative name of a physical file</param>
         public static string CalculateChecksum(string filePath)
         {
+            //TODO: Maybe implement option to use another hashing algorithm to gain speed but have a higher chance of duplicates?
+            //TODO: Speed up md5 -> https://stackoverflow.com/a/1177712/8401023
+            //TODO: run this function in parallel to speed it up?
             using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(filePath))

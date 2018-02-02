@@ -1,6 +1,8 @@
-﻿using MediaBackupManager.ViewModel;
+﻿using MediaBackupManager.Model;
+using MediaBackupManager.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,20 +26,43 @@ namespace MediaBackupManager.View
         public DirectoryBrowserView()
         {
             InitializeComponent();
-
         }
 
-        private void SetTreeViewItem(object sender, object e)
+        private void OnCurrentDirectoryChanged(object sender, PropertyChangedEventArgs e)
         {
-            var sX = sender;
-            var evArts = e;
+            //TODO:Q-referencing MediaBackupManager.Model breaks mvvm, any better way to implement this?
+            if (e.PropertyName.Equals("CurrentDirectory"))
+            {
+                // Get the current directory
+                var currentDir = "";
+                if (this.treeDirectory.SelectedItem is FileDirectory)
+                    currentDir = ((FileDirectory)this.treeDirectory.SelectedItem).FullName;
+                else if (this.treeDirectory.SelectedItem is BackupSet)
+                    currentDir = ((BackupSet)this.treeDirectory.SelectedItem).RootDirectory;
+
+                // Get the new directory
+                var newDir = "";
+                newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
+                //if (((DirectoryBrowserViewModel)sender).CurrentDirectory is FileDirectory)
+                //    newDir = ((FileDirectory)((DirectoryBrowserViewModel)sender).CurrentDirectory).FullName;
+                //else if (((DirectoryBrowserViewModel)sender).CurrentDirectory is BackupSetViewModel)
+                //    newDir = ((BackupSetViewModel)(((DirectoryBrowserViewModel)sender).CurrentDirectory)).RootDirectory.FullName;
+
+                if (currentDir != newDir)
+                {
+                    // Change the directory
+                }
+
+            }
+
         }
 
         private void treeDirectory_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // SelectedItem on treeView is readonly for some reason, 
             // so we need to raise an event instead of directly binding
-            ((DirectoryBrowserViewModel)this.DataContext).CurrentDirectory = ((RoutedPropertyChangedEventArgs<object>)e).NewValue;
+            if (this.DataContext != null)
+                ((DirectoryBrowserViewModel)this.DataContext).SelectedDirectoryTreeItem = ((RoutedPropertyChangedEventArgs<object>)e).NewValue;
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -47,7 +72,8 @@ namespace MediaBackupManager.View
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            ((DirectoryBrowserViewModel)this.DataContext).SelectedDirectoryChangedEvent += SetTreeViewItem;
+            if (this.DataContext != null)
+                ((DirectoryBrowserViewModel)this.DataContext).PropertyChanged += new PropertyChangedEventHandler(OnCurrentDirectoryChanged);
         }
     }
 }

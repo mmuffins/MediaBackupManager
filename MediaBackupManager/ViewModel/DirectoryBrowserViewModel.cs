@@ -13,12 +13,13 @@ namespace MediaBackupManager.ViewModel
 
         private FileIndexViewModel index;
 
-        private object currentDirectory;
+        private FileDirectory currentDirectory;
 
-        private BackupSetViewModel selectedSet;
+        private object selectedDirectoryTreeItem;
 
-        private event EventHandler<object> selectedDirectoryChangedEvent = delegate { };
+        private FileDirectory selectedFileGridItem = new FileDirectory();
 
+        //private event EventHandler<object> selectedDirectoryChangedEvent = delegate { };
 
         #endregion
 
@@ -30,27 +31,49 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
-        public BackupSetViewModel SelectedGridItem
+        public FileDirectory SelectedFileGridItem
         {
-            get { return selectedSet; }
-            set { selectedSet = value; }
+            get { return selectedFileGridItem; }
+            set { selectedFileGridItem = value; }
         }
 
-        public object CurrentDirectory
+        public object SelectedDirectoryTreeItem
+        {
+            get { return selectedDirectoryTreeItem; }
+            set
+            {
+                if (value != selectedDirectoryTreeItem)
+                {
+                    selectedDirectoryTreeItem = value;
+                    if (value is BackupSetViewModel)
+                        CurrentDirectory = ((BackupSetViewModel)value).RootDirectory;
+                    else
+                        CurrentDirectory = (FileDirectory)value;
+
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public FileDirectory CurrentDirectory
         {
             get { return currentDirectory; }
             set
             {
-                currentDirectory = value;
-                selectedDirectoryChangedEvent(this, new EventArgs());
+                if(value != currentDirectory)
+                {
+                    currentDirectory = value;
+                    NotifyPropertyChanged();
+                    //selectedDirectoryChangedEvent(this, new EventArgs());
+                }
             }
         }
 
-        public EventHandler<object> SelectedDirectoryChangedEvent
-        {
-            get { return selectedDirectoryChangedEvent; }
-            set { selectedDirectoryChangedEvent = value; }
-        }
+        //public EventHandler<object> SelectedDirectoryChangedEvent
+        //{
+        //    get { return selectedDirectoryChangedEvent; }
+        //    set { selectedDirectoryChangedEvent = value; }
+        //}
         
         #endregion
 
