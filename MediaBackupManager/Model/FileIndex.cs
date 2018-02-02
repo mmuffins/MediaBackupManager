@@ -197,6 +197,10 @@ namespace MediaBackupManager.Model
         public async Task RemoveBackupSetAsync(BackupSet set, bool writeToDb)
         {
             //TODO: Does the writetodb switch here make sense?
+
+            if (set is null)
+                return;
+
             if(BackupSets.Where(x => x.Volume.Equals(set.Volume)).Count() < 2)
             {
                 // No other backup set shares the logical volume of the 

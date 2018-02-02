@@ -906,6 +906,8 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var node in nodes)
                         {
+                            System.Diagnostics.Debug.WriteLine(node.FullName);
+
                             var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
                             sqlCmd.CommandType = CommandType.Text;
 
@@ -926,9 +928,11 @@ namespace MediaBackupManager.Model
                             if (node is FileNode)
                             {
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
-                                sqlCmd.Parameters["@Checksum"].Value = (node as FileNode).Hash.Checksum;
                                 sqlCmd.Parameters["@BackupSet"].Value = (node as FileNode).BackupSet.Guid;
                                 sqlCmd.Parameters["@NodeType"].Value = 1;
+
+                                if((node as FileNode).Hash != null)
+                                    sqlCmd.Parameters["@Checksum"].Value = (node as FileNode).Hash.Checksum;
                             }
 
                             await sqlCmd.ExecuteNonQueryAsync();

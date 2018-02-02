@@ -80,12 +80,20 @@ namespace MediaBackupManager.Model
                 return; //Don't index excluded directories at all
 
             // Call recursively to get all subdirectories
-            foreach (var item in directory.GetDirectories())
-                IndexDirectory(item);
+            try
+            {
+                foreach (var item in directory.GetDirectories())
+                    IndexDirectory(item);
 
-            FileNodes.Add(new FileDirectory(directory, this));
+                FileNodes.Add(new FileDirectory(directory, this));
 
-            IndexFile(directory);
+                IndexFile(directory);
+            }
+            catch (Exception)
+            {
+                //TODO: Inform the user that something went wrong 
+            }
+
         }
 
         /// <summary>
@@ -108,7 +116,15 @@ namespace MediaBackupManager.Model
                 //    AddFileNode(fileNode);
                 //}
 
-                FileNodes.Add(new FileNode(file, this));
+                try
+                {
+                    FileNodes.Add(new FileNode(file, this));
+                }
+                catch (Exception)
+                {
+                    //TODO: Inform the user that something went wrong 
+                }
+
             }
         }
 
@@ -148,20 +164,6 @@ namespace MediaBackupManager.Model
 
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
                     node.Hash.AddNode(node);
-
-                    //FileHash hash;
-                    //if (!Index.Hashes.TryGetValue(checkSum, out hash))
-                    //{
-                    //    // If a hash already exist use that, if not create a new one
-                    //    hash = new FileHash(node.FullSessionName, checkSum);
-                    //    Index.Hashes.Add(checkSum, hash);
-
-                    //}
-                    //if (!(hash is null))
-                    //{
-                    //    node.File = hash;
-                    //    hash.AddNode(node);
-                    //}
                 }
             }, cancellationToken);
         }
@@ -204,7 +206,6 @@ namespace MediaBackupManager.Model
         {
             foreach (var item in Exclusions)
             {
-                var ab = Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase);
                 if (Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase))
                     return true;
 
