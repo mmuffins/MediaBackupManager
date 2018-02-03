@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,6 +15,10 @@ namespace MediaBackupManager.Model
     /// Represents a logical volume on a physical drive or network location</summary>  
     public class LogicalVolume : IEquatable<LogicalVolume>
     {
+        #region Fields
+
+        #endregion
+
         #region Properties
         public string SerialNumber { get; set; }
         public ulong Size { get; set; }

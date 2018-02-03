@@ -13,12 +13,27 @@ namespace MediaBackupManager.ViewModel
     {
         #region Fields
 
-        private BackupSet backupSet;
-        private FileDirectory rootDirectory;
+        BackupSet backupSet;
+        FileDirectoryViewModel rootDirectory;
+        FileIndexViewModel index;
+        private bool ignoreChanges = false;
 
         #endregion
 
         #region Properties
+
+        public FileIndexViewModel Index
+        {
+            get { return index; }
+            set
+            {
+                if (value != index)
+                {
+                    index = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public BackupSet BackupSet
         {
@@ -36,22 +51,25 @@ namespace MediaBackupManager.ViewModel
         public Guid Guid
         {
             get { return backupSet.Guid; }
-            set
-            {
-                if (value != backupSet.Guid)
-                {
-                    backupSet.Guid = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            //set
+            //{
+            //    if (value != backupSet.Guid)
+            //    {
+            //        backupSet.Guid = value;
+            //        NotifyPropertyChanged();
+            //    }
+            //}
         }
 
-        public FileDirectory RootDirectory
+        public FileDirectoryViewModel RootDirectory
         {
             get
             {
                 if (this.rootDirectory is null)
-                    this.rootDirectory = backupSet.GetRootDirectoryObject();
+                {
+                    this.rootDirectory = GetRootDirectoryObject();
+                    //NotifyPropertyChanged();
+                }
 
                 return this.rootDirectory;
             }
@@ -60,23 +78,134 @@ namespace MediaBackupManager.ViewModel
                 if (value != this.rootDirectory)
                 {
                     this.rootDirectory = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
                 }
             }
         }
 
-        public ObservableCollection<FileDirectory> FileNodes { get; set; }
+        public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
+
+        public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }
 
         #endregion
 
         #region Methods
 
-        public BackupSetViewModel(BackupSet backupSet)
+        public BackupSetViewModel(BackupSet backupSet, FileIndexViewModel index)
         {
             this.BackupSet = backupSet;
-            this.FileNodes = new ObservableCollection<FileDirectory>(BackupSet.FileNodes);
-            this.RootDirectory = backupSet.GetRootDirectoryObject();
-            //BackupSet.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
+            this.Directories = new ObservableCollection<FileDirectoryViewModel>();
+            this.FileNodes = new ObservableCollection<FileNodeViewModel>();
+            this.Index = index;
+
+
+            foreach (var node in BackupSet.FileNodes)
+            {
+                if(node is FileNode)
+                    this.FileNodes.Add(new FileNodeViewModel((FileNode)node, this));
+                else
+                    this.Directories.Add(new FileDirectoryViewModel(node, this));
+            }
+
+            backupSet.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
+        }
+
+        private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (ignoreChanges)
+                return;
+
+            ignoreChanges = true;
+
+            // If the collection was reset, then e.OldItems is empty. Just clear and reload.
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                Directories.Clear();
+                FileNodes.Clear();
+
+                foreach (var node in backupSet.FileNodes)
+                {
+                    if (node is FileNode)
+                        FileNodes.Add(new FileNodeViewModel((FileNode)node, this));
+                    else
+                        Directories.Add(new FileDirectoryViewModel(node, this));
+                }
+            }
+            else
+            {
+                // Remove items from collection.
+                var toRemoveDirs = new List<FileDirectoryViewModel>();
+                var toRemoveFiles = new List<FileNodeViewModel>();
+
+                if (null != e.OldItems && e.OldItems.Count > 0)
+                    foreach (var item in e.OldItems)
+                    {
+                        if (item is FileNode)
+                        {
+                            foreach (var existingItem in FileNodes)
+                            {
+                                if (existingItem.IsViewFor((FileNode)item))
+                                    toRemoveFiles.Add(existingItem);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var existingItem in Directories)
+                            {
+                                if (existingItem.IsViewFor((FileDirectory)item))
+                                    toRemoveDirs.Add(existingItem);
+                            }
+                        }
+                    }
+
+                foreach (var item in toRemoveFiles)
+                    FileNodes.Remove(item);
+
+                foreach (var item in toRemoveDirs)
+                    Directories.Remove(item);
+
+                // Add new items to the collection.
+                if (null != e.NewItems && e.NewItems.Count > 0)
+                    foreach (var item in e.NewItems)
+                    {
+                        if (item is FileNode)
+                            FileNodes.Add(new FileNodeViewModel((FileNode)item, this));
+                        else
+                            Directories.Add(new FileDirectoryViewModel((FileDirectory)item, this));
+                    }
+            }
+                ignoreChanges = false;
+                this.rootDirectory = GetRootDirectoryObject();
+        }
+
+        /// <summary>
+        /// Returns true if the provided object is the base object of the current viewmodel.</summary>  
+        public bool IsViewFor(BackupSet backupSet)
+        {
+            return this.backupSet.Equals(backupSet);
+        }
+
+
+        /// <summary>
+        /// Returns an IEnumerable object of all directories below the provided directory.</summary>  
+        public IEnumerable<FileDirectoryViewModel> GetSubDirectories(FileDirectoryViewModel parent)
+        {
+            return Directories.Where(x => x.ParentDirectoryName == parent.DirectoryName);
+        }
+
+        /// <summary>
+        /// Returns an IEnumerable object of all file nodes below the provided directory.</summary>  
+        public IEnumerable<FileNodeViewModel> GetFiles(FileDirectoryViewModel parent)
+        {
+            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName);
+        }
+
+        /// <summary>
+        /// Returns the root file directory object.</summary>  
+        private FileDirectoryViewModel GetRootDirectoryObject()
+        {
+            return Directories
+                .FirstOrDefault(x => x.DirectoryName.Equals(backupSet.RootDirectory));
         }
 
         #endregion

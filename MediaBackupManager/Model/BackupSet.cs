@@ -20,8 +20,8 @@ namespace MediaBackupManager.Model
         public LogicalVolume Volume { get; set; }
         public string RootDirectory { get; set; }
         public string MountPoint { get => Volume.MountPoint; }
-        public HashSet<FileDirectory> FileNodes { get; }
-        public HashSet<string> Exclusions { get; set; }
+        public ObservableHashSet<FileDirectory> FileNodes { get; }
+        public ObservableHashSet<string> Exclusions { get; set; }
 
         /// <summary>User defined label for the drive</summary>
         public string Label { get; set; }
@@ -32,12 +32,12 @@ namespace MediaBackupManager.Model
         public BackupSet()
         {
             this.Guid = Guid.NewGuid();
-            this.FileNodes = new HashSet<FileDirectory>();
+            this.FileNodes = new ObservableHashSet<FileDirectory>();
             if (string.IsNullOrWhiteSpace(this.Label))
                 this.Label = this.Guid.ToString();
         }
 
-        public BackupSet(DirectoryInfo directory, LogicalVolume drive, HashSet<string> exclusions) : this()
+        public BackupSet(DirectoryInfo directory, LogicalVolume drive, ObservableHashSet<string> exclusions) : this()
         {
             this.Volume = drive;
             //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);

@@ -388,9 +388,8 @@ namespace MediaBackupManager.Model
                         // Each line contains both a file node and the related has
                         // make sure that the hash is added to the index before creating the node
 
-                        FileHash hash;
-
-                        if (!Index.Hashes.TryGetValue(reader["Checksum"].ToString(), out hash))
+                        var hash = Index.Hashes.FirstOrDefault(x => x.Checksum.Equals(reader["Checksum"].ToString()));
+                        if (hash is null)
                         {
                             // Only create a new hash if it doesn't exist in the index yet
                             hash = new FileHash()
@@ -401,7 +400,7 @@ namespace MediaBackupManager.Model
                                 Length = long.Parse(reader["Length"].ToString())
                             };
 
-                            Index.Hashes.Add(hash.Checksum, hash);
+                            Index.Hashes.Add(hash);
                         }
 
                         var node = new FileDirectory();

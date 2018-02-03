@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MediaBackupManager.View"
-             xmlns:model="clr-namespace:MediaBackupManager.Model"
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="100" 
@@ -60,31 +59,14 @@
                                           ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
                     <TreeViewItem Header="{Binding Path=RootDirectory.FullName}"/>
                 </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:FileDirectory}" 
+                <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
                                           ItemsSource="{Binding Path=SubDirectories}">
                     <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}"/>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <!--<ListView x:Name="gridFiles2" Margin="2" DockPanel.Dock="Right"
-                  SelectedItem="{Binding Path=SelectedFileGridItem}"
-                  ItemsSource="{StaticResource CombinedCollection}">
-            <ListView.Resources>
-            </ListView.Resources>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Extension" DisplayMemberBinding="{Binding Extension}" />
-                    <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
-                    <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
-                    <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
-                    <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
-                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length}" />
-                    <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
-                    <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
-                </GridView>
-            </ListView.View>
-        </ListView>-->
+
+        
         <ListView x:Name="gridFiles" Margin="2" DockPanel.Dock="Right"
                   SelectedItem="{Binding Path=SelectedFileGridItem}"
                   ItemsSource="{StaticResource CombinedCollection}">

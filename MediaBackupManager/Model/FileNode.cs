@@ -12,11 +12,42 @@ namespace MediaBackupManager.Model
     public class FileNode : FileDirectory
     {
 
+        #region Fields
+
+        private FileHash hash;
+        private string checkSum;
+
+        #endregion
+
         #region Properties
 
         public string Extension { get; set; }
-        public FileHash Hash { get; set; }
-        public string Checksum { get; set; }
+
+        public FileHash Hash
+        {
+            get { return hash; }
+            set
+            {
+                if (value != hash)
+                {
+                    hash = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public string Checksum
+        {
+            get { return checkSum; }
+            set
+            {
+                if (value != checkSum)
+                {
+                    checkSum = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>Full path name including volume serial.</summary>
         public override string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }

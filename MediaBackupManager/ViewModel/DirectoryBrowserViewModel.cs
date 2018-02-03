@@ -14,9 +14,9 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         private FileIndexViewModel index;
-        private FileDirectory currentDirectory;
+        private FileDirectoryViewModel currentDirectory;
         private object selectedDirectoryTreeItem;
-        private FileDirectory selectedFileGridItem;
+        private object selectedFileGridItem;
 
         private RelayCommand.RelayCommand clearDataCommand;
         private RelayCommand.RelayCommand removeNewData;
@@ -27,7 +27,6 @@ namespace MediaBackupManager.ViewModel
         private RelayCommand.RelayCommand createBackupSetCommand;
         private RelayCommand.RelayCommand openDirectoryCommand;
         
-
         #endregion
 
         #region Properties
@@ -38,7 +37,7 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
-        public FileDirectory SelectedFileGridItem
+        public object SelectedFileGridItem
         {
             get { return selectedFileGridItem; }
             set { selectedFileGridItem = value; }
@@ -55,16 +54,14 @@ namespace MediaBackupManager.ViewModel
                     if (value is BackupSetViewModel)
                         CurrentDirectory = ((BackupSetViewModel)value).RootDirectory;
                     else
-                    {
-                        CurrentDirectory = (FileDirectory)value;
-                    }
+                        CurrentDirectory = (FileDirectoryViewModel)value;
 
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        public FileDirectory CurrentDirectory
+        public FileDirectoryViewModel CurrentDirectory
         {
             get { return currentDirectory; }
             set
@@ -251,8 +248,8 @@ namespace MediaBackupManager.ViewModel
         /// Handler for Double Click events on the file grid from the view.</summary>  
         public void GridFiles_MouseDoubleClick(object sender)
         {
-            if(sender is FileDirectory)
-                CurrentDirectory = (FileDirectory)sender;
+            if(sender is FileDirectoryViewModel)
+                CurrentDirectory = (FileDirectoryViewModel)sender;
         }
 
         #endregion

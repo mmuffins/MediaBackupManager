@@ -20,7 +20,7 @@ namespace MediaBackupManager.Model
         public DateTime CreationTime { get; set; }
         public DateTime LastWriteTime { get; set; }
         public string Checksum { get; set; }
-        public HashSet<FileNode> Nodes { get; }
+        public ObservableHashSet<FileNode> Nodes { get; }
         public int NodeCount { get => Nodes.Count; }
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
@@ -30,7 +30,7 @@ namespace MediaBackupManager.Model
 
         public FileHash()
         {
-            this.Nodes = new HashSet<FileNode>();
+            this.Nodes = new ObservableHashSet<FileNode>();
         }
 
         public FileHash(FileInfo fileInfo, string checkSum) : this()

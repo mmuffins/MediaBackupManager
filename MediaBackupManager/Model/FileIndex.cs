@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -13,25 +14,25 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Manages a collection of FileHash objects.</summary>  
-
     public class FileIndex : INotifyPropertyChanged
     {
         #region Fields
+        //TODO: Check if INotifyPropertyChanged needs to be implemented here
 
         //private Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
         //private List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
         //private List<BackupSet> backupSets = new List<BackupSet>();
-        private HashSet<string> exclusions = new HashSet<string>();
+        private ObservableHashSet<string> exclusions = new ObservableHashSet<string>();
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
         #region Properties
 
-        public Dictionary<string, FileHash> Hashes { get; private set; }
+        public ObservableHashSet<FileHash> Hashes { get; private set; }
         public List<LogicalVolume> LogicalVolumes { get; private set; }
-        public List<BackupSet> BackupSets { get; private set; }
-        public HashSet<string> Exclusions { get; private set; }
+        public ObservableCollection<BackupSet> BackupSets { get; private set; }
+        public ObservableHashSet<string> Exclusions { get; private set; }
 
         #endregion
 
@@ -40,10 +41,10 @@ namespace MediaBackupManager.Model
         {
             //LoadData();
             //Database.CreateDatabase();
-            this.Hashes = new Dictionary<string, FileHash>();
+            this.Hashes = new ObservableHashSet<FileHash>();
             this.LogicalVolumes = new List<LogicalVolume>();
-            this.BackupSets = new List<BackupSet>();
-            this.Exclusions = new HashSet<string>();
+            this.BackupSets = new ObservableCollection<BackupSet>();
+            this.Exclusions = new ObservableHashSet<string>();
         }
 
 
@@ -51,13 +52,18 @@ namespace MediaBackupManager.Model
         /// Populates the index with data stored in the database.</summary>  
         public async Task LoadDataAsync()
         {
-            // Don't use the 
+            foreach (var ex in await Database.GetExclusionsAsync())
+                this.Exclusions.Add(ex);
 
-            this.Exclusions = new HashSet<string>(await Database.GetExclusionsAsync());
-            this.Hashes = (await Database.GetFileHashAsync()).ToDictionary(x => x.Checksum);
-            this.BackupSets = await Database.GetBackupSetAsync();
+            foreach (var hash in await Database.GetFileHashAsync())
+                this.Hashes.Add(hash);
 
-            foreach (var set in BackupSets)
+            //foreach (var set in await Database.GetBackupSetAsync())
+            //    this.BackupSets.Add(set);
+
+            var tmpSets = await Database.GetBackupSetAsync();
+
+            foreach (var set in tmpSets)
             {
                 set.Index = this;
 
@@ -84,8 +90,9 @@ namespace MediaBackupManager.Model
 
                     if (item is FileNode)
                     {
-                        FileHash hash;
-                        if (Hashes.TryGetValue(((FileNode)item).Checksum, out hash))
+
+                        var hash = Hashes.FirstOrDefault(x => x.Checksum.Equals(((FileNode)item).Checksum));
+                        if (hash != null)
                         {
                             hash.AddNode((FileNode)item);
                             ((FileNode)item).Hash = hash;
@@ -93,7 +100,8 @@ namespace MediaBackupManager.Model
 
                     }
                 }
-                NotifyPropertyChanged("BackupSet");
+                //NotifyPropertyChanged("BackupSet");
+                this.BackupSets.Add(set);
             }
         }
 
@@ -171,7 +179,7 @@ namespace MediaBackupManager.Model
         {
             if (Exclusions.Add(exclusion))
             {
-                NotifyPropertyChanged("Exclusion");
+                //NotifyPropertyChanged("Exclusion");
 
                 if (writeToDb)
                     await Database.InsertExclusionAsync(exclusion);
@@ -184,7 +192,7 @@ namespace MediaBackupManager.Model
         private async Task AddBackupSet(BackupSet backupSet, bool writeToDb)
         {
             BackupSets.Add(backupSet);
-            NotifyPropertyChanged("BackupSet");
+            //NotifyPropertyChanged("BackupSet");
 
             if (writeToDb)
                 await Database.InsertBackupSetAsync(backupSet);
@@ -205,7 +213,7 @@ namespace MediaBackupManager.Model
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
                 LogicalVolumes.Remove(set.Volume);
-                NotifyPropertyChanged("LogicalVolume");
+                //NotifyPropertyChanged("LogicalVolume");
                 if(writeToDb)
                     await Database.DeleteLogicalVolumeAsync(set.Volume);
             }
@@ -218,13 +226,13 @@ namespace MediaBackupManager.Model
             // Get hashes in the collection with node count 0 
             // these can be removed from the index
             var emptyHashes = setHashes.Where(x => x.NodeCount.Equals(0)).ToList();
-            emptyHashes.ForEach(x => Hashes.Remove(x.Checksum));
+            emptyHashes.ForEach(x => Hashes.Remove(x));
 
             if (writeToDb)
                 await Database.BatchDeleteFileHashAsync(emptyHashes);
 
             BackupSets.Remove(set);
-            NotifyPropertyChanged("BackupSet");
+            //NotifyPropertyChanged("BackupSet");
             if(writeToDb)
                 await Database.DeleteBackupSetAsync(set);
         }
@@ -300,8 +308,9 @@ namespace MediaBackupManager.Model
                 if (file.Hash is null)
                     continue;
 
-                FileHash hash;
-                if (Hashes.TryGetValue(file.Hash.Checksum, out hash))
+
+                var hash = Hashes.FirstOrDefault(x => x.Equals(file.Hash));
+                if (hash != null)
                 {
                     // Hash is already on the index, change the reference of the file node
                     // and add the new node location to the hash
@@ -310,8 +319,8 @@ namespace MediaBackupManager.Model
                 }
                 else
                 {
-                    Hashes.Add(file.Hash.Checksum, file.Hash); // Hashes are written to the DB in batches, so no reason for a dedicated method here
-                    NotifyPropertyChanged("FileHash");
+                    Hashes.Add(file.Hash); // Hashes are written to the DB in batches, so no reason for a dedicated method here
+                    //NotifyPropertyChanged("FileHash");
                     newHashes.Add(file.Hash); 
                 }
             }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,16 +11,59 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents a directory in the file system.</summary>  
-    public class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>
+    public class FileDirectory : IEquatable<FileDirectory>, IComparable<FileDirectory>, INotifyPropertyChanged
     {
+        #region Fields
+
+        string name;
+        string directoryName;
+        BackupSet backupSet;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
 
         #region Properties
 
-        public string Name { get; set; }
-        public BackupSet BackupSet { get; set; }
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    name = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public BackupSet BackupSet
+        {
+            get { return backupSet; }
+            set
+            {
+                if (value != backupSet)
+                {
+                    backupSet = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>Name of the containing directory.</summary>
-        public string DirectoryName { get; set; }
+        public string DirectoryName
+        {
+            get { return directoryName; }
+            set
+            {
+                if (value != directoryName)
+                {
+                    directoryName = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>Full path name including volume serial.</summary>
         public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName); }
@@ -44,6 +89,7 @@ namespace MediaBackupManager.Model
                 return Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
             }
         }
+
 
         /// <summary>Returns a list of all directories below the current object.</summary>
         public virtual IEnumerable<FileDirectory> SubDirectories
@@ -120,6 +166,15 @@ namespace MediaBackupManager.Model
         public int CompareTo(FileDirectory other)
         {
             return DirectoryName.CompareTo(other.DirectoryName);
+        }
+
+
+        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            // take a copy to prevent thread issues
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

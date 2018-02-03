@@ -80,7 +80,6 @@ namespace MediaBackupManager.ViewModel
             //TODO: Add different highlighting for directories in the file grid
             //TODO: Add breadcrumb navigation for the file grid
 
-
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
@@ -89,7 +88,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
-        private async Task PrepareDatabaseAsync(FileIndex index)
+        public async Task PrepareDatabaseAsync(FileIndex index)
         {
             Database.Index = index;
             bool newDB = Database.CreateDatabase();

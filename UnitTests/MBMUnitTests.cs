@@ -330,7 +330,7 @@ namespace UnitTests
                 BackupSet = refSet
             };
             h1.AddNode(f1);
-            refFi.Hashes.Add(h1.Checksum, h1);
+            refFi.Hashes.Add(h1);
             refSet.FileNodes.Add(f1);
 
             var h2 = new FileHash()
@@ -351,7 +351,7 @@ namespace UnitTests
                 BackupSet = refSet
             };
             h2.AddNode(f2);
-            refFi.Hashes.Add(h2.Checksum, h2);
+            refFi.Hashes.Add(h2);
             refSet.FileNodes.Add(f2);
 
             var h3 = new FileHash()
@@ -372,7 +372,7 @@ namespace UnitTests
                 BackupSet = refSet
             };
             h3.AddNode(f3);
-            refFi.Hashes.Add(h3.Checksum, h3);
+            refFi.Hashes.Add(h3);
             refSet.FileNodes.Add(f3);
 
             var h4 = new FileHash()
@@ -393,7 +393,7 @@ namespace UnitTests
                 BackupSet = refSet
             };
             h4.AddNode(f4);
-            refFi.Hashes.Add(h4.Checksum, h4);
+            refFi.Hashes.Add(h4);
             refSet.FileNodes.Add(f4);
 
             var h5 = new FileHash()
@@ -414,7 +414,7 @@ namespace UnitTests
                 BackupSet = refSet
             };
             h5.AddNode(f5);
-            refFi.Hashes.Add(h5.Checksum, h5);
+            refFi.Hashes.Add(h5);
             refSet.FileNodes.Add(f5);
 
             // Act
@@ -441,8 +441,8 @@ namespace UnitTests
             Assert.AreEqual(refFi.Hashes.Count, diffFi.Hashes.Count, "FileHash count incorrect.");
             foreach (var refHash in refFi.Hashes)
             {
-                Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Key), "FileHash not found.");
-                Assert.AreEqual(refHash.Value, diffFi.Hashes[refHash.Key], "FileHash not equal.");
+                Assert.IsTrue(diffFi.Hashes.Contains(refHash), "FileHash not found.");
+                Assert.AreEqual(refHash, diffFi.Hashes.FirstOrDefault(x => x.Equals(refHash)), "FileHash not equal.");
             }
 
             Assert.AreEqual(refSet.FileNodes.Count, diffSet.FileNodes.Count, "FileNodes count incorrect.");
@@ -509,8 +509,8 @@ namespace UnitTests
             Assert.AreEqual(refFi.Hashes.Count, diffFi.Hashes.Count, "FileHash count incorrect.");
             foreach (var refHash in refFi.Hashes)
             {
-                Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Key), "FileHash not found.");
-                Assert.AreEqual(refHash.Value, diffFi.Hashes[refHash.Key], "FileHash not equal.");
+                Assert.IsTrue(diffFi.Hashes.Contains(refHash), "FileHash not found.");
+                Assert.AreEqual(refHash, diffFi.Hashes.FirstOrDefault(x => x.Equals(refHash)), "FileHash not equal.");
             }
             Assert.IsTrue(diffFi.Exclusions.Contains(exclusionString1), "Exclusion not found.");
             Assert.IsTrue(diffFi.Exclusions.Contains(exclusionString2), "Exclusion not found.");
@@ -647,8 +647,8 @@ namespace UnitTests
             {
                 refSet.GetFileHashes().ForEach(refHash =>
                 {
-                    Assert.IsTrue(diffFi.Hashes.ContainsKey(refHash.Checksum), "FileHash not found.");
-                    Assert.AreEqual(refHash, diffFi.Hashes[refHash.Checksum], "FileHash not equal.");
+                    Assert.IsTrue(diffFi.Hashes.Contains(refHash), "FileHash not found.");
+                    Assert.AreEqual(refHash, diffFi.Hashes.FirstOrDefault(x => x.Equals(refHash)), "FileHash not equal.");
                 });
             });
         }
@@ -742,7 +742,7 @@ namespace UnitTests
             // Assert
             Assert.AreEqual(1, diffFi.Hashes.Count, "FileHash count incorrect.");
 
-            var hash = diffFi.Hashes.FirstOrDefault().Value;
+            var hash = diffFi.Hashes.FirstOrDefault();
             Assert.AreEqual(1, hash.NodeCount, "Node count incorrect.");
             var node = hash.Nodes.FirstOrDefault();
 
