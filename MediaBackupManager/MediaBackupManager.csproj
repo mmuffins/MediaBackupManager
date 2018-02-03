@@ -108,7 +108,6 @@
     <Compile Include="ViewModel\FileHashViewModel.cs" />
     <Compile Include="ViewModel\FileIndexViewModel.cs" />
     <Compile Include="ViewModel\FileNodeViewModel.cs" />
-    <Compile Include="ViewModel\LogicalVolumeViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="View\DirectoryBrowserView.xaml.cs">
       <DependentUpon>DirectoryBrowserView.xaml</DependentUpon>
