@@ -1,5 +1,4 @@
-﻿using MediaBackupManager.Model;
-using MediaBackupManager.ViewModel;
+﻿using MediaBackupManager.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,38 +27,38 @@ namespace MediaBackupManager.View
             InitializeComponent();
         }
 
-        private void OnCurrentDirectoryChanged(object sender, PropertyChangedEventArgs e)
-        {
-            //TODO:Q-referencing MediaBackupManager.Model breaks mvvm, any better way to implement this?
-            if (e.PropertyName.Equals("CurrentDirectory"))
-            {
-                // Get the current directory
-                var currentDir = "";
-                if (this.treeDirectory.SelectedItem is FileDirectory)
-                    currentDir = ((FileDirectory)this.treeDirectory.SelectedItem).FullName;
-                else if (this.treeDirectory.SelectedItem is BackupSet)
-                    currentDir = ((BackupSet)this.treeDirectory.SelectedItem).RootDirectory;
+        //private void OnCurrentDirectoryChanged(object sender, PropertyChangedEventArgs e)
+        //{
+        //    //TODO:Q-referencing MediaBackupManager.Model breaks mvvm, any better way to implement this?
+        //    if (e.PropertyName.Equals("CurrentDirectory"))
+        //    {
+        //        // Get the current directory
+        //        var currentDir = "";
+        //        if (treeDirectory.SelectedItem is FileDirectory)
+        //            currentDir = ((FileDirectory)treeDirectory.SelectedItem).FullName;
+        //        else if (treeDirectory.SelectedItem is BackupSet)
+        //            currentDir = ((BackupSet)treeDirectory.SelectedItem).RootDirectory;
 
-                // Get the new directory
-                var newDir = "";
-                if (((DirectoryBrowserViewModel)sender).CurrentDirectory != null)
-                    newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
+        //        // Get the new directory
+        //        var newDir = "";
+        //        if (((DirectoryBrowserViewModel)sender).CurrentDirectory != null)
+        //            newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
 
-                if (currentDir != newDir)
-                {
-                    // Change the directory
-                }
+        //        if (currentDir != newDir)
+        //        {
+        //            // Change the directory
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
 
         private void treeDirectory_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // SelectedItem on treeView is readonly for some reason, 
             // so we need to raise an event instead of directly binding
-            if (this.DataContext != null)
-                ((DirectoryBrowserViewModel)this.DataContext).SelectedDirectoryTreeItem = ((RoutedPropertyChangedEventArgs<object>)e).NewValue;
+            if (DataContext != null)
+                ((DirectoryBrowserViewModel)DataContext).SelectedDirectoryTreeItem = e.NewValue;
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -69,8 +68,21 @@ namespace MediaBackupManager.View
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext != null)
-                ((DirectoryBrowserViewModel)this.DataContext).PropertyChanged += new PropertyChangedEventHandler(OnCurrentDirectoryChanged);
+            //if (DataContext != null)
+            //    ((DirectoryBrowserViewModel)DataContext).PropertyChanged += new PropertyChangedEventHandler(OnCurrentDirectoryChanged);
+        }
+
+        private void gridFiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListViewItem)
+            {
+                if (!((ListViewItem)sender).IsSelected)
+                {
+                    return;
+                }
+            }
+
+            ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
         }
     }
 }

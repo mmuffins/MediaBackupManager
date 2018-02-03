@@ -25,6 +25,8 @@ namespace MediaBackupManager.ViewModel
         private RelayCommand.RelayCommand loadAdditionalData;
         private RelayCommand.RelayCommand scanNewData;
         private RelayCommand.RelayCommand createBackupSetCommand;
+        private RelayCommand.RelayCommand openDirectoryCommand;
+        
 
         #endregion
 
@@ -161,6 +163,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        public RelayCommand.RelayCommand OpenDirectoryCommand
+        {
+            get
+            {
+                if (openDirectoryCommand == null)
+                {
+                    openDirectoryCommand = new RelayCommand.RelayCommand(
+                        p => RemoveBackupSet(p as BackupSetViewModel),
+                        p => p is BackupSetViewModel);
+                }
+                return openDirectoryCommand;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -229,6 +245,14 @@ namespace MediaBackupManager.ViewModel
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\main\images2\b"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
 
+        }
+
+        /// <summary>
+        /// Handler for Double Click events on the file grid from the view.</summary>  
+        public void GridFiles_MouseDoubleClick(object sender)
+        {
+            if(sender is FileDirectory)
+                CurrentDirectory = (FileDirectory)sender;
         }
 
         #endregion

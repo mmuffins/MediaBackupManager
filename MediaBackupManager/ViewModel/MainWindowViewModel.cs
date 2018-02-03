@@ -66,15 +66,24 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO:Properly implement the cancellation token
-            //var token = new System.Threading.CancellationToken();
-            //App.Current.Properties["cancelToken"] = token;
+            //TODO: Support cancelling a scan in progress
+            //TODO: Add a progress bar for scanning operations
+            //TODO: Replace the item gridview with something nicer looking
+            //TODO: Show a view containing a label and path field after clicking the add directory button
+            //TODO: Add an options view
+            //TODO: Add an option to trigger highlighting nodes without backup
+            //TODO: Add a function to add and remove exclusions
+            //TODO: Add a filter bar
+            //TODO: Add a function to update existing backup sets
+            //TODO: When double clicking a file, show a view containing all other nodes of the current file hash
+            //TODO: Make sure all major functions have a description
+            //TODO: Add different highlighting for directories in the file grid
+            //TODO: Add breadcrumb navigation for the file grid
+
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
-            //TODO: Implement view showing a list of hashes related to a single node
-            
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
         }

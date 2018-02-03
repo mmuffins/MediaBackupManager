@@ -21,7 +21,7 @@ namespace MediaBackupManager.Model
         //private Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
         //private List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
         //private List<BackupSet> backupSets = new List<BackupSet>();
-        //private HashSet<string> exclusions = new HashSet<string>();
+        private HashSet<string> exclusions = new HashSet<string>();
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion

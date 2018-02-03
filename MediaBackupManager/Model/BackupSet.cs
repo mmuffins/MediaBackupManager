@@ -37,18 +37,6 @@ namespace MediaBackupManager.Model
                 this.Label = this.Guid.ToString();
         }
 
-        public BackupSet(DirectoryInfo directory, LogicalVolume drive, FileIndex fileIndex) : this()
-        {
-            //TODO: Is this constructor still needed?
-            this.Volume = drive;
-            //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
-            this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
-            this.Index = fileIndex;
-
-            if (string.IsNullOrWhiteSpace(this.Label))
-                this.Label = drive.MountPoint;
-        }
-
         public BackupSet(DirectoryInfo directory, LogicalVolume drive, HashSet<string> exclusions) : this()
         {
             this.Volume = drive;

@@ -11,6 +11,7 @@
              Unloaded="UserControl_Unloaded" 
              Loaded="UserControl_Loaded">
     <Control.Resources>
+        <!--Treeview Resources-->
         <Style TargetType="TreeViewItem">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=Name}" Value="Fiddler">
@@ -25,6 +26,19 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <!--GridView Resources-->
+        <Style TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+        <CollectionViewSource x:Key="DirectoryFiles" Source="{Binding Path=CurrentDirectory.Files}"/>
+        <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
+        <CompositeCollection x:Key="CombinedCollection">
+            <CollectionContainer Collection="{Binding Source={StaticResource DirectorySubDirs}}" />
+            <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFiles}}" />
+        </CompositeCollection>
+        <Style TargetType="{x:Type ListViewItem}">
+            <EventSetter Event="MouseDoubleClick" Handler="gridFiles_MouseDoubleClick" />
+        </Style>
     </Control.Resources>
     
     <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
@@ -37,8 +51,8 @@
             <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}"></Button>
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
         </StackPanel>
-        
-        <TreeView x:Name="treeDirectory" DockPanel.Dock="Left" Width="350" 
+
+        <TreeView x:Name="treeDirectory" Margin="2" DockPanel.Dock="Left" MinWidth="50" MaxWidth="250"
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
@@ -52,8 +66,45 @@
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <DataGrid x:Name="gridFiles" DockPanel.Dock="Right" 
-                  ItemsSource="{Binding Path=CurrentDirectory.Files}"
-                  SelectedItem="{Binding Path=SelectedFileGridItem}"></DataGrid>
+        <!--<ListView x:Name="gridFiles2" Margin="2" DockPanel.Dock="Right"
+                  SelectedItem="{Binding Path=SelectedFileGridItem}"
+                  ItemsSource="{StaticResource CombinedCollection}">
+            <ListView.Resources>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Extension" DisplayMemberBinding="{Binding Extension}" />
+                    <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
+                    <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
+                    <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
+                    <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
+                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length}" />
+                    <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
+                    <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
+                </GridView>
+            </ListView.View>
+        </ListView>-->
+        <ListView x:Name="gridFiles" Margin="2" DockPanel.Dock="Right"
+                  SelectedItem="{Binding Path=SelectedFileGridItem}"
+                  ItemsSource="{StaticResource CombinedCollection}">
+
+            <ListView.Resources>
+
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Extension" DisplayMemberBinding="{Binding Extension}" />
+                    <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
+                    <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
+                    <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
+                    <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
+                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length}" />
+                    <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
+                    <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
     </DockPanel>
 </UserControl>
