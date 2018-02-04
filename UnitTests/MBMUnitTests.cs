@@ -282,6 +282,8 @@ namespace UnitTests
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
 
+            var setLabel = "BasicFileScanSet";
+
             // Create reference file index
             var fileRootDir = Path.GetFullPath(targetDir).Substring(Path.GetPathRoot(targetDir).Length);
 
@@ -300,7 +302,8 @@ namespace UnitTests
             {
                 RootDirectory = fileRootDir,
                 Volume = dDrive,
-                Index = refFi
+                Index = refFi,
+                Label = setLabel
             };
             refFi.BackupSets.Add(refSet);
 
@@ -419,14 +422,12 @@ namespace UnitTests
 
             // Act
             var diffFi = new FileIndex();
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), setLabel);
 
             // Several attributes are created on the fly, so we need to copy them
             // to the reference set
-            var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.RootDirectory.Equals(refSet.RootDirectory));
+            var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Label.Equals(refSet.Label));
             refSet.Guid = diffSet.Guid;
-            refSet.Label = diffSet.Label;
-
 
             // Assert
             Assert.AreEqual(refFi.BackupSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
@@ -473,10 +474,9 @@ namespace UnitTests
             var exclusionString1 = @"\.exe";
             var exclusionString2 = @".*\subdir1";
 
-
             // Act
             var refFi = new FileIndex();
-            await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "testSet");
             await refFi.CreateFileExclusionAsync(exclusionString1);
             await refFi.CreateFileExclusionAsync(exclusionString2);
 
@@ -544,15 +544,15 @@ namespace UnitTests
             var refFi = new FileIndex();
 
             List<BackupSet> refSets = new List<BackupSet>();
-            var set1 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
+            var set1 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet1");
             refSets.Add(set1);
 
             // Backupset on same volume       
-            var set2 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2));
+            var set2 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet2");
             refSets.Add(set2);
 
             // Backupset on different volume
-            var set3 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3));
+            var set3 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet3");
             refSets.Add(set3);
 
             // Assert
@@ -686,10 +686,10 @@ namespace UnitTests
 
             // Act
             var diffFi = new FileIndex();
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir));
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2));
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3));
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir4));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet1");
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet2");
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet3");
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir4), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet4");
 
             var allNodes = diffFi.BackupSets.SelectMany(x => x.FileNodes);
             var nodeCount11 = (FileNode)allNodes.FirstOrDefault(x => x.Name.Equals("KeyMap.txt"));
@@ -737,7 +737,7 @@ namespace UnitTests
             await diffFi.CreateFileExclusionAsync(@"\.exe");
             await diffFi.CreateFileExclusionAsync(@".*\\subdir1");
 
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(testDirD));
+            await diffFi.CreateBackupSetAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileExclusionSet");
 
             // Assert
             Assert.AreEqual(1, diffFi.Hashes.Count, "FileHash count incorrect.");
