@@ -161,9 +161,9 @@ namespace MediaBackupManager.ViewModel
             ignoreChanges = false;
         }
 
-        public async Task CreateBackupSetAsync(DirectoryInfo dir)
+        public async Task CreateBackupSetAsync(DirectoryInfo dir, string label = "")
         {
-            await Index.CreateBackupSetAsync(dir);
+            await Index.CreateBackupSetAsync(dir, label);
         }
 
         public async Task RemoveBackupSetAsync(BackupSet backupSet)

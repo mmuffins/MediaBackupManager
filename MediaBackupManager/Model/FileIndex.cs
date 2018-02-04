@@ -113,7 +113,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo dir)
+        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo dir, string label = "")
         {
             var tokenSource = new CancellationTokenSource();
             var cancelToken = tokenSource.Token;
@@ -133,6 +133,8 @@ namespace MediaBackupManager.Model
 
             var stagingVolume = new LogicalVolume(dir);
             var stagingSet = new BackupSet(dir, stagingVolume, Exclusions);
+            if (!string.IsNullOrWhiteSpace(label))
+                stagingSet.Label = label;
 
             //AddBackupSet(scanSet);
             await stagingSet.ScanFilesAsync(cancelToken);
