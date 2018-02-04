@@ -165,8 +165,10 @@ namespace MediaBackupManager.ViewModel
         private void SelectDirectoryCommand_Execute(object obj)
         {
             //TODO: Add function to read the drive label to auto-fill the label field
-            var browser = new FolderBrowserDialog();
-            browser.Description = "Please Select a folder";
+            var browser = new FolderBrowserDialog
+            {
+                Description = "Please Select a folder"
+            };
 
             if (browser.ShowDialog() == DialogResult.OK)
             {

@@ -543,7 +543,7 @@ namespace UnitTests
             // Act
             var refFi = new FileIndex();
 
-            List<BackupSet> refSets = new List<BackupSet>();
+            var refSets = new List<BackupSet>();
             var set1 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet1");
             refSets.Add(set1);
 

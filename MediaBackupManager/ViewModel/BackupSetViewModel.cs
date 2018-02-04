@@ -289,7 +289,7 @@ namespace MediaBackupManager.ViewModel
             if (obj == null)
                 return false;
 
-            BackupSetViewModel otherObj = obj as BackupSetViewModel;
+            var otherObj = obj as BackupSetViewModel;
             if (otherObj == null)
                 return false;
             else

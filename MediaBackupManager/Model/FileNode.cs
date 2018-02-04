@@ -132,7 +132,7 @@ namespace MediaBackupManager.Model
             if (obj == null)
                 return false;
 
-            FileNode otherObj = obj as FileNode;
+            var otherObj = obj as FileNode;
             if (otherObj == null)
                 return false;
             else

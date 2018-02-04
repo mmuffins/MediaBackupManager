@@ -287,7 +287,7 @@ namespace MediaBackupManager.Model
             if (obj == null)
                 return false;
 
-            BackupSet otherObj = obj as BackupSet;
+            var otherObj = obj as BackupSet;
             if (otherObj == null)
                 return false;
             else

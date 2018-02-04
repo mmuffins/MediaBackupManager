@@ -176,7 +176,7 @@ namespace MediaBackupManager.ViewModel
             if (obj == null)
                 return false;
 
-            FileHashViewModel otherObj = obj as FileHashViewModel;
+            var otherObj = obj as FileHashViewModel;
             if (otherObj == null)
                 return false;
             else

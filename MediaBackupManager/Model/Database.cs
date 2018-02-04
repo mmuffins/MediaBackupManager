@@ -291,10 +291,11 @@ namespace MediaBackupManager.Model
 
             using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
-                var sqlCmd = new SQLiteCommand(dbConn);
-
-                sqlCmd.CommandText = "SELECT * FROM Exclusion";
-                sqlCmd.CommandType = CommandType.Text;
+                var sqlCmd = new SQLiteCommand(dbConn)
+                {
+                    CommandText = "SELECT * FROM Exclusion",
+                    CommandType = CommandType.Text
+                };
 
                 await dbConn.OpenAsync();
                 using (var reader = await sqlCmd.ExecuteReaderAsync())
@@ -317,9 +318,11 @@ namespace MediaBackupManager.Model
 
             using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
-                var sqlCmd = new SQLiteCommand(dbConn);
-                sqlCmd.CommandText = "SELECT * FROM FileNode WHERE BackupSet = @Guid";
-                sqlCmd.CommandType = CommandType.Text;
+                var sqlCmd = new SQLiteCommand(dbConn)
+                {
+                    CommandText = "SELECT * FROM FileNode WHERE BackupSet = @Guid",
+                    CommandType = CommandType.Text
+                };
                 sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
                 sqlCmd.Parameters["@Guid"].Value = guid;
 
@@ -339,9 +342,10 @@ namespace MediaBackupManager.Model
                         {
                             // Filenode and FileDirectory are stored in the same table,
                             // based on the nodetype we need to cast to the correct data type
-                            node = new FileNode();
-
-                            node.DirectoryName = reader["DirectoryName"].ToString();
+                            node = new FileNode
+                            {
+                                DirectoryName = reader["DirectoryName"].ToString()
+                            };
                             ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
                             ((FileNode)node).Checksum = reader["Checksum"].ToString();
@@ -371,12 +375,15 @@ namespace MediaBackupManager.Model
         {
             using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
-                var sqlCmd = new SQLiteCommand(dbConn);
-                sqlCmd.CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
+                var sqlCmd = new SQLiteCommand(dbConn)
+                {
+                    CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
                     " INNER JOIN FileHash h ON n.Checksum = h.Checksum" +
-                    " WHERE BackupSet = @Guid";
+                    " WHERE BackupSet = @Guid",
 
-                sqlCmd.CommandType = CommandType.Text;
+                    CommandType = CommandType.Text
+                };
+
                 sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
                 sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
 
@@ -414,10 +421,12 @@ namespace MediaBackupManager.Model
                         {
                             // Filenode and FileDirectory are stored in the same table,
                             // based on the nodetype we need to cast to the correct data type
-                            node = new FileNode();
+                            node = new FileNode
+                            {
+                                DirectoryName = reader["DirectoryName"].ToString(),
+                                BackupSet = backupSet
+                            };
 
-                            node.DirectoryName = reader["DirectoryName"].ToString();
-                            node.BackupSet = backupSet;
                             ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
 
@@ -448,8 +457,9 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified FileDirectory or FileNode object to the database.</summary>
         public static async Task InsertFileNodeAsync(FileDirectory fileNode)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "INSERT INTO FileNode (" +
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "INSERT INTO FileNode (" +
                 "BackupSet" +
                 ", DirectoryName" +
                 ", Name" +
@@ -463,9 +473,10 @@ namespace MediaBackupManager.Model
                 ", @Extension" +
                 ", @File" +
                 ", @NodeType" +
-                ")";
+                ")",
 
-            sqlCmd.CommandType = CommandType.Text;
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
@@ -495,8 +506,9 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified object to the database.</summary>
         public static async Task InsertBackupSetAsync(BackupSet backupSet)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "INSERT INTO BackupSet (" +
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "INSERT INTO BackupSet (" +
                 "Guid" +
                 ", Volume" +
                 ", RootDirectory" +
@@ -506,9 +518,10 @@ namespace MediaBackupManager.Model
                 ", @Volume " +
                 ", @RootDirectory" +
                 ", @Label" +
-                ")";
+                ")",
 
-            sqlCmd.CommandType = CommandType.Text;
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
@@ -526,8 +539,9 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified object to the database.</summary>
         public static async Task InsertFileHashAsync(FileHash hash)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "INSERT INTO FileHash (" +
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "INSERT INTO FileHash (" +
                 "Checksum" +
                 ", Length" +
                 ", CreationTime" +
@@ -537,9 +551,10 @@ namespace MediaBackupManager.Model
                 ", @Length" +
                 ", @CreationTime" +
                 ", @LastWriteTime" +
-                ")";
+                ")",
 
-            sqlCmd.CommandType = CommandType.Text;
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
@@ -557,9 +572,9 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified object to the database.</summary>
         public static async Task InsertLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
-            var sqlCmd = new SQLiteCommand();
-
-            sqlCmd.CommandText = "INSERT INTO LogicalVolume (" +
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "INSERT INTO LogicalVolume (" +
                 "SerialNumber" +
                 ", Size" +
                 ", Type" +
@@ -569,9 +584,10 @@ namespace MediaBackupManager.Model
                 ", @Size" +
                 ", @Type" +
                 ", @VolumeName" +
-                ")";
+                ")",
 
-            sqlCmd.CommandType = CommandType.Text;
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
@@ -589,14 +605,16 @@ namespace MediaBackupManager.Model
         /// <summary>Inserts the specified object to the database.</summary>
         public static async Task InsertExclusionAsync(string exclusion)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "INSERT INTO Exclusion (" +
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "INSERT INTO Exclusion (" +
                 "Value" +
                 ") VALUES (" +
                 "@Value" +
-                ")";
+                ")",
 
-            sqlCmd.CommandType = CommandType.Text;
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Value", DbType.String));
             sqlCmd.Parameters["@Value"].Value = exclusion;
@@ -607,9 +625,11 @@ namespace MediaBackupManager.Model
         /// <summary>Deletes the specified object from the database.</summary>
         public static async Task DeleteFileHashAsync(FileHash hash)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM FileHash WHERE Checksum = @Checksum";
-            sqlCmd.CommandType = CommandType.Text;
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "DELETE FROM FileHash WHERE Checksum = @Checksum",
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
             sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
@@ -620,9 +640,11 @@ namespace MediaBackupManager.Model
         /// <summary>Deletes the specified object from the database.</summary>
         public static async Task DeleteLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM LogicalVolume WHERE SerialNumber = @SerialNumber";
-            sqlCmd.CommandType = CommandType.Text;
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "DELETE FROM LogicalVolume WHERE SerialNumber = @SerialNumber",
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
             sqlCmd.Parameters["@SerialNumber"].Value = logicalVolume.SerialNumber;
@@ -633,9 +655,11 @@ namespace MediaBackupManager.Model
         /// <summary>Deletes the specified object from the database.</summary>
         public static async Task DeleteBackupSetAsync(BackupSet backupSet)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM BackupSet WHERE Guid = @Guid";
-            sqlCmd.CommandType = CommandType.Text;
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "DELETE FROM BackupSet WHERE Guid = @Guid",
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
             sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
@@ -674,9 +698,11 @@ namespace MediaBackupManager.Model
         /// <summary>Deletes the specified object from the database.</summary>
         public static async Task DeleteExclusionAsync(string exclusion)
         {
-            var sqlCmd = new SQLiteCommand();
-            sqlCmd.CommandText = "DELETE FROM Exclusion WHERE Value = @Value";
-            sqlCmd.CommandType = CommandType.Text;
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "DELETE FROM Exclusion WHERE Value = @Value",
+                CommandType = CommandType.Text
+            };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Value", DbType.String));
             sqlCmd.Parameters["@Value"].Value = exclusion;
@@ -703,8 +729,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var node in nodes)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
@@ -745,8 +773,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var hash in hashes)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
                             sqlCmd.Parameters["@Checksum"].Value = hash.Checksum;
@@ -791,8 +821,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var set in sets)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
@@ -844,8 +876,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var hash in hashes)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Length", DbType.Int64));
@@ -902,8 +936,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var node in nodes)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
@@ -969,8 +1005,10 @@ namespace MediaBackupManager.Model
                     {
                         foreach (var volume in volumes)
                         {
-                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction);
-                            sqlCmd.CommandType = CommandType.Text;
+                            var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
+                            {
+                                CommandType = CommandType.Text
+                            };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@SerialNumber", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Size", DbType.UInt64));
