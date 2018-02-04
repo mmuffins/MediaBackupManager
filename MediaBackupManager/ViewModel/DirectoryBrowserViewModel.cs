@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
-    class DirectoryBrowserViewModel : ViewModelBase.ViewModelBase
+    class DirectoryBrowserViewModel : ViewModelBase
     {
         #region Fields
 
@@ -19,13 +20,13 @@ namespace MediaBackupManager.ViewModel
         private object selectedDirectoryTreeItem;
         private object selectedFileGridItem;
 
-        private RelayCommand.RelayCommand clearDataCommand;
-        private RelayCommand.RelayCommand removeNewData;
-        private RelayCommand.RelayCommand removeBackupSetCommand;
-        private RelayCommand.RelayCommand loadData;
-        private RelayCommand.RelayCommand loadAdditionalData;
-        private RelayCommand.RelayCommand scanNewData;
-        private RelayCommand.RelayCommand createBackupSetCommand;
+        private RelayCommand clearDataCommand;
+        private RelayCommand removeNewData;
+        private RelayCommand removeBackupSetCommand;
+        private RelayCommand loadData;
+        private RelayCommand loadAdditionalData;
+        private RelayCommand scanNewData;
+        private RelayCommand createBackupSetCommand;
         
         #endregion
 
@@ -74,73 +75,73 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand.RelayCommand ClearDataCommand
+        public RelayCommand ClearDataCommand
         {
             get
             {
                 if (clearDataCommand == null)
                 {
-                    clearDataCommand = new RelayCommand.RelayCommand(ClearData_Execute, param => true);
+                    clearDataCommand = new RelayCommand(ClearData_Execute, param => true);
                 }
                 return clearDataCommand;
             }
         }
 
-        public RelayCommand.RelayCommand RemoveNewData
+        public RelayCommand RemoveNewData
         {
             get
             {
                 if (removeNewData == null)
                 {
-                    removeNewData = new RelayCommand.RelayCommand(RemoveNewData_Execute, param => true);
+                    removeNewData = new RelayCommand(RemoveNewData_Execute, param => true);
                 }
                 return removeNewData;
             }
         }
 
-        public RelayCommand.RelayCommand LoadData
+        public RelayCommand LoadData
         {
             get
             {
                 if (loadData == null)
                 {
-                    loadData = new RelayCommand.RelayCommand(LoadData_Execute, param => true);
+                    loadData = new RelayCommand(LoadData_Execute, param => true);
                 }
                 return loadData;
             }
         }
 
-        public RelayCommand.RelayCommand LoadAdditionalData
+        public RelayCommand LoadAdditionalData
         {
             get
             {
                 if (loadAdditionalData == null)
                 {
-                    loadAdditionalData = new RelayCommand.RelayCommand(TestLoadAdditionalData_Execute, param => true);
+                    loadAdditionalData = new RelayCommand(TestLoadAdditionalData_Execute, param => true);
                 }
                 return loadAdditionalData;
             }
         }
 
-        public RelayCommand.RelayCommand ScanNewData
+        public RelayCommand ScanNewData
         {
             get
             {
                 if (scanNewData == null)
                 {
-                    scanNewData = new RelayCommand.RelayCommand(ScanNewData_Execute, param => true);
+                    scanNewData = new RelayCommand(ScanNewData_Execute, param => true);
                 }
                 return scanNewData;
             }
         }
 
-        public RelayCommand.RelayCommand CreateBackupSetCommand
+        public RelayCommand CreateBackupSetCommand
         {
             get
             {
                 if (createBackupSetCommand == null)
                 {
-                    createBackupSetCommand = new RelayCommand.RelayCommand(
+                    createBackupSetCommand = new RelayCommand(
                         p => MessageService.SendMessage(this, "CreateBackupSet", null), 
                         p => true);
                 }
@@ -148,13 +149,13 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand.RelayCommand RemoveBackupSetCommand
+        public RelayCommand RemoveBackupSetCommand
         {
             get
             {
                 if (removeBackupSetCommand == null)
                 {
-                    removeBackupSetCommand = new RelayCommand.RelayCommand(
+                    removeBackupSetCommand = new RelayCommand(
                         p => RemoveBackupSet(p as BackupSetViewModel), 
                         p => p is BackupSetViewModel);
                 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.SupportingClasses;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,11 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class CreateBackupSetViewModel : ViewModelBase.ViewModelBase
+    public class CreateBackupSetViewModel : ViewModelBase
     {
-        RelayCommand.RelayCommand selectDirectoryCommand;
-        RelayCommand.RelayCommand cancelCommand;
-        RelayCommand.RelayCommand confirmCommand;
+        RelayCommand selectDirectoryCommand;
+        RelayCommand cancelCommand;
+        RelayCommand confirmCommand;
         
         string selectedDirectory;
         string backupSetLabel;
@@ -26,13 +27,13 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Command to open a FolderBrowserDialog and populate the path textbox with the selected directory.</summary>  
-        public RelayCommand.RelayCommand SelectDirectoryCommand
+        public RelayCommand SelectDirectoryCommand
         {
             get
             {
                 if (selectDirectoryCommand == null)
                 {
-                    selectDirectoryCommand = new RelayCommand.RelayCommand(
+                    selectDirectoryCommand = new RelayCommand(
                         SelectDirectoryCommand_Execute,
                         p => true);
                 }
@@ -42,13 +43,13 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Command to close the overlay.</summary>  
-        public RelayCommand.RelayCommand CancelCommand
+        public RelayCommand CancelCommand
         {
             get
             {
                 if (cancelCommand == null)
                 {
-                    cancelCommand = new RelayCommand.RelayCommand(
+                    cancelCommand = new RelayCommand(
                         CloseOverlay,
                         p => true);
                 }
@@ -58,14 +59,14 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Command to create a Backup Set for the selected drive.</summary>  
-        public RelayCommand.RelayCommand ConfirmCommand
+        public RelayCommand ConfirmCommand
         {
             //TODO: Create Validation and error messages to make sure that all fields are filled
             get
             {
                 if (confirmCommand == null)
                 {
-                    confirmCommand = new RelayCommand.RelayCommand(
+                    confirmCommand = new RelayCommand(
                         CreateBackupSet,
                         p => true);
                 }

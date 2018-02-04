@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class FileDirectoryViewModel : ViewModelBase.ViewModelBase
+    public class FileDirectoryViewModel : ViewModelBase
     {
         #region Fields
 

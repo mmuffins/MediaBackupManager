@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class FileHashViewModel : ViewModelBase.ViewModelBase, IEquatable<FileHashViewModel>
+    public class FileHashViewModel : ViewModelBase, IEquatable<FileHashViewModel>
     {
         #region Fields
 

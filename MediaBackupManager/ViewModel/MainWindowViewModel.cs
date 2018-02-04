@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using MediaBackupManager.View;
 using System;
 using System.Collections.Generic;
@@ -6,18 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using ViewModelBase;
 
 namespace MediaBackupManager.ViewModel
 {
-    class MainWindowViewModel : ViewModelBase.ViewModelBase
+    class MainWindowViewModel : ViewModelBase
     {
         #region Fields
 
-        private RelayCommand.RelayCommand changePageCommand;
-        private ViewModelBase.ViewModelBase currentAppViewModel = new ViewModelBase.ViewModelBase();
-        private ViewModelBase.ViewModelBase currentOverlay;
-        private List<ViewModelBase.ViewModelBase> appViewModels = new List<ViewModelBase.ViewModelBase>();
+        private RelayCommand changePageCommand;
+        private ViewModelBase currentAppViewModel = new ViewModelBase();
+        private ViewModelBase currentOverlay;
+        private List<ViewModelBase> appViewModels = new List<ViewModelBase>();
         private FileIndexViewModel index;
 
         #endregion
@@ -30,11 +30,11 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
-        public List<ViewModelBase.ViewModelBase> AppViewModels { get => appViewModels; }
+        public List<ViewModelBase> AppViewModels { get => appViewModels; }
 
         /// <summary>
         /// The viewmodel used to present content in the main window.</summary>
-        public ViewModelBase.ViewModelBase CurrentAppViewModel
+        public ViewModelBase CurrentAppViewModel
         {
             get { return currentAppViewModel; }
             set
@@ -49,7 +49,7 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// The viewmodel currently displayed as overlay.</summary>
-        public ViewModelBase.ViewModelBase CurrentOverlay
+        public ViewModelBase CurrentOverlay
         {
             get { return currentOverlay; }
             set
@@ -62,15 +62,15 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand.RelayCommand ChangePageCommand
+        public RelayCommand ChangePageCommand
         {
             get
             {
                 if (changePageCommand is null)
                 {
-                    changePageCommand = new RelayCommand.RelayCommand(
-                        p => ChangeViewModel((ViewModelBase.ViewModelBase)p), 
-                        p => p is ViewModelBase.ViewModelBase);
+                    changePageCommand = new RelayCommand(
+                        p => ChangeViewModel((ViewModelBase)p), 
+                        p => p is ViewModelBase);
                 }
                 return changePageCommand;
             }
@@ -142,7 +142,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>Changes the currently displayed viewmodel.</summary>
-        private void ChangeViewModel(ViewModelBase.ViewModelBase viewModel)
+        private void ChangeViewModel(ViewModelBase viewModel)
         {
             if (!appViewModels.Contains(viewModel))
                 appViewModels.Add(viewModel);

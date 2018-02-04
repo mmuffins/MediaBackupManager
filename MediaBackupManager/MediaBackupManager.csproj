@@ -101,7 +101,9 @@
     <Compile Include="Model\FileIndex.cs" />
     <Compile Include="Model\FileNode.cs" />
     <Compile Include="Model\LogicalVolume.cs" />
-    <Compile Include="Model\ObservableHashSet.cs" />
+    <Compile Include="Supporting Classes\ObservableHashSet.cs" />
+    <Compile Include="Supporting Classes\RelayCommand.cs" />
+    <Compile Include="Supporting Classes\ViewModelBase.cs" />
     <Compile Include="ViewModel\BackupSetViewModel.cs" />
     <Compile Include="ViewModel\CreateBackupSetViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
@@ -161,16 +163,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RelayCommand\RelayCommand.csproj">
-      <Project>{77ed7e57-3c06-4678-8a59-44b05b33f7d5}</Project>
-      <Name>RelayCommand</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ViewModelBase\ViewModelBase.csproj">
-      <Project>{36ac6544-2917-4ffd-944b-1ef7dca0560f}</Project>
-      <Name>ViewModelBase</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

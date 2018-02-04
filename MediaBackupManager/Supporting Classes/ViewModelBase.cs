@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ViewModelBase
+namespace MediaBackupManager.SupportingClasses
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

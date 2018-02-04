@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class FileIndexViewModel : ViewModelBase.ViewModelBase
+    public class FileIndexViewModel : ViewModelBase
     {
         #region Fields
         private bool ignoreChanges = false;

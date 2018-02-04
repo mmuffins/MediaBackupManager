@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.Model;
+using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class BackupSetViewModel : ViewModelBase.ViewModelBase, IEquatable<BackupSetViewModel>
+    public class BackupSetViewModel : ViewModelBase, IEquatable<BackupSetViewModel>
     {
         #region Fields
 

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace RelayCommand
+namespace MediaBackupManager.SupportingClasses
 {
     public class RelayCommand : ICommand, IDisposable
     {
