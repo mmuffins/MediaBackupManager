@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaBackupManager.ViewModel
+namespace MediaBackupManager.SupportingClasses
 {
     public static class MessageService
     {
