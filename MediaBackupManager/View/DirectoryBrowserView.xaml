@@ -38,9 +38,19 @@
             <EventSetter Event="MouseDoubleClick" Handler="gridFiles_MouseDoubleClick" />
         </Style>
     </Control.Resources>
-    
-    <DockPanel x:Name="MainDock" LastChildFill="True" Margin="10">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="30">
+
+    <Grid x:Name="RootGrid" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="50" MaxWidth="250" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Height="30">
             <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}"></Button>
             <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}"></Button>
             <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}"></Button>
@@ -50,22 +60,7 @@
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
         </StackPanel>
 
-        <!--<TreeView x:Name="treeDirectory" Margin="2" DockPanel.Dock="Left" MinWidth="50" MaxWidth="250"
-                  ItemsSource="{Binding Path=Index.BackupSets}"
-                  SelectedItemChanged="treeDirectory_SelectedItemChanged">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
-                                          ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=RootDirectory.FullName}"/>
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
-                                          ItemsSource="{Binding Path=SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}"/>
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>-->
-
-        <TreeView x:Name="treeDirectory" Margin="2" DockPanel.Dock="Left" MinWidth="50" MaxWidth="250"
+        <TreeView x:Name="treeDirectory" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
@@ -89,8 +84,7 @@
             </TreeView.Resources>
         </TreeView>
 
-
-        <ListView x:Name="gridFiles" Margin="2" DockPanel.Dock="Right"
+        <ListView x:Name="gridFiles" Grid.Row="2" Grid.Column="1" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}"
                   ItemsSource="{StaticResource CombinedCollection}">
             <ListView.Resources>
@@ -110,5 +104,6 @@
                 </GridView>
             </ListView.View>
         </ListView>
-    </DockPanel>
+
+    </Grid>
 </UserControl>
