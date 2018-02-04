@@ -103,12 +103,17 @@
     <Compile Include="Model\LogicalVolume.cs" />
     <Compile Include="Model\ObservableHashSet.cs" />
     <Compile Include="ViewModel\BackupSetViewModel.cs" />
+    <Compile Include="ViewModel\CreateBackupSetViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
     <Compile Include="ViewModel\FileDirectoryViewModel.cs" />
     <Compile Include="ViewModel\FileHashViewModel.cs" />
     <Compile Include="ViewModel\FileIndexViewModel.cs" />
     <Compile Include="ViewModel\FileNodeViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\MessageService.cs" />
+    <Compile Include="View\CreateBackupSetView.xaml.cs">
+      <DependentUpon>CreateBackupSetView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\DirectoryBrowserView.xaml.cs">
       <DependentUpon>DirectoryBrowserView.xaml</DependentUpon>
     </Compile>
@@ -144,6 +149,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\CreateBackupSetView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\DirectoryBrowserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

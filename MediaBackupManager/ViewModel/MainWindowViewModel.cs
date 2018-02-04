@@ -16,6 +16,7 @@ namespace MediaBackupManager.ViewModel
 
         private RelayCommand.RelayCommand changePageCommand;
         private ViewModelBase.ViewModelBase currentAppViewModel = new ViewModelBase.ViewModelBase();
+        private ViewModelBase.ViewModelBase currentOverlay;
         private List<ViewModelBase.ViewModelBase> appViewModels = new List<ViewModelBase.ViewModelBase>();
         private FileIndexViewModel index;
 
@@ -32,7 +33,7 @@ namespace MediaBackupManager.ViewModel
         public List<ViewModelBase.ViewModelBase> AppViewModels { get => appViewModels; }
 
         /// <summary>
-        /// The viewmodel used to present content in the main window</summary>
+        /// The viewmodel used to present content in the main window.</summary>
         public ViewModelBase.ViewModelBase CurrentAppViewModel
         {
             get { return currentAppViewModel; }
@@ -41,7 +42,22 @@ namespace MediaBackupManager.ViewModel
                 if (value != currentAppViewModel)
                 {
                     currentAppViewModel = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The viewmodel currently displayed as overlay.</summary>
+        public ViewModelBase.ViewModelBase CurrentOverlay
+        {
+            get { return currentOverlay; }
+            set
+            {
+                if (value != currentOverlay)
+                {
+                    currentOverlay = value;
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -85,7 +101,23 @@ namespace MediaBackupManager.ViewModel
 
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
+            MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
+
+        /// <summary>
+        /// Event handler for the global MessageService.</summary>
+        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        {
+            switch (e.Property)
+            {
+                case "CreateBackupSet":
+                    ShowOverlay(new CreateBackupSetViewModel());
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
         public async Task PrepareDatabaseAsync(FileIndex index)
@@ -110,6 +142,24 @@ namespace MediaBackupManager.ViewModel
             CurrentAppViewModel = viewModel;
         }
 
+        ///// <summary>Displays the CreateBackupSetView overlay.</summary>
+        //private void CreateBackupSet_Execute(object obj)
+        //{
+        //    //var browser = new FolderBrowserDialog();
+        //    //browser.Description = "Please Select a folder";
+
+        //    //if (browser.ShowDialog() == DialogResult.OK)
+        //    //{
+        //    //    await Index.CreateBackupSetAsync(new DirectoryInfo(browser.SelectedPath));
+        //    //}
+        //    //MessageService.SendMessage(this, "OpenFile", "open the file dude");
+        //}
+
+        /// <summary>Displays the provided viewmodel as overlay.</summary>
+        private void ShowOverlay(ViewModelBase.ViewModelBase viewModel)
+        {
+
+        }
 
         #endregion
 

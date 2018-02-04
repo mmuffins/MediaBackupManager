@@ -13,6 +13,10 @@
         <DataTemplate DataType="{x:Type viewmodel:DirectoryBrowserViewModel}">
             <local:DirectoryBrowserView />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewmodel:CreateBackupSetViewModel}">
+            <local:CreateBackupSetView />
+        </DataTemplate>
     </Window.Resources>
     
     <DockPanel LastChildFill="True">
