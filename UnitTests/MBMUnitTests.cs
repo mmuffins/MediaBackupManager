@@ -310,7 +310,7 @@ namespace UnitTests
             var d1 = new FileDirectory()
             {
                 BackupSet = refSet,
-                DirectoryName = fileRootDir,
+                DirectoryName = Path.GetFullPath(testDirD).Substring(Path.GetPathRoot(testDirD).Length),
                 Name = "dir1"
             };
             refSet.FileNodes.Add(d1);
