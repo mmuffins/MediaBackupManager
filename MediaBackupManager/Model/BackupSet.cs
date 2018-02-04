@@ -55,14 +55,16 @@ namespace MediaBackupManager.Model
             if (IsFileExcluded((Path.Combine(MountPoint, RootDirectory)).ToString()))
                 return;
 
-            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory))), cancellationToken);
-            return;
+            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), cancellationToken), cancellationToken);
         }
 
         /// <summary>
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
-        private void IndexDirectory(DirectoryInfo directory)
+        private void IndexDirectory(DirectoryInfo directory, CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
             if (IsFileExcluded(directory.FullName))
                 return; //Don't index excluded directories at all
 
@@ -70,11 +72,11 @@ namespace MediaBackupManager.Model
             try
             {
                 foreach (var item in directory.GetDirectories())
-                    IndexDirectory(item);
+                    IndexDirectory(item, cancellationToken);
 
                 FileNodes.Add(new FileDirectory(directory, this));
 
-                IndexFile(directory);
+                IndexFile(directory, cancellationToken);
             }
             catch (Exception)
             {
@@ -85,10 +87,14 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files found in the provided directory and adds them to the file index.</summary>
-        private void IndexFile(DirectoryInfo directory)
+        private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken)
         {
+
             foreach (var file in directory.GetFiles())
             {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
                 if (IsFileExcluded(file.FullName))
                     continue;
 
@@ -146,6 +152,9 @@ namespace MediaBackupManager.Model
 
                 foreach (FileNode node in scanNodes)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
                     // Report the current progress
                     currentNodeCount++;
                     if(processingFile != null)

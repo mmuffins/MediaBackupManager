@@ -125,14 +125,13 @@ namespace MediaBackupManager.Model
 
             if (!Directory.Exists(directoryPath.FullName))
             {
-                //tokenSource.Cancel();
                 return null;
             }
 
+            //TODO: Inform the user if he tries to add a root directory on the exclusion list
             //TODO: Prompt the user on what to do when the directory is already indexed
             if (ContainsDirectory(directoryPath) || IsSubsetOf(directoryPath))
             {
-                //tokenSource.Cancel();
                 return null;
             }
 
@@ -140,39 +139,51 @@ namespace MediaBackupManager.Model
                 statusText.Report("Scanning logical volumes");
 
             var stagingVolume = new LogicalVolume(directoryPath);
+
             var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions);
             if (!string.IsNullOrWhiteSpace(label))
                 stagingSet.Label = label;
+
+            // Up to this point the function should be fast enough that we don't need 
+            // to check for task cancellation
 
             if (statusText != null)
                 statusText.Report("Scanning files");
 
             await stagingSet.ScanFilesAsync(cancellationToken);
 
-            //TODO: Inform the user if he tries to add a root directory on the exclusion list
-            // There is either an issue with the provided directory or it's
-            // on the exclusion list. In either case, abort the function
-            if (stagingSet.FileNodes.Count == 0)
+            if (cancellationToken.IsCancellationRequested)
             {
-                //tokenSource.Cancel();
+                if (statusText != null)
+                    statusText.Report("Operation cancelled");
                 return null;
             }
 
-            if(statusText != null)
+            // There is either an issue with the provided directory or it's
+            // on the exclusion list. In either case, abort the function
+            if (stagingSet.FileNodes is null || stagingSet.FileNodes.Count == 0)
+                return null;
+
+            if (statusText != null)
                 statusText.Report("Hashing files");
 
             await stagingSet.HashFilesAsync(cancellationToken, progress, statusText);
 
-            // At this point the staging set and all children have been properly created
-            // merge it into the main list and write new data into the db
+            if (cancellationToken.IsCancellationRequested)
+            {
+                if (statusText != null)
+                    statusText.Report("Operation cancelled");
+                return null;
+            }
 
-
-            if (!cancellationToken.IsCancellationRequested)
-                //TODO:Abort operation before writing to the database
+            // Point of no return for the method,
+            // if we cancel after this point, we risk database corruption
 
             if (statusText != null)
                 statusText.Report("Writing Backup Set to Database");
 
+            // At this point the staging set and all children have been properly created
+            // merge it into the main list and write new data into the db
             await AppendBackupSetAsync(stagingSet);
 
             if (statusText != null)

@@ -20,11 +20,12 @@ namespace MediaBackupManager.ViewModel
         string scanStatusText;
         int scanProgress;
         FileIndexViewModel index;
+        CancellationTokenSource tokenSource;
 
         #region Properties
 
         /// <summary>
-        /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
+        /// Command to open a FolderBrowserDialog and populate the path textbox with the selected directory.</summary>  
         public RelayCommand.RelayCommand SelectDirectoryCommand
         {
             get
@@ -40,7 +41,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Closes the overlay.</summary>  
+        /// Command to close the overlay.</summary>  
         public RelayCommand.RelayCommand CancelCommand
         {
             get
@@ -48,7 +49,7 @@ namespace MediaBackupManager.ViewModel
                 if (cancelCommand == null)
                 {
                     cancelCommand = new RelayCommand.RelayCommand(
-                        p => MessageService.SendMessage(this, "DisposeOverlay",  null),
+                        CloseOverlay,
                         p => true);
                 }
                 return cancelCommand;
@@ -56,7 +57,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Creates a Backup Set for the selected drive.</summary>  
+        /// Command to create a Backup Set for the selected drive.</summary>  
         public RelayCommand.RelayCommand ConfirmCommand
         {
             //TODO: Create Validation and error messages to make sure that all fields are filled
@@ -128,6 +129,27 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Token source for the scanning operation.</summary>  
+        public CancellationTokenSource TokenSource
+        {
+            get
+            {
+                if (tokenSource is null)
+                    tokenSource = new CancellationTokenSource();
+
+                return tokenSource;
+            }
+            set
+            {
+                if (value != tokenSource)
+                {
+                    tokenSource = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -151,19 +173,33 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Creates a backup set for the currently selected directory.</summary>  
         private async void CreateBackupSet(object obj)
         {
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
                 return;
 
-            var scanTokenSource = new CancellationTokenSource();
-            var scanCancelToken = scanTokenSource.Token;
             var statusText = new Progress<string>(p => ScanStatusText = p);
             var scanProgress = new Progress<int>(p => ScanProgress = p);
 
-            //TODO: Add some busy indicator while the directory is being scanned
-            //TODO: Properly handle cancellation while the directory is being scanned
-            await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), scanCancelToken, scanProgress, statusText, BackupSetLabel);
+            await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, BackupSetLabel);
+
+            // All done, close the overlay
+            CloseOverlay(null);
+        }
+
+        /// <summary>
+        /// Closes the overlay and cancels all ongoing scanning operations.</summary>  
+        private void CloseOverlay(object obj)
+        {
+            if (TokenSource != null)
+            {
+                TokenSource.Cancel();
+                TokenSource.Dispose();
+                TokenSource = null;
+            }
+
             MessageService.SendMessage(this, "DisposeOverlay", null);
         }
 

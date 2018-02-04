@@ -82,8 +82,6 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Support cancelling a scan in progress
-            //TODO: Add a progress bar for scanning operations
             //TODO: Replace the item gridview with something nicer looking
             //TODO: Show a view containing a label and path field after clicking the add directory button
             //TODO: Add an options view
