@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -196,7 +197,7 @@ namespace MediaBackupManager.ViewModel
 
         private async void ScanNewData_Execute(object obj)
         {
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "PortableApps");
         }
 
         private async void RemoveBackupSet(BackupSetViewModel backupSet)
@@ -213,8 +214,8 @@ namespace MediaBackupManager.ViewModel
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\dd"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
 
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main"));
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images"));
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "fMain");
+            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "dMainImages");
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\main\images2\b"));
             //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
 

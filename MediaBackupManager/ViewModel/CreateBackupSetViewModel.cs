@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,6 +17,8 @@ namespace MediaBackupManager.ViewModel
         
         string selectedDirectory;
         string backupSetLabel;
+        string scanStatusText;
+        int scanProgress;
         FileIndexViewModel index;
 
         #region Properties
@@ -95,6 +98,36 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Text displayed during directory scans, informing user of the current operation.</summary>  
+        public string ScanStatusText
+        {
+            get { return scanStatusText; }
+            set
+            {
+                if (value != scanStatusText)
+                {
+                    scanStatusText = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Numerical progress of the current scanning operation.</summary>  
+        public int ScanProgress
+        {
+            get { return scanProgress; }
+            set
+            {
+                if (value != scanProgress)
+                {
+                    System.Diagnostics.Debug.WriteLine(value);
+                    scanProgress = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
@@ -124,9 +157,14 @@ namespace MediaBackupManager.ViewModel
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
                 return;
 
+            var scanTokenSource = new CancellationTokenSource();
+            var scanCancelToken = scanTokenSource.Token;
+            var statusText = new Progress<string>(p => ScanStatusText = p);
+            var scanProgress = new Progress<int>(p => ScanProgress = p);
+
             //TODO: Add some busy indicator while the directory is being scanned
             //TODO: Properly handle cancellation while the directory is being scanned
-            await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), BackupSetLabel);
+            await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), scanCancelToken, scanProgress, statusText, BackupSetLabel);
             MessageService.SendMessage(this, "DisposeOverlay", null);
         }
 

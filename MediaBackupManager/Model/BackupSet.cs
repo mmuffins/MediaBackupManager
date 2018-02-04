@@ -134,12 +134,23 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
-        public async Task HashFilesAsync(CancellationToken cancellationToken)
+        /// <param name="progress">Progress object used to report the progress of the operation.</param>
+        /// <param name="processingFile">Progress object used to indicate the file that is currently being hashed.</param>
+        public async Task HashFilesAsync(CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> processingFile)
         {
             await Task.Run(() =>
             {
-                foreach (FileNode node in FileNodes.OfType<FileNode>())
+                var scanNodes = FileNodes.OfType<FileNode>();
+                var nodeCount = scanNodes.Count();
+                int currentNodeCount = 0;
+
+                foreach (FileNode node in scanNodes)
                 {
+                    // Report the current progress
+                    currentNodeCount++;
+                    if(processingFile != null)
+                        processingFile.Report(node.FullSessionName);
+
                     string checkSum;
                     try { checkSum = FileHash.CalculateChecksum(node.FullSessionName); }
                     catch (Exception)
@@ -151,6 +162,9 @@ namespace MediaBackupManager.Model
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
                     node.Checksum = checkSum;
                     node.Hash.AddNode(node);
+
+                    if(progress != null)
+                        progress.Report((int)((double)currentNodeCount / nodeCount * 100));
                 }
             }, cancellationToken);
         }

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
@@ -161,9 +162,10 @@ namespace MediaBackupManager.ViewModel
             ignoreChanges = false;
         }
 
-        public async Task CreateBackupSetAsync(DirectoryInfo dir, string label = "")
+        public async Task CreateBackupSetAsync(DirectoryInfo dir, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
-            await Index.CreateBackupSetAsync(dir, label);
+
+            await Index.CreateBackupSetAsync(dir, cancellationToken, progress, statusText, label);
         }
 
         public async Task RemoveBackupSetAsync(BackupSet backupSet)

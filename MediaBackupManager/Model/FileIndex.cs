@@ -112,51 +112,72 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Adds the specified directory as new BackupSet to the file index.</summary>  
-        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo dir, string label = "")
+        /// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
+        /// <param name="directoryPath">The directory thas should be scanned.</param>
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
+        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="progress">Progress object used to report the progress of the operation.</param>
+        /// <param name="label">The display name for the new backup set.</param>
+        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
-            var tokenSource = new CancellationTokenSource();
-            var cancelToken = tokenSource.Token;
+            if (statusText != null)
+                statusText.Report("Started scan");
 
-            if (!Directory.Exists(dir.FullName))
+            if (!Directory.Exists(directoryPath.FullName))
             {
-                tokenSource.Cancel();
+                //tokenSource.Cancel();
                 return null;
             }
 
             //TODO: Prompt the user on what to do when the directory is already indexed
-            if (ContainsDirectory(dir) || IsSubsetOf(dir))
+            if (ContainsDirectory(directoryPath) || IsSubsetOf(directoryPath))
             {
-                tokenSource.Cancel();
+                //tokenSource.Cancel();
                 return null;
             }
 
-            var stagingVolume = new LogicalVolume(dir);
-            var stagingSet = new BackupSet(dir, stagingVolume, Exclusions);
+            if (statusText != null)
+                statusText.Report("Scanning logical volumes");
+
+            var stagingVolume = new LogicalVolume(directoryPath);
+            var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions);
             if (!string.IsNullOrWhiteSpace(label))
                 stagingSet.Label = label;
 
-            //AddBackupSet(scanSet);
-            await stagingSet.ScanFilesAsync(cancelToken);
+            if (statusText != null)
+                statusText.Report("Scanning files");
+
+            await stagingSet.ScanFilesAsync(cancellationToken);
 
             //TODO: Inform the user if he tries to add a root directory on the exclusion list
             // There is either an issue with the provided directory or it's
             // on the exclusion list. In either case, abort the function
             if (stagingSet.FileNodes.Count == 0)
             {
-                tokenSource.Cancel();
+                //tokenSource.Cancel();
                 return null;
             }
 
-            await stagingSet.HashFilesAsync(cancelToken);
+            if(statusText != null)
+                statusText.Report("Hashing files");
+
+            await stagingSet.HashFilesAsync(cancellationToken, progress, statusText);
 
             // At this point the staging set and all children have been properly created
             // merge it into the main list and write new data into the db
 
-            if(!tokenSource.IsCancellationRequested)
+
+            if (!cancellationToken.IsCancellationRequested)
                 //TODO:Abort operation before writing to the database
 
+            if (statusText != null)
+                statusText.Report("Writing Backup Set to Database");
+
             await AppendBackupSetAsync(stagingSet);
+
+            if (statusText != null)
+                statusText.Report("Done!");
+
             return stagingSet;
         }
 
