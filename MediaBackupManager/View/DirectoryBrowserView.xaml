@@ -7,8 +7,7 @@
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="100" 
-             Unloaded="UserControl_Unloaded" 
-             Loaded="UserControl_Loaded">
+             Unloaded="UserControl_Unloaded">
     <Control.Resources>
         <!--Treeview Resources-->
         <Style TargetType="TreeViewItem">
@@ -71,13 +70,13 @@
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
                 <Style TargetType="{x:Type TreeViewItem}">
-                    <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded, Mode=TwoWay}" />
-                    <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected, Mode=TwoWay}" />
-                    <Style.Triggers>
+                    <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded}" />
+                    <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected}" />
+                    <!--<Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="FontWeight" Value="Bold" />
                         </Trigger>
-                    </Style.Triggers>
+                    </Style.Triggers>-->
                 </Style>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
                                           ItemsSource="{Binding Path=RootDirectory.SubDirectories}">

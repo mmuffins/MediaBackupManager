@@ -27,32 +27,6 @@ namespace MediaBackupManager.View
             InitializeComponent();
         }
 
-        //private void OnCurrentDirectoryChanged(object sender, PropertyChangedEventArgs e)
-        //{
-        //    //TODO:Q-referencing MediaBackupManager.Model breaks mvvm, any better way to implement this?
-        //    if (e.PropertyName.Equals("CurrentDirectory"))
-        //    {
-        //        // Get the current directory
-        //        var currentDir = "";
-        //        if (treeDirectory.SelectedItem is FileDirectory)
-        //            currentDir = ((FileDirectory)treeDirectory.SelectedItem).FullName;
-        //        else if (treeDirectory.SelectedItem is BackupSet)
-        //            currentDir = ((BackupSet)treeDirectory.SelectedItem).RootDirectory;
-
-        //        // Get the new directory
-        //        var newDir = "";
-        //        if (((DirectoryBrowserViewModel)sender).CurrentDirectory != null)
-        //            newDir = ((DirectoryBrowserViewModel)sender).CurrentDirectory.FullName;
-
-        //        if (currentDir != newDir)
-        //        {
-        //            // Change the directory
-        //        }
-
-        //    }
-
-        //}
-
         private void treeDirectory_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // SelectedItem on treeView is readonly for some reason, 
@@ -65,13 +39,7 @@ namespace MediaBackupManager.View
         {
             this.CommandBindings.Clear();
         }
-
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            //if (DataContext != null)
-            //    ((DirectoryBrowserViewModel)DataContext).PropertyChanged += new PropertyChangedEventHandler(OnCurrentDirectoryChanged);
-        }
-
+        
         private void gridFiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is ListViewItem)
@@ -82,7 +50,9 @@ namespace MediaBackupManager.View
                 }
             }
 
-            ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
+            // An item on the item grid was double clicked, inform the viewmodel
+            if (DataContext != null)
+                ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
         }
     }
 }
