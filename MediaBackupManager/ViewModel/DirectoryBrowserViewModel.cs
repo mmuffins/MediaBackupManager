@@ -249,7 +249,11 @@ namespace MediaBackupManager.ViewModel
         public void GridFiles_MouseDoubleClick(object sender)
         {
             if(sender is FileDirectoryViewModel)
+            {
                 CurrentDirectory = (FileDirectoryViewModel)sender;
+                CurrentDirectory.TreeViewIsExpanded = true;
+                CurrentDirectory.TreeViewIsSelected = true;
+            }
         }
 
         #endregion
