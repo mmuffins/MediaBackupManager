@@ -122,7 +122,6 @@ namespace MediaBackupManager.ViewModel
             {
                 if (value != scanProgress)
                 {
-                    System.Diagnostics.Debug.WriteLine(value);
                     scanProgress = value;
                     NotifyPropertyChanged();
                 }
