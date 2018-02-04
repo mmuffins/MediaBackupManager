@@ -19,8 +19,28 @@
         </DataTemplate>
     </Window.Resources>
     
-    <DockPanel LastChildFill="True">
-        <ContentControl DockPanel.Dock="Bottom" 
-                        Content="{Binding Path=CurrentAppViewModel}"/>
-    </DockPanel>
+    <Grid x:Name="LayoutRoot">
+        <Grid x:Name="Overlay" Panel.ZIndex="1000">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <!--Set the visibility property to collapsed whenever the binding contains a value, otherwise make it visible-->
+                        <DataTrigger Binding="{Binding Path=CurrentOverlay}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity=".5"/>
+            </Grid.Background>
+            <!--Overlay content-->
+            <ContentControl Content="{Binding Path=CurrentOverlay}"/>
+        </Grid>
+
+        <!--Main window content-->
+        <ContentControl DockPanel.Dock="Bottom" Content="{Binding Path=CurrentAppViewModel}"/>
+    </Grid>
+
 </Window>

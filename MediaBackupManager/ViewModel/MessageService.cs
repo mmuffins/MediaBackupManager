@@ -11,23 +11,21 @@ namespace MediaBackupManager.ViewModel
         //TODO:Q-Fine to use a universal message service with magic strings instead of individual events?
         public static event EventHandler<MessageServiceEventArgs> RoutedMessage;
 
-        public static void SendMessage(object sender, string propertyName, string message, object argument)
+        public static void SendMessage(object sender, string propertyName, object parameter)
         {
-            RoutedMessage(sender, new MessageServiceEventArgs(propertyName, message, argument));
+            RoutedMessage(sender, new MessageServiceEventArgs(propertyName, parameter));
         }
     }
 
     public class MessageServiceEventArgs
     {
         public string Property { get; }
-        public string Message { get; }
-        public object Argument { get; }
+        public object Parameter { get; }
 
-        public MessageServiceEventArgs(string propertyName, string message, object argument)
+        public MessageServiceEventArgs(string propertyName, object parameter)
         {
             this.Property = propertyName;
-            this.Message = message;
-            this.Argument = argument;
+            this.Parameter = parameter;
         }
     }
 

@@ -101,6 +101,9 @@ namespace MediaBackupManager.ViewModel
 
             appViewModels.Add(new DirectoryBrowserViewModel(Index));
             CurrentAppViewModel = appViewModels[0];
+
+            //CurrentOverlay = new CreateBackupSetViewModel();
+            
             MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
 
@@ -111,7 +114,14 @@ namespace MediaBackupManager.ViewModel
             switch (e.Property)
             {
                 case "CreateBackupSet":
-                    ShowOverlay(new CreateBackupSetViewModel());
+                    // Assigning a viewmodel to CurrentOverlay will automatically
+                    // display it as overlay in the view
+                    CurrentOverlay = new CreateBackupSetViewModel(Index);
+                    break;
+                case "DisposeOverlay":
+                    // Setting the CurrentOverlay property to null 
+                    // will remove the overlay from the view
+                    CurrentOverlay = null;
                     break;
                 default:
                     break;
@@ -155,11 +165,6 @@ namespace MediaBackupManager.ViewModel
         //    //MessageService.SendMessage(this, "OpenFile", "open the file dude");
         //}
 
-        /// <summary>Displays the provided viewmodel as overlay.</summary>
-        private void ShowOverlay(ViewModelBase.ViewModelBase viewModel)
-        {
-
-        }
 
         #endregion
 

@@ -18,7 +18,6 @@ namespace MediaBackupManager.ViewModel
         private object selectedDirectoryTreeItem;
         private object selectedFileGridItem;
 
-
         private RelayCommand.RelayCommand clearDataCommand;
         private RelayCommand.RelayCommand removeNewData;
         private RelayCommand.RelayCommand removeBackupSetCommand;
@@ -26,7 +25,6 @@ namespace MediaBackupManager.ViewModel
         private RelayCommand.RelayCommand loadAdditionalData;
         private RelayCommand.RelayCommand scanNewData;
         private RelayCommand.RelayCommand createBackupSetCommand;
-        private RelayCommand.RelayCommand openDirectoryCommand;
         
         #endregion
 
@@ -141,7 +139,9 @@ namespace MediaBackupManager.ViewModel
             {
                 if (createBackupSetCommand == null)
                 {
-                    createBackupSetCommand = new RelayCommand.RelayCommand(p => MessageService.SendMessage(this, "CreateBackupSet", "", null), p => true);
+                    createBackupSetCommand = new RelayCommand.RelayCommand(
+                        p => MessageService.SendMessage(this, "CreateBackupSet", null), 
+                        p => true);
                 }
                 return createBackupSetCommand;
             }
@@ -158,20 +158,6 @@ namespace MediaBackupManager.ViewModel
                         p => p is BackupSetViewModel);
                 }
                 return removeBackupSetCommand;
-            }
-        }
-
-        public RelayCommand.RelayCommand OpenDirectoryCommand
-        {
-            get
-            {
-                if (openDirectoryCommand == null)
-                {
-                    openDirectoryCommand = new RelayCommand.RelayCommand(
-                        p => RemoveBackupSet(p as BackupSetViewModel),
-                        p => p is BackupSetViewModel);
-                }
-                return openDirectoryCommand;
             }
         }
 
@@ -212,18 +198,6 @@ namespace MediaBackupManager.ViewModel
         {
             await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"));
         }
-
-        //private async void CreateBackupSet_Execute(object obj)
-        //{
-        //    MessageService.SendMessage(this, "CreateBackupSet", "", null);
-        //    var browser = new FolderBrowserDialog();
-        //    browser.Description = "Please Select a folder";
-
-        //    if (browser.ShowDialog() == DialogResult.OK)
-        //    {
-        //        await Index.CreateBackupSetAsync(new DirectoryInfo(browser.SelectedPath));
-        //    }
-        //}
 
         private async void RemoveBackupSet(BackupSetViewModel backupSet)
         {
