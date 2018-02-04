@@ -170,6 +170,7 @@ namespace MediaBackupManager.ViewModel
         public DirectoryBrowserViewModel(FileIndexViewModel index)
         {
             this.Index = index;
+            MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
 
         private async void ClearData_Execute(object obj)
@@ -223,16 +224,35 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Handler for Double Click events on the file grid from the view.</summary>  
-        public void GridFiles_MouseDoubleClick(object sender)
+        /// Sets the provided FileDirectoryViewModel as current directory.</summary>  
+        public void SetDirectory(FileDirectoryViewModel directory)
         {
-            if(sender is FileDirectoryViewModel)
-            {
-                CurrentDirectory = (FileDirectoryViewModel)sender;
+                CurrentDirectory = directory;
                 CurrentDirectory.TreeViewIsExpanded = true;
                 CurrentDirectory.TreeViewIsSelected = true;
+        }
+
+        /// <summary>
+        /// Event handler for the global MessageService.</summary>
+        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        {
+            switch (e.Property)
+            {
+                case "BreadcrumbBar_MouseUp":
+                    if (e.Parameter is FileDirectoryViewModel)
+                        SetDirectory((FileDirectoryViewModel)e.Parameter);
+                    break;
+
+                case "GridFiles_MouseDoubleClick":
+                    if (e.Parameter is FileDirectoryViewModel)
+                        SetDirectory((FileDirectoryViewModel)e.Parameter);
+                    break;
+
+                default:
+                    break;
             }
         }
+
 
         #endregion
     }

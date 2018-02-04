@@ -1,4 +1,5 @@
-﻿using MediaBackupManager.ViewModel;
+﻿using MediaBackupManager.SupportingClasses;
+using MediaBackupManager.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +41,7 @@ namespace MediaBackupManager.View
             this.CommandBindings.Clear();
         }
         
-        private void gridFiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void GridFiles_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is ListViewItem)
             {
@@ -51,8 +52,17 @@ namespace MediaBackupManager.View
             }
 
             // An item on the item grid was double clicked, inform the viewmodel
-            if (DataContext != null)
-                ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
+            MessageService.SendMessage(this, "GridFiles_MouseDoubleClick", ((ListViewItem)sender).Content);
+
+            //if (DataContext != null)
+            //    ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
+
+        }
+
+        private void BreadcrumbBar_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            MessageService.SendMessage(this, "BreadcrumbBar_MouseUp", ((StackPanel)sender).DataContext);
+
         }
     }
 }

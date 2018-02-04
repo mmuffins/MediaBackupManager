@@ -35,14 +35,15 @@
             <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFiles}}" />
         </CompositeCollection>
         <Style TargetType="{x:Type ListViewItem}">
-            <EventSetter Event="MouseDoubleClick" Handler="gridFiles_MouseDoubleClick" />
+            <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
         </Style>
+
     </Control.Resources>
 
     <Grid x:Name="RootGrid" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -84,6 +85,32 @@
             </TreeView.Resources>
         </TreeView>
 
+        <DockPanel Grid.Row="1" Grid.Column="1">
+            <!--Breadcrumb Navigation-->
+            <ItemsControl DockPanel.Dock="Left" 
+                          ItemsSource="{Binding Path=CurrentDirectory.BreadCrumbList}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <DataTemplate.Resources>
+                            <Style TargetType="{x:Type StackPanel}">
+                                <EventSetter Event="MouseUp" Handler="BreadcrumbBar_MouseUp" />
+                            </Style>
+                        </DataTemplate.Resources>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text=">" />
+                            <TextBlock Text="{Binding Path=Name}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+        </DockPanel>
+        
         <ListView x:Name="gridFiles" Grid.Row="2" Grid.Column="1" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}"
                   ItemsSource="{StaticResource CombinedCollection}">

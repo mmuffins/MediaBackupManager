@@ -88,14 +88,19 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public virtual IEnumerable<FileDirectoryViewModel> SubDirectories
+        public IEnumerable<FileDirectoryViewModel> SubDirectories
         {
             get => BackupSet.GetSubDirectories(Path.Combine(DirectoryName, Name));
         }
 
-        public virtual IEnumerable<FileNodeViewModel> Files
+        public IEnumerable<FileNodeViewModel> Files
         {
             get => BackupSet.GetFiles(Path.Combine(DirectoryName, Name));
+        }
+
+        public IEnumerable<FileDirectoryViewModel> BreadCrumbList
+        {
+            get => GetBreadCrumbList();
         }
 
         /// <summary>
@@ -143,6 +148,26 @@ namespace MediaBackupManager.ViewModel
         {
             this.dir = fileDirectory;
             this.backupSet = backupSet;
+        }
+
+        /// <summary>
+        /// Gets a list of all parent directories up to the root node.</summary>
+        public List<FileDirectoryViewModel> GetBreadCrumbList()
+        {
+            var parentList = new List<FileDirectoryViewModel>();
+            parentList.Add(this);
+
+            var currentDirectory = this;
+
+            while (currentDirectory.Parent != null)
+            {
+                parentList.Add(currentDirectory.Parent);
+                currentDirectory = currentDirectory.Parent;
+            }
+
+            parentList.Reverse();
+
+            return parentList;
         }
 
         /// <summary>
