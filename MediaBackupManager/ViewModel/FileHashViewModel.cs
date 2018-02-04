@@ -73,9 +73,9 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public int NodeCount { get => hash.NodeCount; }
+        public int NodeCount { get => FileNodes.Count; }
 
-        public int BackupCount { get => hash.BackupCount; }
+        public int BackupCount { get => FileNodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
         public ObservableCollection<FileNodeViewModel> FileNodes
         {
@@ -93,7 +93,7 @@ namespace MediaBackupManager.ViewModel
             //foreach (var item in hash.Nodes)
             //    fileNodes.Add(new FileNodeViewModel(item));
 
-            fileNodes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileNodes_CollectionChanged);
+            hash.Nodes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileNodes_CollectionChanged);
         }
 
         private void FileNodes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -131,6 +131,7 @@ namespace MediaBackupManager.ViewModel
                     //    FileNodes.Add(new FileNodeViewModel((FileNode)item));
             }
             ignoreChanges = false;
+            NotifyPropertyChanged("FileNodes");
         }
 
         /// <summary>

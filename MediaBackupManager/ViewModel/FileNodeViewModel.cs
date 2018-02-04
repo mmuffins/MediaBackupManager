@@ -69,10 +69,36 @@ namespace MediaBackupManager.ViewModel
             get => node.Name;
         }
 
-        public string ParentDirectoryName
+        public string Extension
         {
-            get => node.ParentDirectoryName;
+            get => node.Extension;
         }
+
+        public string DirectoryName
+        {
+            get => node.DirectoryName;
+        }
+
+        //public string ParentDirectoryName
+        //{
+        //    get => node.ParentDirectoryName;
+        //}
+
+        public string FullName
+        {
+            get => node.FullName;
+        }
+
+        public string FullSessionName
+        {
+            get => node.FullSessionName;
+        }
+
+        public bool BackupStatus
+        {
+            get => node.BackupStatus;
+        }
+
 
         #endregion
 
@@ -112,13 +138,30 @@ namespace MediaBackupManager.ViewModel
         /// Gets the related FileHash from the provided FileIndexViewModel.</summary>  
         private FileHashViewModel RefreshHash()
         {
-            if(BackupSet is null || string.IsNullOrWhiteSpace(this.Checksum))
+            if (hash != null)
+                hash.RemoveNode(this);
+
+            if(BackupSet is null || string.IsNullOrWhiteSpace(Checksum))
                 return null;
 
-            return this.BackupSet.Index.GetFileHashViewModel(this.Checksum);
+            var newHash = BackupSet.Index.GetFileHashViewModel(Checksum);
+
+            if (newHash != null)
+                newHash.AddNode(this);
+
+            return newHash;
         }
 
-    #endregion
+        #endregion
+
+        #region Implementations
+
+        public override string ToString()
+        {
+            return FullName;
+        }
+
+        #endregion
 
     }
 }

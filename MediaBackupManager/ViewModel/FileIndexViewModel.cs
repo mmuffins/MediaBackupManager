@@ -121,6 +121,7 @@ namespace MediaBackupManager.ViewModel
                         FileHashes.Add(new FileHashViewModel((FileHash)item));
             }
             ignoreChanges = false;
+            NotifyPropertyChanged("FileHashes");
         }
 
         private void BackupSets_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

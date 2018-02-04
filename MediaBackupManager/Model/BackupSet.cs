@@ -149,6 +149,7 @@ namespace MediaBackupManager.Model
                         continue;
                     }
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
+                    node.Checksum = checkSum;
                     node.Hash.AddNode(node);
                 }
             }, cancellationToken);
@@ -220,7 +221,7 @@ namespace MediaBackupManager.Model
         /// Returns an IEnumerable object of all elements below the provided directory.</summary>  
         public IEnumerable<FileDirectory> GetChildElements(FileDirectory parent)
         {
-            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName); 
+            return FileNodes.Where(x => Path.Combine(x.DirectoryName, x.Name) == parent.DirectoryName); 
         }
 
         /// <summary>
@@ -229,7 +230,7 @@ namespace MediaBackupManager.Model
         {
             return FileNodes
                 .OfType<FileDirectory>()
-                .FirstOrDefault(x => x.DirectoryName.Equals(RootDirectory) && x.GetType() == typeof(FileDirectory));
+                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name).Equals(RootDirectory) && x.GetType() == typeof(FileDirectory));
         }
 
         #endregion

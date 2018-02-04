@@ -58,12 +58,10 @@ namespace MediaBackupManager.Model
             foreach (var hash in await Database.GetFileHashAsync())
                 this.Hashes.Add(hash);
 
-            //foreach (var set in await Database.GetBackupSetAsync())
-            //    this.BackupSets.Add(set);
+            foreach (var set in await Database.GetBackupSetAsync())
+                this.BackupSets.Add(set);
 
-            var tmpSets = await Database.GetBackupSetAsync();
-
-            foreach (var set in tmpSets)
+            foreach (var set in BackupSets)
             {
                 set.Index = this;
 
@@ -86,7 +84,6 @@ namespace MediaBackupManager.Model
                 {
                     item.BackupSet = set;
                     set.FileNodes.Add(item);
-                    //NotifyPropertyChanged("BackupSet");
 
                     if (item is FileNode)
                     {
@@ -100,8 +97,6 @@ namespace MediaBackupManager.Model
 
                     }
                 }
-                //NotifyPropertyChanged("BackupSet");
-                this.BackupSets.Add(set);
             }
         }
 

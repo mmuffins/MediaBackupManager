@@ -16,12 +16,24 @@ namespace MediaBackupManager.Model
 
         private FileHash hash;
         private string checkSum;
+        private string extension;
 
         #endregion
 
         #region Properties
 
-        public string Extension { get; set; }
+        public string Extension
+        {
+            get { return extension; }
+            set
+            {
+                if (value != extension)
+                {
+                    extension = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public FileHash Hash
         {
@@ -55,8 +67,8 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        /// <summary>Returns the path of the parent directory.</summary>
-        public override string ParentDirectoryName { get => DirectoryName; }
+        ///// <summary>Returns the path of the parent directory.</summary>
+        //public override string ParentDirectoryName { get => DirectoryName; }
 
         /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }

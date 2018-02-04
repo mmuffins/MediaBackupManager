@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,8 @@ namespace MediaBackupManager.ViewModel
         FileDirectoryViewModel rootDirectory;
         FileIndexViewModel index;
         private bool ignoreChanges = false;
+        bool treeViewIsSelected;
+        bool treeViewIsExpanded;
 
         #endregion
 
@@ -50,7 +53,7 @@ namespace MediaBackupManager.ViewModel
 
         public Guid Guid
         {
-            get { return backupSet.Guid; }
+            get => backupSet.Guid;
             //set
             //{
             //    if (value != backupSet.Guid)
@@ -83,9 +86,53 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        public LogicalVolume Volume
+        {
+            get => BackupSet.Volume;
+        }
+
         public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
 
         public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }
+
+        /// <summary>
+        /// Gets/sets whether the TreeViewItem 
+        /// associated with this object is selected.
+        /// </summary>
+        public bool TreeViewIsSelected
+        {
+            get { return treeViewIsSelected; }
+            set
+            {
+                if (value != treeViewIsSelected)
+                {
+                    treeViewIsSelected = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets whether the TreeViewItem 
+        /// associated with this object is expanded.
+        /// </summary>
+        public bool TreeViewIsExpanded
+        {
+            get { return treeViewIsExpanded; }
+            set
+            {
+                if (value != treeViewIsExpanded)
+                {
+                    treeViewIsExpanded = value;
+                    this.NotifyPropertyChanged();
+                }
+
+                // Backupsets are always a root node, so no need to check a parent
+                //if (treeViewIsExpanded && Parent != null)
+                //    Parent.TreeViewIsExpanded = true;
+            }
+        }
+
 
         #endregion
 
@@ -174,8 +221,12 @@ namespace MediaBackupManager.ViewModel
                             Directories.Add(new FileDirectoryViewModel((FileDirectory)item, this));
                     }
             }
-                ignoreChanges = false;
-                this.rootDirectory = GetRootDirectoryObject();
+            ignoreChanges = false;
+            this.rootDirectory = GetRootDirectoryObject();
+
+            NotifyPropertyChanged("FileNodes");
+            NotifyPropertyChanged("Directories");
+            NotifyPropertyChanged("RootDirectory");
         }
 
         /// <summary>
@@ -185,19 +236,26 @@ namespace MediaBackupManager.ViewModel
             return this.backupSet.Equals(backupSet);
         }
 
-
         /// <summary>
         /// Returns an IEnumerable object of all directories below the provided directory.</summary>  
-        public IEnumerable<FileDirectoryViewModel> GetSubDirectories(FileDirectoryViewModel parent)
+        public IEnumerable<FileDirectoryViewModel> GetSubDirectories(string path)
         {
-            return Directories.Where(x => x.ParentDirectoryName == parent.DirectoryName);
+            //return Directories.Where(x => x.Parent != null && x.Parent.DirectoryName == path);
+            return Directories.Where(x => x.DirectoryName == path);
         }
 
         /// <summary>
         /// Returns an IEnumerable object of all file nodes below the provided directory.</summary>  
-        public IEnumerable<FileNodeViewModel> GetFiles(FileDirectoryViewModel parent)
+        public IEnumerable<FileNodeViewModel> GetFiles(string path)
         {
-            return FileNodes.Where(x => x.ParentDirectoryName == parent.DirectoryName);
+            return FileNodes.Where(x => x.DirectoryName == path);
+        }
+
+        /// <summary>
+        /// Returns the directory object for the provided path.</summary>  
+        public FileDirectoryViewModel GetDirectory(string directory)
+        {
+            return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) == directory);
         }
 
         /// <summary>
@@ -205,7 +263,7 @@ namespace MediaBackupManager.ViewModel
         private FileDirectoryViewModel GetRootDirectoryObject()
         {
             return Directories
-                .FirstOrDefault(x => x.DirectoryName.Equals(backupSet.RootDirectory));
+                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) .Equals(backupSet.RootDirectory));
         }
 
         #endregion

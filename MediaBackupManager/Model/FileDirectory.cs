@@ -66,26 +66,25 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Full path name including volume serial.</summary>
-        public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName); }
+        public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
 
         /// <summary>Full path name including mount point of the current session.</summary>
-        public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName); }
+        public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        /// <summary>Returns the path of the parent directory.</summary>
-        public virtual string ParentDirectoryName {
-            get
-            {
-                int lastIndex = DirectoryName.LastIndexOf("\\");
-                return lastIndex >= 0 ? DirectoryName.Substring(0, DirectoryName.LastIndexOf("\\")) : null;
-            }
-        }
+        ///// <summary>Returns the path of the parent directory.</summary>
+        //public virtual string ParentDirectoryName {
+        //    get
+        //    {
+        //        int lastIndex = DirectoryName.LastIndexOf("\\");
+        //        return lastIndex >= 0 ? DirectoryName.Substring(0, DirectoryName.LastIndexOf("\\")) : null;
+        //    }
+        //}
 
         /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public virtual bool BackupStatus
         {
             get
             {
-                var ab = Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
                 return Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
             }
         }
@@ -114,7 +113,7 @@ namespace MediaBackupManager.Model
         public FileDirectory(DirectoryInfo directoryInfo, BackupSet backupSet)
         {
             this.Name = directoryInfo.Name;
-            this.DirectoryName = directoryInfo.FullName.Substring(Path.GetPathRoot(directoryInfo.FullName).Length);
+            this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
             this.BackupSet = backupSet;
         }
 
