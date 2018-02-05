@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -11,17 +13,76 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Represents an index filesystem location.</summary>  
-    public class BackupSet : IEquatable<BackupSet>
+    public class BackupSet : IEquatable<BackupSet>, INotifyPropertyChanged
     {
+        #region Fields
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        FileIndex index;
+        Guid guid;
+        LogicalVolume volume;
+        string rootDirectory;
+        List<string> exclusions;
+
+        #endregion
+
         #region Properties
 
-        public FileIndex Index { get; set; }
-        public Guid Guid { get; set; }
-        public LogicalVolume Volume { get; set; }
-        public string RootDirectory { get; set; }
+        public FileIndex Index
+        {
+            get { return index; }
+            set
+            {
+                if (value != index)
+                {
+                    index = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Guid Guid
+        {
+            get { return guid; }
+            set
+            {
+                if (value != guid)
+                {
+                    guid = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public LogicalVolume Volume
+        {
+            get { return volume; }
+            set
+            {
+                if (value != volume)
+                {
+                    volume = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public string RootDirectory
+        {
+            get { return rootDirectory; }
+            set
+            {
+                if (value != rootDirectory)
+                {
+                    rootDirectory = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public string MountPoint { get => Volume.MountPoint; }
+
         public ObservableHashSet<FileDirectory> FileNodes { get; }
-        public ObservableHashSet<string> Exclusions { get; set; }
 
         /// <summary>User defined label for the drive</summary>
         public string Label { get; set; }
@@ -37,12 +98,11 @@ namespace MediaBackupManager.Model
                 this.Label = this.Guid.ToString();
         }
 
-        public BackupSet(DirectoryInfo directory, LogicalVolume drive, ObservableHashSet<string> exclusions) : this()
+        public BackupSet(DirectoryInfo directory, LogicalVolume drive, List<string> exclusions) : this()
         {
             this.Volume = drive;
-            //this.RootDirectory = new FileDirectory(directory.FullName, Drive, null);
             this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
-            this.Exclusions = exclusions;
+            this.exclusions = exclusions;
 
             if (string.IsNullOrWhiteSpace(this.Label))
                 this.Label = drive.MountPoint;
@@ -214,7 +274,7 @@ namespace MediaBackupManager.Model
         /// Determines whether the provided file or directory is excluded based on the file exclusion list.</summary>  
         public bool IsFileExcluded(string path)
         {
-            foreach (var item in Exclusions)
+            foreach (var item in exclusions)
             {
                 if (Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase))
                     return true;
@@ -292,6 +352,15 @@ namespace MediaBackupManager.Model
                 return false;
             else
                 return Equals(otherObj);
+        }
+
+
+        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            // take a copy to prevent thread issues
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

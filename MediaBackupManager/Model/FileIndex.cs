@@ -137,7 +137,7 @@ namespace MediaBackupManager.Model
 
             var stagingVolume = new LogicalVolume(directoryPath);
 
-            var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions);
+            var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions.ToList());
             if (!string.IsNullOrWhiteSpace(label))
                 stagingSet.Label = label;
 

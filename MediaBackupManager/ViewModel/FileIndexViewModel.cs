@@ -50,7 +50,7 @@ namespace MediaBackupManager.ViewModel
                 if (value != backupSets)
                 {
                     backupSets = value;
-                    NotifyPropertyChanged("");
+                    NotifyPropertyChanged();
                 }
             }
         }
