@@ -22,6 +22,7 @@ namespace MediaBackupManager.Model
         Guid guid;
         LogicalVolume volume;
         string rootDirectory;
+        string label;
         List<string> exclusions;
 
         #endregion
@@ -85,7 +86,18 @@ namespace MediaBackupManager.Model
         public ObservableHashSet<FileDirectory> FileNodes { get; }
 
         /// <summary>User defined label for the drive</summary>
-        public string Label { get; set; }
+        public string Label
+        {
+            get { return label; }
+            set
+            {
+                if (value != label)
+                {
+                    label = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 

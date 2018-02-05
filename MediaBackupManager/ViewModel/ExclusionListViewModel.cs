@@ -21,8 +21,6 @@ namespace MediaBackupManager.ViewModel
         RelayCommand closeOverlayCommand;
         RelayCommand removeExclusionCommand;
 
-        
-
         #endregion
 
         #region Properties
