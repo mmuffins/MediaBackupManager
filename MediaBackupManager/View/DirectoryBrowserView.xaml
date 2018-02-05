@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MediaBackupManager.View"
              xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="100" 
              Unloaded="UserControl_Unloaded">
@@ -28,15 +29,15 @@
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
+        <Style TargetType="{x:Type ListViewItem}">
+            <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
+        </Style>
         <CollectionViewSource x:Key="DirectoryFiles" Source="{Binding Path=CurrentDirectory.Files}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
         <CompositeCollection x:Key="CombinedCollection">
             <CollectionContainer Collection="{Binding Source={StaticResource DirectorySubDirs}}" />
             <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFiles}}" />
         </CompositeCollection>
-        <Style TargetType="{x:Type ListViewItem}">
-            <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
-        </Style>
 
     </Control.Resources>
 
@@ -59,6 +60,7 @@
             <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}"></Button>
             <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}"></Button>
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
+            <Button x:Name="btnSearchFiles" Content="Search" Command="{Binding SearchFilesCommand}"></Button>
         </StackPanel>
 
         <TreeView x:Name="treeDirectory" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"
@@ -108,15 +110,22 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            
-        </DockPanel>
-        
-        <ListView x:Name="gridFiles" Grid.Row="2" Grid.Column="1" Margin="2"
-                  SelectedItem="{Binding Path=SelectedFileGridItem}"
-                  ItemsSource="{StaticResource CombinedCollection}">
-            <ListView.Resources>
 
-            </ListView.Resources>
+            <!--File Search-->
+            <TextBox DockPanel.Dock="Right" KeyDown="SearchBar_KeyDown" TextChanged="SearchBar_TextChanged"></TextBox>
+        </DockPanel>
+        <ListView Grid.Row="2" Grid.Column="1" x:Name="gridFiles" Margin="2"
+                  SelectedItem="{Binding Path=SelectedFileGridItem}">
+            <ListView.Style>
+                <Style TargetType="ListView">
+                    <Setter Property="ItemsSource" Value="{StaticResource CombinedCollection}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowSearchResults}" Value="True">
+                            <Setter Property="ItemsSource" Value="{Binding SearchResults}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.Style>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
@@ -131,6 +140,5 @@
                 </GridView>
             </ListView.View>
         </ListView>
-
     </Grid>
 </UserControl>

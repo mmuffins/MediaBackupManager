@@ -87,12 +87,12 @@ namespace MediaBackupManager.ViewModel
             //TODO: Add an options view
             //TODO: Add an option to trigger highlighting nodes without backup
             //TODO: Add a function to add and remove exclusions
-            //TODO: Add a filter bar
             //TODO: Add a function to update existing backup sets
             //TODO: When double clicking a file, show a view containing all other nodes of the current file hash
             //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
-            //TODO: Add breadcrumb navigation for the file grid
+            //TODO: Support sorting in the file grid
+            //TODO: Add context menu support for deleting/updating backup sets
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
@@ -111,15 +111,16 @@ namespace MediaBackupManager.ViewModel
         {
             switch (e.Property)
             {
-                case "CreateBackupSet":
-                    // Assigning a viewmodel to CurrentOverlay will automatically
-                    // display it as overlay in the view
-                    CurrentOverlay = new CreateBackupSetViewModel(Index);
-                    break;
                 case "DisposeOverlay":
                     // Setting the CurrentOverlay property to null 
                     // will remove the overlay from the view
                     CurrentOverlay = null;
+                    break;
+
+                case "CreateBackupSet":
+                    // Assigning a viewmodel to CurrentOverlay will automatically
+                    // display it as overlay in the view
+                    CurrentOverlay = new CreateBackupSetViewModel(Index);
                     break;
                 default:
                     break;

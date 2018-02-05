@@ -64,5 +64,28 @@ namespace MediaBackupManager.View
             MessageService.SendMessage(this, "BreadcrumbBar_MouseUp", ((StackPanel)sender).DataContext);
 
         }
+
+        private void SearchBar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!(sender is TextBox))
+                return;
+
+            if (e.Key != Key.Enter)
+                return;
+
+            MessageService.SendMessage(this, "PerformFileSearch", ((TextBox)sender).Text);
+        }
+
+        private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Back and delete keypresses events are consumed by the textbox to 
+            // delete a character, so we need to handle them seperately from the keydown event
+
+            if (!(sender is TextBox))
+                return;
+
+            if(string.IsNullOrWhiteSpace(((TextBox)sender).Text))
+                MessageService.SendMessage(this, "ResetFileSearch", ((TextBox)sender).Text);
+        }
     }
 }

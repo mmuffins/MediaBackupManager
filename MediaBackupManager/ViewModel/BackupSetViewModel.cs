@@ -267,6 +267,20 @@ namespace MediaBackupManager.ViewModel
                 .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) .Equals(backupSet.RootDirectory));
         }
 
+        /// <summary>
+        /// Returns a list of all file nodes matching the provided search term.</summary>  
+        public IEnumerable<FileNodeViewModel> FindFileNodes(string searchTerm)
+        {
+            return FileNodes.Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
+        }
+
+        /// <summary>
+        /// Returns a list of all directories matching the provided search term.</summary>  
+        public IEnumerable<FileDirectoryViewModel> FindDirectories(string searchTerm)
+        {
+            return Directories.Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
+        }
+
         #endregion
 
         #region Implementations

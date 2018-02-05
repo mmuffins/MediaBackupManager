@@ -2,6 +2,7 @@
 using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,19 +16,25 @@ namespace MediaBackupManager.ViewModel
     {
         #region Fields
 
-        private FileIndexViewModel index;
-        private FileDirectoryViewModel currentDirectory;
-        private object selectedDirectoryTreeItem;
-        private object selectedFileGridItem;
+        FileIndexViewModel index;
+        FileDirectoryViewModel currentDirectory;
+        object selectedDirectoryTreeItem;
+        object selectedFileGridItem;
 
-        private RelayCommand clearDataCommand;
-        private RelayCommand removeNewData;
-        private RelayCommand removeBackupSetCommand;
-        private RelayCommand loadData;
-        private RelayCommand loadAdditionalData;
-        private RelayCommand scanNewData;
-        private RelayCommand createBackupSetCommand;
-        
+        ObservableCollection<object> searchResults;
+
+        RelayCommand clearDataCommand;
+        RelayCommand removeNewData;
+        RelayCommand removeBackupSetCommand;
+        RelayCommand loadData;
+        RelayCommand loadAdditionalData;
+        RelayCommand scanNewData;
+        RelayCommand createBackupSetCommand;
+        RelayCommand searchFilesCommand;
+        RelayCommand clearSearchResultsCommand;
+
+        bool showSearchResults = false;
+
         #endregion
 
         #region Properties
@@ -57,6 +64,32 @@ namespace MediaBackupManager.ViewModel
                     else
                         CurrentDirectory = (FileDirectoryViewModel)value;
 
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<object> SearchResults
+        {
+            get { return searchResults; }
+            set
+            {
+                if (value != searchResults)
+                {
+                    searchResults = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool ShowSearchResults
+        {
+            get { return showSearchResults; }
+            set
+            {
+                if (value != showSearchResults)
+                {
+                    showSearchResults = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -156,10 +189,38 @@ namespace MediaBackupManager.ViewModel
                 if (removeBackupSetCommand == null)
                 {
                     removeBackupSetCommand = new RelayCommand(
-                        p => RemoveBackupSet(p as BackupSetViewModel), 
+                        p => RemoveBackupSet(p as BackupSetViewModel),
                         p => p is BackupSetViewModel);
                 }
                 return removeBackupSetCommand;
+            }
+        }
+
+        public RelayCommand SearchFilesCommand
+        {
+            get
+            {
+                if (searchFilesCommand == null)
+                {
+                    searchFilesCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "SearchFiles", null),
+                        p => true);
+                }
+                return searchFilesCommand;
+            }
+        }
+
+        public RelayCommand ClearSearchResultsCommand
+        {
+            get
+            {
+                if (clearSearchResultsCommand == null)
+                {
+                    clearSearchResultsCommand = new RelayCommand(
+                        ClearSearchResults,
+                        p => true);
+                }
+                return clearSearchResultsCommand;
             }
         }
 
@@ -170,7 +231,40 @@ namespace MediaBackupManager.ViewModel
         public DirectoryBrowserViewModel(FileIndexViewModel index)
         {
             this.Index = index;
+            searchResults = new ObservableCollection<object>();
             MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
+        }
+
+        /// <summary>
+        /// Event handler for the global MessageService.</summary>
+        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        {
+            switch (e.Property)
+            {
+                case "GridFiles_MouseDoubleClick":
+                    if (e.Parameter is FileDirectoryViewModel)
+                        SetDirectory((FileDirectoryViewModel)e.Parameter);
+                    break;
+
+                case "ResetFileSearch":
+                    ClearSearchResultsCommand.Execute(null);
+                    break;
+                    
+                case "PerformFileSearch":
+                    if (string.IsNullOrWhiteSpace(e.Parameter.ToString()))
+                        ClearSearchResultsCommand.Execute(null);
+                    else
+                        PerformFileSearch(e.Parameter.ToString());
+                    break;
+
+                case "BreadcrumbBar_MouseUp":
+                    if (e.Parameter is FileDirectoryViewModel)
+                        SetDirectory((FileDirectoryViewModel)e.Parameter);
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         private async void ClearData_Execute(object obj)
@@ -233,26 +327,29 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Event handler for the global MessageService.</summary>
-        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        /// Resets the search Results.</summary>  
+        private void ClearSearchResults(object obj)
         {
-            switch (e.Property)
-            {
-                case "BreadcrumbBar_MouseUp":
-                    if (e.Parameter is FileDirectoryViewModel)
-                        SetDirectory((FileDirectoryViewModel)e.Parameter);
-                    break;
-
-                case "GridFiles_MouseDoubleClick":
-                    if (e.Parameter is FileDirectoryViewModel)
-                        SetDirectory((FileDirectoryViewModel)e.Parameter);
-                    break;
-
-                default:
-                    break;
-            }
+            this.ShowSearchResults = false;
+            SearchResults.Clear();
         }
 
+        /// <summary>
+        /// Displays file nodes and directories containing the given search term in the file grid.</summary>  
+        private void PerformFileSearch(string searchTerm)
+        {
+            SearchResults.Clear();
+            var nodes = Index.FindFileNodes(searchTerm);
+            var dirs = Index.FindDirectories(searchTerm);
+
+            foreach (var item in dirs)
+                SearchResults.Add(item);
+
+            foreach (var item in nodes)
+                SearchResults.Add(item);
+
+            ShowSearchResults = true;
+        }
 
         #endregion
     }

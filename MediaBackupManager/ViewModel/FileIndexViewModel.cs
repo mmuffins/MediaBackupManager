@@ -195,7 +195,35 @@ namespace MediaBackupManager.ViewModel
             return FileHashes.FirstOrDefault(x => x.Checksum.Equals(hash));
         }
 
+        /// <summary>
+        /// Returns a list of all file nodes matching the provided search term.</summary>  
+        public IEnumerable<FileNodeViewModel> FindFileNodes(string searchTerm)
+        {
+            return BackupSets.SelectMany(x => x.FindFileNodes(searchTerm));
+        }
 
+        /// <summary>
+        /// Returns a list of all directories matching the provided search term.</summary>  
+        public IEnumerable<FileDirectoryViewModel> FindDirectories(string searchTerm)
+        {
+            return BackupSets.SelectMany(x => x.FindDirectories(searchTerm));
+        }
+
+        /// <summary>
+        /// Returns a list of all file nodes and directories matching the provided search term.</summary>  
+        public List<object> FindElements(string searchTerm)
+        {
+            var nodes = FindFileNodes(searchTerm);
+            var dirs = FindDirectories(searchTerm);
+
+
+
+            var results = new List<object>(nodes);
+            results.AddRange(dirs);
+
+
+            return results;
+        }
         #endregion
 
         #region Implementations
