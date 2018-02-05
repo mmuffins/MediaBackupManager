@@ -269,12 +269,15 @@ namespace MediaBackupManager.Model
         /// <summary>
         /// Removes the specified exclusion.</summary>  
         /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
-        public async Task RemoveExclusionAsync(string exclusion, bool writeToDb)
+        public async Task RemoveFileExclusionAsync(string exclusion, bool writeToDb)
         {
-            Exclusions.Remove(exclusion);
+            if (exclusions.Contains(exclusion))
+            {
+                Exclusions.Remove(exclusion);
 
-            if(writeToDb)
-                await Database.DeleteExclusionAsync(exclusion);
+                if (writeToDb)
+                    await Database.DeleteExclusionAsync(exclusion);
+            }
         }
 
         /// <summary>
