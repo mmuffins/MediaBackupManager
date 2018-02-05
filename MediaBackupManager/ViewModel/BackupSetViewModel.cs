@@ -87,11 +87,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public LogicalVolume Volume
-        {
-            get => BackupSet.Volume;
-        }
-
         public string Label
         {
             get => BackupSet.Label;
@@ -100,6 +95,31 @@ namespace MediaBackupManager.ViewModel
         public DateTime LastScanDate
         {
             get => BackupSet.LastScanDate;
+        }
+
+        public LogicalVolume Volume
+        {
+            get => BackupSet.Volume;
+        }
+
+        public bool IsConnected
+        {
+            get => Volume.IsConnected;
+        }
+
+        public string MountPoint
+        {
+            get => BackupSet.MountPoint;
+        }
+
+        public string SerialNumber
+        {
+            get => Volume.SerialNumber;
+        }
+
+        public DriveType DriveType
+        {
+            get => Volume.Type;
         }
 
         public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
@@ -245,6 +265,13 @@ namespace MediaBackupManager.ViewModel
         public bool IsViewFor(BackupSet backupSet)
         {
             return this.backupSet.Equals(backupSet);
+        }
+
+        /// <summary>
+        /// Refreshes the status and mount point of the volume containing the backup set.</summary>  
+        public void RefreshVolumeStatus()
+        {
+            Volume.RefreshStatus();
         }
 
         /// <summary>

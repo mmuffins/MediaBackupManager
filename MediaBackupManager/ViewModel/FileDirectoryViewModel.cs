@@ -43,11 +43,6 @@ namespace MediaBackupManager.ViewModel
             get => dir.FullSessionName;
         }
 
-        //private string BaseParentDirectoryName
-        //{
-        //    get => dir.ParentDirectoryName;
-        //}
-
         public FileDirectoryViewModel Parent
         {
             get
