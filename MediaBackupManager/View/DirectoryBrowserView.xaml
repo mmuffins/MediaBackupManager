@@ -60,7 +60,7 @@
             <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}"></Button>
             <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}"></Button>
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
-            <Button x:Name="btnSearchFiles" Content="Search" Command="{Binding SearchFilesCommand}"></Button>
+            <Button x:Name="btnShowExclusionList" Content="Search" Command="{Binding ShowExclusionCommand}"></Button>
         </StackPanel>
 
         <TreeView x:Name="treeDirectory" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"
@@ -112,7 +112,8 @@
             </ItemsControl>
 
             <!--File Search-->
-            <TextBox DockPanel.Dock="Right" KeyDown="SearchBar_KeyDown" TextChanged="SearchBar_TextChanged"></TextBox>
+            <TextBox DockPanel.Dock="Right" 
+                     Text="{Binding SearchBarText, Delay=200, UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </DockPanel>
         <ListView Grid.Row="2" Grid.Column="1" x:Name="gridFiles" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}">

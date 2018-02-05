@@ -20,6 +20,7 @@ namespace MediaBackupManager.ViewModel
         FileDirectoryViewModel currentDirectory;
         object selectedDirectoryTreeItem;
         object selectedFileGridItem;
+        string searchBarText;
 
         ObservableCollection<object> searchResults;
 
@@ -32,6 +33,9 @@ namespace MediaBackupManager.ViewModel
         RelayCommand createBackupSetCommand;
         RelayCommand searchFilesCommand;
         RelayCommand clearSearchResultsCommand;
+        RelayCommand showExclusionCommand;
+
+
 
         bool showSearchResults = false;
 
@@ -90,6 +94,24 @@ namespace MediaBackupManager.ViewModel
                 if (value != showSearchResults)
                 {
                     showSearchResults = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public string SearchBarText
+        {
+            get { return searchBarText; }
+            set
+            {
+                if (value != searchBarText)
+                {
+                    searchBarText = value;
+                    if (string.IsNullOrWhiteSpace(value))
+                        ClearSearchResults(null);
+                    else
+                        PerformFileSearch(value);
+
                     NotifyPropertyChanged();
                 }
             }
@@ -224,6 +246,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        public RelayCommand ShowExclusionCommand
+        {
+            get
+            {
+                if (showExclusionCommand == null)
+                {
+                    showExclusionCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "CreateBackupSet", null),
+                        p => true);
+                }
+                return showExclusionCommand;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -244,17 +280,6 @@ namespace MediaBackupManager.ViewModel
                 case "GridFiles_MouseDoubleClick":
                     if (e.Parameter is FileDirectoryViewModel)
                         SetDirectory((FileDirectoryViewModel)e.Parameter);
-                    break;
-
-                case "ResetFileSearch":
-                    ClearSearchResultsCommand.Execute(null);
-                    break;
-                    
-                case "PerformFileSearch":
-                    if (string.IsNullOrWhiteSpace(e.Parameter.ToString()))
-                        ClearSearchResultsCommand.Execute(null);
-                    else
-                        PerformFileSearch(e.Parameter.ToString());
                     break;
 
                 case "BreadcrumbBar_MouseUp":
