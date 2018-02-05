@@ -28,6 +28,9 @@ namespace MediaBackupManager.Model
         /// <summary>Mount point or drive letter, only valid in the current session.</summary>
         public string MountPoint { get; set; }
 
+        /// <summary>Returns true if the volume is currently connected to the host. To update, execute RefreshStatus</summary>
+        public bool IsConnected { get; set; }
+
         #endregion
 
         #region Methods
@@ -40,25 +43,7 @@ namespace MediaBackupManager.Model
             this.VolumeName = directory.Root.Name;
 
             GetLogicalDriveInformation();
-        }
-
-        /// <summary>Determines the current drive of the object.</summary>
-        public DriveInfo GetMountPoint()
-        {
-            var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{SerialNumber}'").Get();
-
-            if (w32LogicalDisk.Count == 0) // Drive is currently not mounted, exit
-                return null;
-
-
-            foreach (var drive in w32LogicalDisk)
-            {
-                // Since we are querying by volume label, the collection can only contain a single object
-                if (!string.IsNullOrWhiteSpace(drive["Name"].ToString()))
-                    return new DriveInfo(drive["Name"].ToString());
-            }
-
-            return null;
+            RefreshStatus();
         }
 
         /// <summary>Populates internal properties from WMI.</summary>
@@ -79,24 +64,28 @@ namespace MediaBackupManager.Model
             }
         }
 
-        private async Task GetLogicalDriveInformationAsync()
+        /// <summary>Refreshes mount point and connected status of the current volume.</summary>
+        public void RefreshStatus()
         {
-            await Task.Run(() =>
+            var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{SerialNumber}'").Get();
+
+            if (w32LogicalDisk.Count == 0)
             {
-                var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE Name = '{ MountPoint.Replace("\\", "") }'").Get();
+                // Drive is currently not mounted, exit
+                IsConnected = false;
+                MountPoint = null;
+                return;
+            }
 
-                if (w32LogicalDisk.Count == 0) //No drive with this letter was found, exit function
-                    return;
-
-                foreach (var drive in w32LogicalDisk)
+            foreach (var drive in w32LogicalDisk)
+            {
+                // Since we are querying by volume label, the collection can only contain a single object
+                if (!string.IsNullOrWhiteSpace(drive["Name"].ToString()))
                 {
-                    // Since we are querying with a drive letter, the collection can only contain a single object
-                    this.Size = ulong.Parse(drive["Size"].ToString());
-                    this.SerialNumber = drive["VolumeSerialNumber"].ToString().Trim();
-                    this.Type = (DriveType)Enum.Parse(typeof(DriveType), drive["DriveType"].ToString());
-                    this.VolumeName = drive["VolumeName"].ToString();
+                    MountPoint = new DriveInfo(drive["Name"].ToString()).Name;
+                    IsConnected = true;
                 }
-            });
+            }
 
             return;
         }

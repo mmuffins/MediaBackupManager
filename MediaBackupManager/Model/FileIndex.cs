@@ -62,17 +62,17 @@ namespace MediaBackupManager.Model
             {
                 set.Index = this;
 
-                // Add the logical volume to the collection and
-                // refresh its mountpoint
                 set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
                 if (LogicalVolumes.Contains(set.Volume))
                 {
+                    // If the index already contains the logical volume of the set,
+                    // update the set to use the volume of the index in order to point to the same object
                     set.Volume = LogicalVolumes.FirstOrDefault(x => x.SerialNumber.Equals(set.Volume.SerialNumber));
                 }
                 else
                 {
+                    // If not, add the new volume to the index
                     LogicalVolumes.Add(set.Volume);
-                    RefreshMountPoint(set.Volume);
                 }
 
                 // Load all nodes for the set, then iterate through each item
@@ -98,14 +98,10 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Refreshes the mount points for a logical volume in the collection.</summary>  
-        private void RefreshMountPoint(LogicalVolume volume)
+        /// Refreshes the connected status for all logical volumes in the collection.</summary>  
+        private void RefreshVolumeStatus()
         {
-            DriveInfo mountPoint = volume.GetMountPoint();
-            if(!(mountPoint is null))
-            {
-                volume.MountPoint = mountPoint.Name;
-            }
+            LogicalVolumes.ForEach(x => x.RefreshStatus());
         }
 
         /// <summary>
