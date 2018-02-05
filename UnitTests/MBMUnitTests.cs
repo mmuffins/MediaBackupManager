@@ -422,11 +422,11 @@ namespace UnitTests
 
             // Act
             var diffFi = new FileIndex();
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), setLabel);
+            var diffSet = await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), setLabel);
 
             // Several attributes are created on the fly, so we need to copy them
             // to the reference set
-            var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Label.Equals(refSet.Label));
+            //var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Label.Equals(refSet.Label));
             refSet.Guid = diffSet.Guid;
 
             // Assert
@@ -747,6 +747,40 @@ namespace UnitTests
             var node = hash.Nodes.FirstOrDefault();
 
             Assert.AreEqual(Path.Combine(targetDir, "KeyMap.txt"), node.FullSessionName, "Node count incorrect.");
+        }
+
+        [TestMethod]
+        [Description("Tests whether changes to BackupSet labels are correctly updated in the DB.")]
+        public async Task ChangeBackupSetLabel()
+        {
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+            var targetDir = Path.Combine(testDirD, "dir1");
+
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir, "KeyMap.txt"));
+
+            var oldLabel = "oldLabel";
+            var newLabel = "newLabel";
+
+            // Act
+            var refFi = new FileIndex();
+            var refSet = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), oldLabel);
+
+            await refSet.ChangeLabel(newLabel);
+
+            var diffFi = new FileIndex();
+            await diffFi.LoadDataAsync();
+
+            var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Guid.Equals(refSet.Guid));
+
+            // Assert
+            Assert.AreEqual(newLabel, refSet.Label, "Label was not updated correctly.");
+            Assert.AreEqual(newLabel, diffSet.Label, "New Label was not correctly written to DB.");
+
+
         }
     }
 }

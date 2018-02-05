@@ -715,6 +715,26 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
+        /// <summary>Updates the label of the provided Backup Set.</summary>
+        public static async Task UpdateBackupSetLabel(BackupSet backupSet)
+        {
+            var sqlCmd = new SQLiteCommand
+            {
+                CommandText = "UPDATE BackupSet" +
+                " SET Label = @Label" +
+                " WHERE Guid = @Guid",
+                CommandType = CommandType.Text
+            };
+
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
+
+            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+            sqlCmd.Parameters["@Label"].Value = backupSet.Label;
+
+            await ExecuteNonQueryAsync(sqlCmd);
+        }
+
         /// <summary>
         /// Deletes the specified list from the database via transaction.</summary>
         public static async Task BatchDeleteFileNodeAsync(List<FileDirectory> nodes)

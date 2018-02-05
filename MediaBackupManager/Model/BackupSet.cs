@@ -135,6 +135,17 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Changes the label of the BackupSet.</summary>  
+        public async Task ChangeLabel(string label)
+        {
+            if (Label.Equals(label))
+                return;
+
+            Label = label;
+            await Database.UpdateBackupSetLabel(this);
+        }
+
+        /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
         public async Task ScanFilesAsync(CancellationToken cancellationToken)
         {
