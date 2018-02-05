@@ -17,6 +17,11 @@
         <DataTemplate DataType="{x:Type viewmodel:CreateBackupSetViewModel}">
             <local:CreateBackupSetView />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewmodel:ExclusionListViewModel}">
+            <local:ExclusionListView />
+        </DataTemplate>
+        
     </Window.Resources>
     
     <Grid x:Name="LayoutRoot">

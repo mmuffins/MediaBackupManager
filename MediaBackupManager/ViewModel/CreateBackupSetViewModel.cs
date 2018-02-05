@@ -67,6 +67,7 @@ namespace MediaBackupManager.ViewModel
                 if (confirmCommand == null)
                 {
                     confirmCommand = new RelayCommand(
+                        //TODO:Q-Is calling Createbackupset like this still an async call?
                         CreateBackupSet,
                         p => true);
                 }

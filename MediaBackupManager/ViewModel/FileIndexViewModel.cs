@@ -91,15 +91,20 @@ namespace MediaBackupManager.ViewModel
             this.Index = index;
             this.BackupSets = new ObservableCollection<BackupSetViewModel>();
             this.FileHashes = new ObservableHashSet<FileHashViewModel>();
+            this.Exclusions = new ObservableCollection<string>();
             foreach (var hash in Index.Hashes)
                 this.FileHashes.Add(new FileHashViewModel(hash));
 
             foreach (var set in Index.BackupSets)
                 this.BackupSets.Add(new BackupSetViewModel(set, this));
 
+            foreach (var item in Index.Exclusions)
+                this.Exclusions.Add(item);
+
             //Index.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
             Index.Hashes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileHashes_CollectionChanged);
             Index.BackupSets.CollectionChanged += new NotifyCollectionChangedEventHandler(BackupSets_CollectionChanged);
+            Index.Exclusions.CollectionChanged += new NotifyCollectionChangedEventHandler(Exclusions_CollectionChanged);
         }
 
         private void FileHashes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

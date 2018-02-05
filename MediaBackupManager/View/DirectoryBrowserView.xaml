@@ -53,14 +53,14 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Height="30">
-            <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}"></Button>
-            <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}"></Button>
-            <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}"></Button>
-            <Button x:Name="btnScanAdditional" Content="Scan Test 2" Command="{Binding ScanNewData}"></Button>
-            <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}"></Button>
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}"></Button>
-            <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}"></Button>
-            <Button x:Name="btnShowExclusionList" Content="Search" Command="{Binding ShowExclusionCommand}"></Button>
+            <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}" />
+            <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}" />
+            <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}" />
+            <Button x:Name="btnScanAdditional" Content="Scan Test 2" Command="{Binding ScanNewData}" />
+            <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}" />
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}" />
+            <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" />
+            <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionCommand}" />
         </StackPanel>
 
         <TreeView x:Name="treeDirectory" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"

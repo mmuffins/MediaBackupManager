@@ -253,7 +253,7 @@ namespace MediaBackupManager.ViewModel
                 if (showExclusionCommand == null)
                 {
                     showExclusionCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "CreateBackupSet", null),
+                        p => MessageService.SendMessage(this, "ShowExclusionList", null),
                         p => true);
                 }
                 return showExclusionCommand;

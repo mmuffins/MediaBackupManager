@@ -107,6 +107,7 @@
     <Compile Include="ViewModel\BackupSetViewModel.cs" />
     <Compile Include="ViewModel\CreateBackupSetViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
+    <Compile Include="ViewModel\ExclusionListViewModel.cs" />
     <Compile Include="ViewModel\FileDirectoryViewModel.cs" />
     <Compile Include="ViewModel\FileHashViewModel.cs" />
     <Compile Include="ViewModel\FileIndexViewModel.cs" />
@@ -118,6 +119,9 @@
     </Compile>
     <Compile Include="View\DirectoryBrowserView.xaml.cs">
       <DependentUpon>DirectoryBrowserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExclusionListView.xaml.cs">
+      <DependentUpon>ExclusionListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -156,6 +160,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\DirectoryBrowserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ExclusionListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

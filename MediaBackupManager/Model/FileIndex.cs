@@ -19,10 +19,7 @@ namespace MediaBackupManager.Model
         #region Fields
         //TODO: Check if INotifyPropertyChanged needs to be implemented here
 
-        //private Dictionary<string, FileHash> hashes = new Dictionary<string, FileHash>();
-        //private List<LogicalVolume> logicalVolumes = new List<LogicalVolume>();
-        //private List<BackupSet> backupSets = new List<BackupSet>();
-        private ObservableHashSet<string> exclusions = new ObservableHashSet<string>();
+        //ObservableHashSet<string> exclusions = new ObservableHashSet<string>();
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
@@ -206,6 +203,9 @@ namespace MediaBackupManager.Model
         /// <param name="writeToDb">If true, the object will be written to the Database.</param>
         private async Task AddExclusionAsync(string exclusion, bool writeToDb)
         {
+            if (string.IsNullOrWhiteSpace(exclusion))
+                return;
+
             if (Exclusions.Add(exclusion))
             {
                 //NotifyPropertyChanged("Exclusion");
@@ -271,7 +271,7 @@ namespace MediaBackupManager.Model
         /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
         public async Task RemoveFileExclusionAsync(string exclusion, bool writeToDb)
         {
-            if (exclusions.Contains(exclusion))
+            if (Exclusions.Contains(exclusion))
             {
                 Exclusions.Remove(exclusion);
 
