@@ -112,6 +112,7 @@ namespace MediaBackupManager.Model
                     ", Volume TEXT" +
                     ", RootDirectory TEXT" +
                     ", Label TEXT" +
+                    ", LastScanDate TEXT" +
                     ")";
                 await sqlCmd.ExecuteNonQueryAsync();
 
@@ -227,7 +228,7 @@ namespace MediaBackupManager.Model
                             Guid = new Guid(reader["Guid"].ToString()),
                             RootDirectory = reader["RootDirectory"].ToString(),
                             Label = reader["Label"].ToString(),
-                            Index = Database.Index
+                            LastScanDate = DateTime.Parse(reader["LastScanDate"].ToString()),
                         };
 
                         // Load related objects
@@ -513,11 +514,13 @@ namespace MediaBackupManager.Model
                 ", Volume" +
                 ", RootDirectory" +
                 ", Label" +
+                ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
                 ", @RootDirectory" +
                 ", @Label" +
+                ", @LastScanDate" +
                 ")",
 
                 CommandType = CommandType.Text
@@ -527,11 +530,13 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
             sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
             sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
             sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
             sqlCmd.Parameters["@Label"].Value = backupSet.Label;
+            sqlCmd.Parameters["@LastScanDate"].Value = backupSet.LastScanDate;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -804,11 +809,13 @@ namespace MediaBackupManager.Model
                 ", Volume" +
                 ", RootDirectory" +
                 ", Label" +
+                ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
                 ", @RootDirectory" +
                 ", @Label" +
+                ", @LastScanDate" +
                 ")";
 
             var dbConn = new SQLiteConnection(GetConnectionString(), true);
@@ -830,11 +837,13 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
                             sqlCmd.Parameters["@Guid"].Value = set.Guid;
                             sqlCmd.Parameters["@Volume"].Value = set.Volume.SerialNumber;
                             sqlCmd.Parameters["@RootDirectory"].Value = set.RootDirectory;
                             sqlCmd.Parameters["@Label"].Value = set.Label;
+                            sqlCmd.Parameters["@LastScanDate"].Value = set.LastScanDate;
 
                             await sqlCmd.ExecuteNonQueryAsync();
                         }

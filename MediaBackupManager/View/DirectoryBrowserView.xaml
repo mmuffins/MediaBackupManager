@@ -78,7 +78,7 @@
                 </Style>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
                                           ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=RootDirectory.FullName}"/>
+                    <TreeViewItem Header="{Binding Path=Label}"/>
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
                                           ItemsSource="{Binding Path=SubDirectories}">

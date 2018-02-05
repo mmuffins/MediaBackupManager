@@ -92,6 +92,16 @@ namespace MediaBackupManager.ViewModel
             get => BackupSet.Volume;
         }
 
+        public string Label
+        {
+            get => BackupSet.Label;
+        }
+
+        public DateTime LastScanDate
+        {
+            get => BackupSet.LastScanDate;
+        }
+
         public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
 
         public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }

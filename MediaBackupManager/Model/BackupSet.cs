@@ -23,6 +23,7 @@ namespace MediaBackupManager.Model
         LogicalVolume volume;
         string rootDirectory;
         string label;
+        DateTime lastScanDate;
         List<string> exclusions;
 
         #endregion
@@ -81,6 +82,19 @@ namespace MediaBackupManager.Model
             }
         }
 
+        public DateTime LastScanDate
+        {
+            get { return lastScanDate; }
+            set
+            {
+                if (value != lastScanDate)
+                {
+                    lastScanDate = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public string MountPoint { get => Volume.MountPoint; }
 
         public ObservableHashSet<FileDirectory> FileNodes { get; }
@@ -128,6 +142,7 @@ namespace MediaBackupManager.Model
                 return;
 
             await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), cancellationToken), cancellationToken);
+            LastScanDate = DateTime.Now;
         }
 
         /// <summary>
@@ -248,6 +263,8 @@ namespace MediaBackupManager.Model
                         progress.Report((int)((double)currentNodeCount / nodeCount * 100));
                 }
             }, cancellationToken);
+
+            LastScanDate = DateTime.Now;
         }
 
         /// <summary>
