@@ -782,5 +782,83 @@ namespace UnitTests
 
 
         }
+
+        [TestMethod]
+        [Description("Tests whether the update function properly updates backup sets")]
+        public async Task UpdateBackupSet()
+        {
+            // Arrange
+            // Prepare DB & files
+            Assert.IsTrue(PrepareDirectories());
+            Assert.IsTrue(await ResetDatabase(), "Could not create database");
+
+            var targetDir1 = Path.Combine(testDirD, "dir1");
+            var targetDir2 = Path.Combine(testDirD, "dir2");
+
+            // f1 stays the same
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "KeyMap.txt")), Path.Combine(targetDir1, "KeyMap.txt"));
+
+            // f2 gets moved from dir1 to dir2 after scanning
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "0266554465.jpeg")), Path.Combine(targetDir1, "0266554465.jpeg"));
+
+            // f3 is removed after scanning
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"));
+
+            var fi1 = new FileIndex();
+            var set1 = await fi1.CreateBackupSetAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "set1");
+            var set1Guid = set1.Guid;
+
+            var f1 = (FileNode)set1.FileNodes.FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt")));
+            var f2 = (FileNode)set1.FileNodes.FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "0266554465.jpeg")));
+            var f3 = (FileNode)set1.FileNodes.FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg")));
+
+            var f1Hash = f1.Checksum;
+            var f2Hash = f2.Checksum;
+            var f3Hash = f3.Checksum;
+
+            // Act
+
+            // f4 is newly added
+            File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"));
+
+            File.Move(Path.Combine(targetDir1, "0266554465.jpeg"), Path.Combine(targetDir2, "0266554465.jpeg"));
+            File.Delete(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"));
+
+            await fi1.UpdateBackupSet(set1, new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>());
+            set1 = fi1.BackupSets.FirstOrDefault(x => x.Guid.Equals(set1Guid));
+
+            // Also check if the changes are correctly written to the DB
+            var fi2 = new FileIndex();
+            await fi2.LoadDataAsync();
+            var set2 = fi2.BackupSets.FirstOrDefault(x => x.Guid.Equals(set1Guid));
+
+            // Assert
+            Assert.IsNotNull(set1, "BackupSet Guid was changed");
+            Assert.IsNotNull(set2, "BackupSet Guid was changed");
+
+            Assert.AreEqual(3, set1.FileNodes.OfType<FileNode>().Count(), "FileNode count incorrect.");
+            Assert.AreEqual(1, set1.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, set1.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(0, set1.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, set1.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
+
+
+            Assert.AreEqual(3, set2.FileNodes.OfType<FileNode>().Count(), "FileNode count incorrect.");
+            Assert.AreEqual(1, set2.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, set2.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(0, set2.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, set2.FileNodes.Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
+
+
+            Assert.AreEqual(3, fi1.Hashes.Count, "FileHash count incorrect.");
+            Assert.AreEqual(1, fi1.Hashes.Where(x => x.Checksum.Equals(f1Hash)).Count(), "FileHash not found.");
+            Assert.AreEqual(1, fi1.Hashes.Where(x => x.Checksum.Equals(f2Hash)).Count(), "FileHash not found.");
+            Assert.AreEqual(0, fi1.Hashes.Where(x => x.Checksum.Equals(f3Hash)).Count(), "FileHash not found.");
+
+            Assert.AreEqual(3, fi2.Hashes.Count, "FileHash count incorrect.");
+            Assert.AreEqual(1, fi2.Hashes.Where(x => x.Checksum.Equals(f1Hash)).Count(), "FileHash not found.");
+            Assert.AreEqual(1, fi2.Hashes.Where(x => x.Checksum.Equals(f2Hash)).Count(), "FileHash not found.");
+            Assert.AreEqual(0, fi2.Hashes.Where(x => x.Checksum.Equals(f3Hash)).Count(), "FileHash not found.");
+        }
     }
 }
