@@ -16,13 +16,12 @@ namespace MediaBackupManager.ViewModel
     public class FileIndexViewModel : ViewModelBase
     {
         #region Fields
-        private bool ignoreChanges = false;
+        bool ignoreChanges = false;
+        ObservableCollection<BackupSetViewModel> backupSets;
+        FileDirectory currentDirectory;
+        ObservableHashSet<FileHashViewModel> hashes;
+        ObservableCollection<string> exclusions;
 
-        private ObservableCollection<BackupSetViewModel> backupSets;
-
-        private FileDirectory currentDirectory;
-
-        private ObservableHashSet<FileHashViewModel> hashes;
 
         #endregion
 
@@ -68,6 +67,21 @@ namespace MediaBackupManager.ViewModel
                 }
             }
         }
+
+        public ObservableCollection<string> Exclusions
+        {
+            get { return exclusions; }
+            set
+            {
+                if (value != exclusions)
+                {
+                    exclusions = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+
         #endregion
 
         #region Methods
@@ -159,6 +173,39 @@ namespace MediaBackupManager.ViewModel
                 if (null != e.NewItems && e.NewItems.Count > 0)
                     foreach (var item in e.NewItems)
                         BackupSets.Add(new BackupSetViewModel((BackupSet)item, this));
+            }
+            ignoreChanges = false;
+        }
+
+        private void Exclusions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (ignoreChanges)
+                return;
+
+            ignoreChanges = true;
+
+            // If the collection was reset, then e.OldItems is empty. Just clear and reload.
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                Exclusions.Clear();
+
+                foreach (var ex in Index.Exclusions)
+                    Exclusions.Add(ex);
+            }
+            else
+            {
+                // Remove items from collection.
+                var toRemove = new List<string>();
+
+                if (null != e.OldItems && e.OldItems.Count > 0)
+                    foreach (var item in e.OldItems)
+                        if (Exclusions.Contains(item.ToString()))
+                            Exclusions.Remove(item.ToString());
+
+                // Add new items to the collection.
+                if (null != e.NewItems && e.NewItems.Count > 0)
+                    foreach (var item in e.NewItems)
+                        Exclusions.Add(item.ToString());
             }
             ignoreChanges = false;
         }
