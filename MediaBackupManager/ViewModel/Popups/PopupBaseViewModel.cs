@@ -35,7 +35,7 @@ namespace MediaBackupManager.ViewModel.Popups
         #region Properties
 
         /// <summary>
-        /// Sets or gets the content viemodel of the popup.</summary>  
+        /// Gets or sets the content viemodel of the popup.</summary>  
         public ViewModelBase PopupViewModel
         {
             get { return popupViewModel; }

@@ -18,20 +18,22 @@ namespace MediaBackupManager.ViewModel
         string backupSetLabel;
         string scanStatusText;
         int scanProgress;
+        string cancelButtonCaption;
+        bool isScanInProgressOrCompleted;
+
         FileIndexViewModel index;
         CancellationTokenSource tokenSource;
         ObservableCollection<string> fileScanErrors;
-        bool showPopup;
-        ViewModelBase currentPopup;
+        Task directoryScan;
 
         RelayCommand selectDirectoryCommand;
         RelayCommand cancelCommand;
-        RelayCommand confirmCommand;
+        RelayCommand startCommand;
 
         #region Properties
 
         /// <summary>
-        /// Command to open a FolderBrowserDialog and populate the path textbox with the selected directory.</summary>  
+        /// Gets or sets the command to open a Dialog that lets the user a directory for the backup set.</summary>  
         public RelayCommand SelectDirectoryCommand
         {
             get
@@ -47,7 +49,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Command to close the overlay.</summary>  
+        /// Gets or sets the command to close the overlay.</summary>  
         public RelayCommand CancelCommand
         {
             get
@@ -55,7 +57,7 @@ namespace MediaBackupManager.ViewModel
                 if (cancelCommand == null)
                 {
                     cancelCommand = new RelayCommand(
-                        CloseOverlay,
+                        CancelCommand_Execute,
                         p => true);
                 }
                 return cancelCommand;
@@ -63,23 +65,25 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Command to create a Backup Set for the selected drive.</summary>  
-        public RelayCommand ConfirmCommand
+        /// Gets or sets the command to create a Backup Set for the selected drive.</summary>  
+        public RelayCommand StartCommand
         {
             //TODO: Create Validation and error messages to make sure that all fields are filled
             get
             {
-                if (confirmCommand == null)
+                if (startCommand == null)
                 {
-                    confirmCommand = new RelayCommand(
+                    startCommand = new RelayCommand(
                         //TODO:Q-Is calling Createbackupset like this still an async call?
                         CreateBackupSet,
-                        p => true);
+                        p => !IsScanInProgressOrCompleted);
                 }
-                return confirmCommand;
+                return startCommand;
             }
         }
 
+        /// <summary>
+        /// Gets or sets the currently selected directory.</summary>  
         public string SelectedDirectory
         {
             get { return selectedDirectory; }
@@ -93,6 +97,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the label of the new backup set.</summary>  
         public string BackupSetLabel
         {
             get { return backupSetLabel; }
@@ -107,7 +113,22 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Text displayed during directory scans, informing user of the current operation.</summary>  
+        /// Gets or sets the caption for the Cancel button.</summary>  
+        public string CancelButtonCaption
+        {
+            get { return cancelButtonCaption; }
+            set
+            {
+                if (value != cancelButtonCaption)
+                {
+                    cancelButtonCaption = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the text displayed during directory scans, informing user of the current operation.</summary>  
         public string ScanStatusText
         {
             get { return scanStatusText; }
@@ -122,7 +143,23 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Numerical progress of the current scanning operation.</summary>  
+        /// Gets or whether a file scan is in progress or was successfully completed.</summary>  
+        public bool IsScanInProgressOrCompleted
+        {
+            // Needed to simplify binding
+            get { return isScanInProgressOrCompleted; }
+            set
+            {
+                if (value != isScanInProgressOrCompleted)
+                {
+                    isScanInProgressOrCompleted = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the numerical progress of the current scanning operation.</summary>  
         public int ScanProgress
         {
             get { return scanProgress; }
@@ -137,7 +174,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Token source for the scanning operation.</summary>  
+        /// Gets or sets the token source for the scanning operation.</summary>  
         public CancellationTokenSource TokenSource
         {
             get
@@ -158,7 +195,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Collection containing a list of all errors that occured while scanning or hashing files.</summary>  
+        /// Gets the a collection containing a list of all errors that occured while scanning or hashing files.</summary>  
         public ObservableCollection<string> FileScanErrors
         {
             get { return fileScanErrors; }
@@ -172,36 +209,6 @@ namespace MediaBackupManager.ViewModel
             //}
         }
 
-        /// <summary>
-        /// Property controlling if a popup is currently displayed.</summary>  
-        public bool ShowPopup
-        {
-            get { return showPopup; }
-            set
-            {
-                if (value != showPopup)
-                {
-                    showPopup = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Contains the currently displayed viewmodel.</summary>  
-        public ViewModelBase CurrentPopup
-        {       
-            get { return currentPopup; }
-            set
-            {
-                if (value != currentPopup)
-                {
-                    currentPopup = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
         #endregion
 
         #region Methods
@@ -210,6 +217,8 @@ namespace MediaBackupManager.ViewModel
         {
             this.index = index;
             this.fileScanErrors = new ObservableCollection<string>();
+            this.CancelButtonCaption = "Cancel";
+            this.IsScanInProgressOrCompleted = false;
         }
 
         /// <summary>
@@ -252,6 +261,12 @@ namespace MediaBackupManager.ViewModel
         /// Creates a backup set for the currently selected directory.</summary>  
         private async void CreateBackupSet(object obj)
         {
+            if(directoryScan != null && !directoryScan.IsCompleted)
+            {
+                // a scan is currently running, ignore the ok button
+                return;
+            }
+
             this.FileScanErrors.Clear();
 
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
@@ -260,40 +275,76 @@ namespace MediaBackupManager.ViewModel
             var statusText = new Progress<string>(p => ScanStatusText = p);
             var scanProgress = new Progress<int>(p => ScanProgress = p);
 
-            await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, BackupSetLabel);
-
-            //TODO: Show the error log before closing the overlay
-            if(FileScanErrors.Count() > 0)
+            // Clean up previous tasks if the user has canceled it
+            if(directoryScan != null && directoryScan.IsCompleted)
             {
-                ShowPopup = true;
+                try
+                {
+                    directoryScan.Dispose();
+                }
+                catch (Exception)
+                {
+                    // No error handling required, the task only needs to
+                    // be wrapped in case it's not yet ready to be disposed and throws
+                    // an exception, but it will be set to null anyway, so there is no issue
+                }
             }
 
-            // All done, close the overlay
-            CloseOverlay(null);
-        }
+            directoryScan = null;
 
-        /// <summary>
-        /// Closes the overlay and cancels all ongoing scanning operations.</summary>  
-        private void CloseOverlay(object obj)
-        {
-            ShowOKCancelPopup("messagXe", "title");
-            if (TokenSource != null)
+            // Don't use the property here since it would generate a new tokensource
+            if (tokenSource != null)
             {
-                TokenSource.Cancel();
                 TokenSource.Dispose();
                 TokenSource = null;
             }
 
-            MessageService.SendMessage(this, "DisposeOverlay", null);
+            IsScanInProgressOrCompleted = true;
+
+            directoryScan = index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, BackupSetLabel);
+            await directoryScan;
+
+            if (tokenSource.IsCancellationRequested)
+                IsScanInProgressOrCompleted = false;
+            else
+            {
+                // Indicate to the user that the progress is fully completed and that he can now
+                // close the window by changing the button caption
+                CancelButtonCaption = "Done";
+            }
         }
 
-        private bool ShowOKCancelPopup(string message, string title ="")
+        /// <summary>
+        /// Cancels all ongoing scanning operations and closes the overlay.</summary>  
+        private void CancelCommand_Execute(object obj)
         {
-            var popupVm = new OKCancelPopupViewModel(message, title);
-            //currentPopup = popupVm;
-            var result = popupVm.ShowDialog();
+            // IsCompleted also includes IsFaulted and IsCanceled
+            if(directoryScan is null || directoryScan.IsCompleted)
+            {
+                // No scan in progress, close the overlay
 
-            return true;
+                if (directoryScan != null)
+                    directoryScan.Dispose();
+
+                if (TokenSource != null)
+                {
+                    TokenSource.Cancel();
+                    TokenSource.Dispose();
+                    TokenSource = null;
+                }
+
+                MessageService.SendMessage(this, "DisposeOverlay", null);
+                return;
+            }
+
+            // A scan is in progress, prompt the user for confirmation
+            // and abort the scan, but don't close the overlay
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to abort the scan in progress?", "", "Continue", "Abort");
+            if(confirmDiag.ShowDialog() == DialogResult.Cancel)
+            {
+                // User has clicked abort, cancel the token 
+                TokenSource.Cancel();
+            }
         }
 
         #endregion
