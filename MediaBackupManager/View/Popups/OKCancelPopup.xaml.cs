@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace MediaBackupManager.View.Popups
 {
     /// <summary>
-    /// Interaction logic for YesNoPopup.xaml
+    /// Interaction logic for OKCancelPopup.xaml
     /// </summary>
-    public partial class YesNoPopup : UserControl
+    public partial class OKCancelPopup : UserControl
     {
-        public YesNoPopup()
+        public OKCancelPopup()
         {
             InitializeComponent();
         }

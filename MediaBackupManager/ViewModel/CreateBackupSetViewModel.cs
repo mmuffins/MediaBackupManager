@@ -210,7 +210,6 @@ namespace MediaBackupManager.ViewModel
         {
             this.index = index;
             this.fileScanErrors = new ObservableCollection<string>();
-            ShowYesNoPopup("message", "title");
         }
 
         /// <summary>
@@ -277,6 +276,7 @@ namespace MediaBackupManager.ViewModel
         /// Closes the overlay and cancels all ongoing scanning operations.</summary>  
         private void CloseOverlay(object obj)
         {
+            ShowOKCancelPopup("messagXe", "title");
             if (TokenSource != null)
             {
                 TokenSource.Cancel();
@@ -287,11 +287,11 @@ namespace MediaBackupManager.ViewModel
             MessageService.SendMessage(this, "DisposeOverlay", null);
         }
 
-        private bool ShowYesNoPopup(string message, string title ="")
+        private bool ShowOKCancelPopup(string message, string title ="")
         {
-            var popupVm = new YesNoPopupViewModel(message, title);
-            currentPopup = popupVm;
-            var result = popupVm.ShowModal();
+            var popupVm = new OKCancelPopupViewModel(message, title);
+            //currentPopup = popupVm;
+            var result = popupVm.ShowDialog();
 
             return true;
         }

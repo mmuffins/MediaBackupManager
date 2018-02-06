@@ -10,17 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace MediaBackupManager.View.Popups
 {
     /// <summary>
-    /// Interaction logic for YesNoPopup.xaml
+    /// Interaction logic for PopupBase.xaml
     /// </summary>
-    public partial class YesNoPopup : UserControl
+    public partial class PopupBase : Window
     {
-        public YesNoPopup()
+        public PopupBase()
         {
             InitializeComponent();
         }

@@ -114,7 +114,8 @@
     <Compile Include="ViewModel\FileNodeViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="Supporting Classes\MessageService.cs" />
-    <Compile Include="ViewModel\Popups\YesNoPopupViewModel.cs" />
+    <Compile Include="ViewModel\Popups\OKCancelPopupViewModel.cs" />
+    <Compile Include="ViewModel\Popups\PopupBaseViewModel.cs" />
     <Compile Include="View\CreateBackupSetView.xaml.cs">
       <DependentUpon>CreateBackupSetView.xaml</DependentUpon>
     </Compile>
@@ -126,6 +127,12 @@
     </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Popups\OKCancelPopup.xaml.cs">
+      <DependentUpon>OKCancelPopup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Popups\PopupBase.xaml.cs">
+      <DependentUpon>PopupBase.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Popups\YesNoPopup.xaml.cs">
       <DependentUpon>YesNoPopup.xaml</DependentUpon>
@@ -172,6 +179,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Popups\OKCancelPopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Popups\PopupBase.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
