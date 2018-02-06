@@ -116,6 +116,7 @@
     <Compile Include="Supporting Classes\MessageService.cs" />
     <Compile Include="ViewModel\Popups\OKCancelPopupViewModel.cs" />
     <Compile Include="ViewModel\Popups\PopupBaseViewModel.cs" />
+    <Compile Include="View\Converters.cs" />
     <Compile Include="View\CreateBackupSetView.xaml.cs">
       <DependentUpon>CreateBackupSetView.xaml</DependentUpon>
     </Compile>
