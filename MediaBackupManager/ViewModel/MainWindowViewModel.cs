@@ -82,9 +82,7 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Replace the item gridview with something nicer looking
             //TODO: Show a view containing a label and path field after clicking the add directory button
-            //TODO: Add an options view
             //TODO: Add an option to trigger highlighting nodes without backup
             //TODO: Add a function to update existing backup sets
             //TODO: When double clicking a file, show a view containing all other nodes of the current file hash

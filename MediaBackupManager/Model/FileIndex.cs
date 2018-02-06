@@ -14,12 +14,9 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// Manages a collection of FileHash objects.</summary>  
-    public class FileIndex : INotifyPropertyChanged
+    public class FileIndex
     {
         #region Fields
-        //TODO: Check if INotifyPropertyChanged needs to be implemented here
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -102,88 +99,6 @@ namespace MediaBackupManager.Model
         {
             LogicalVolumes.ForEach(x => x.RefreshStatus());
         }
-
-        ///// <summary>
-        ///// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
-        ///// <param name="directoryPath">The directory thas should be scanned.</param>
-        ///// <param name="cancellationToken">Cancellation token for the async operation.</param>
-        ///// <param name="statusText">Progress object used to report the current status of the operation.</param>
-        ///// <param name="progress">Progress object used to report the progress of the operation.</param>
-        ///// <param name="label">The display name for the new backup set.</param>
-        //public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
-        //{
-        //    if (statusText != null)
-        //        statusText.Report("Started scan");
-
-        //    if (!Directory.Exists(directoryPath.FullName))
-        //    {
-        //        return null;
-        //    }
-
-        //    //TODO: Inform the user if he tries to add a root directory on the exclusion list
-        //    //TODO: Prompt the user on what to do when the directory is already indexed
-        //    if (ContainsDirectory(directoryPath) || IsSubsetOf(directoryPath))
-        //    {
-        //        return null;
-        //    }
-
-        //    if (statusText != null)
-        //        statusText.Report("Scanning logical volumes");
-
-        //    var stagingVolume = new LogicalVolume(directoryPath);
-
-        //    var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions.ToList());
-        //    if (!string.IsNullOrWhiteSpace(label))
-        //        stagingSet.Label = label;
-
-        //    // Up to this point the function should be fast enough that we don't need 
-        //    // to check for task cancellation
-
-        //    if (statusText != null)
-        //        statusText.Report("Scanning files");
-
-        //    await stagingSet.ScanFilesAsync(cancellationToken);
-
-        //    if (cancellationToken.IsCancellationRequested)
-        //    {
-        //        if (statusText != null)
-        //            statusText.Report("Operation cancelled");
-        //        return null;
-        //    }
-
-        //    // There is either an issue with the provided directory or it's
-        //    // on the exclusion list. In either case, abort the function
-        //    if (stagingSet.FileNodes is null || stagingSet.FileNodes.Count == 0)
-        //        return null;
-
-        //    if (statusText != null)
-        //        statusText.Report("Hashing files");
-
-        //    await stagingSet.HashFilesAsync(cancellationToken, progress, statusText);
-
-        //    if (cancellationToken.IsCancellationRequested)
-        //    {
-        //        if (statusText != null)
-        //            statusText.Report("Operation cancelled");
-        //        return null;
-        //    }
-
-        //    // Point of no return for the method,
-        //    // if we cancel after this point, we risk database corruption
-
-        //    if (statusText != null)
-        //        statusText.Report("Writing Backup Set to Database");
-
-        //    // At this point the staging set and all children have been properly created
-        //    // merge it into the main list and write new data into the db
-        //    await AppendBackupSetAsync(stagingSet);
-
-        //    if (statusText != null)
-        //        statusText.Report("Done!");
-
-        //    return stagingSet;
-        //}
-
 
         /// <summary>
         /// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
@@ -380,8 +295,6 @@ namespace MediaBackupManager.Model
         /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
         public async Task RemoveBackupSetAsync(BackupSet set, bool writeToDb)
         {
-            //TODO: Does the writetodb switch here make sense?
-
             if (set is null)
                 return;
 
@@ -527,15 +440,6 @@ namespace MediaBackupManager.Model
 
         #region Implementations
 
-        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            // take a copy to prevent thread issues
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         #endregion
-
     }
 }

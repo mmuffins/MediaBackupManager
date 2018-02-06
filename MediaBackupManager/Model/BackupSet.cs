@@ -210,23 +210,6 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Adds the specified element to the file node index.</summary>  
-        private void AddFileNode(FileDirectory node)
-        {
-            //TODO: Not needed anymore?
-            if (node is FileNode)
-            {
-                FileNodes.Add(node);
-                //Database.InsertFileNode(node as FileNode);
-            }
-            else
-            {
-                FileNodes.Add(node);
-                //Database.InsertFileNode(node as FileDirectory);
-            }
-        }
-
-        /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="processingFile">Progress object used to indicate the file that is currently being hashed.</param>
@@ -255,7 +238,6 @@ namespace MediaBackupManager.Model
                         // The file couldn't be hashed for some reason, don't add it to the index
                         MessageService.SendMessage(node, "FileScanException", new ApplicationException("Could not hash " + node.FullName, ex));
 
-                        //TODO: Inform the user that something went wrong
                         continue;
                     }
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
