@@ -134,9 +134,6 @@
     <Compile Include="View\Popups\PopupBase.xaml.cs">
       <DependentUpon>PopupBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\Popups\YesNoPopup.xaml.cs">
-      <DependentUpon>YesNoPopup.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -187,10 +184,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Popups\PopupBase.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\Popups\YesNoPopup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
