@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.SupportingClasses;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -196,24 +197,14 @@ namespace MediaBackupManager.Model
                 if (IsFileExcluded(file.FullName))
                     continue;
 
-                // Make sure that the backup file is properly
-                // added to the index before creating a file node
-                //FileHash hash = Index.IndexFile(file.FullName);
-
-                //if(!(hash is null))
-                //{
-                //    var fileNode = new FileNode(file, this, hash);
-                //    hash.AddNode(fileNode);
-                //    AddFileNode(fileNode);
-                //}
-
                 try
                 {
                     FileNodes.Add(new FileNode(file, this));
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     //TODO: Inform the user that something went wrong 
+                    MessageService.SendMessage(file, "FileScanException", new ApplicationException("Could not scan " + file.FullName,ex));
                 }
 
             }
@@ -260,9 +251,11 @@ namespace MediaBackupManager.Model
 
                     string checkSum;
                     try { checkSum = FileHash.CalculateChecksum(node.FullSessionName); }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         // The file couldn't be hashed for some reason, don't add it to the index
+                        MessageService.SendMessage(node, "FileScanException", new ApplicationException("Could not hash " + node.FullName, ex));
+
                         //TODO: Inform the user that something went wrong
                         continue;
                     }
