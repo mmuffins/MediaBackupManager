@@ -188,6 +188,7 @@ namespace MediaBackupManager.ViewModel
             backupSet.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
         }
 
+
         private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (ignoreChanges)

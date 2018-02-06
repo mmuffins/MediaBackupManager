@@ -1,6 +1,7 @@
 ﻿using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,16 +13,18 @@ namespace MediaBackupManager.ViewModel
 {
     public class CreateBackupSetViewModel : ViewModelBase
     {
-        RelayCommand selectDirectoryCommand;
-        RelayCommand cancelCommand;
-        RelayCommand confirmCommand;
-        
         string selectedDirectory;
         string backupSetLabel;
         string scanStatusText;
         int scanProgress;
         FileIndexViewModel index;
         CancellationTokenSource tokenSource;
+        ObservableCollection<string> fileScanErrors;
+        bool showScanResultsPopup;
+
+        RelayCommand selectDirectoryCommand;
+        RelayCommand cancelCommand;
+        RelayCommand confirmCommand;
 
         #region Properties
 
@@ -152,6 +155,37 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Collection containing a list of all errors that occured while scanning or hashing files.</summary>  
+        public ObservableCollection<string> FileScanErrors
+        {
+            get { return fileScanErrors; }
+            //set
+            //{
+            //    if (value != fileScanErrors)
+            //    {
+            //        fileScanErrors = value;
+            //        NotifyPropertyChanged();
+            //    }
+            //}
+        }
+
+        /// <summary>
+        /// Property controlling if the scan results should be displayed as popup.</summary>  
+        public bool ShowScanResultsPopup
+        {
+            get { return showScanResultsPopup; }
+            set
+            {
+                if (value != showScanResultsPopup)
+                {
+                    showScanResultsPopup = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+
         #endregion
 
         #region Methods
@@ -159,9 +193,31 @@ namespace MediaBackupManager.ViewModel
         public CreateBackupSetViewModel(FileIndexViewModel index)
         {
             this.index = index;
+            this.fileScanErrors = new ObservableCollection<string>();
         }
 
         /// <summary>
+        /// Event handler for the global MessageService.</summary>
+        protected override void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        {
+            switch (e.Property)
+            {
+                case "FileScanException":
+                    // Sent during scanning or hashing operations
+                    // add them to the error log to display to the user once done
+                    if(e.Parameter is ApplicationException)
+                    {
+                        var errorMsg = $"{((ApplicationException)e.Parameter).Message}: {((ApplicationException)e.Parameter).InnerException.Message}";
+                        FileScanErrors.Add(errorMsg);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+
         /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
         private void SelectDirectoryCommand_Execute(object obj)
         {
@@ -181,6 +237,9 @@ namespace MediaBackupManager.ViewModel
         /// Creates a backup set for the currently selected directory.</summary>  
         private async void CreateBackupSet(object obj)
         {
+
+            this.FileScanErrors.Clear();
+
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
                 return;
 
@@ -188,6 +247,8 @@ namespace MediaBackupManager.ViewModel
             var scanProgress = new Progress<int>(p => ScanProgress = p);
 
             await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, BackupSetLabel);
+
+            //TODO: Show the error log before closing the overlay
 
             // All done, close the overlay
             CloseOverlay(null);

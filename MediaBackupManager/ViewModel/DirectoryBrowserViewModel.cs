@@ -268,12 +268,12 @@ namespace MediaBackupManager.ViewModel
         {
             this.Index = index;
             searchResults = new ObservableCollection<object>();
-            MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
+            //MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
 
         /// <summary>
         /// Event handler for the global MessageService.</summary>
-        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        protected override void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
         {
             switch (e.Property)
             {

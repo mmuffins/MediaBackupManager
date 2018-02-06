@@ -19,5 +19,14 @@ namespace MediaBackupManager.SupportingClasses
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public ViewModelBase()
+        {
+            MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
+        }
+
+        /// <summary>
+        /// Event handler for the global MessageService.</summary>
+        protected virtual void OnMessageServiceMessage(object sender, MessageServiceEventArgs e) { }
     }
 }
