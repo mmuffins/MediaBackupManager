@@ -177,9 +177,9 @@ namespace MediaBackupManager.Model
 
                 IndexFile(directory, cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //TODO: Inform the user that something went wrong 
+                MessageService.SendMessage(directory, "FileScanException", new ApplicationException("Could not scan " + directory.FullName, ex));
             }
 
         }
@@ -203,7 +203,6 @@ namespace MediaBackupManager.Model
                 }
                 catch (Exception ex)
                 {
-                    //TODO: Inform the user that something went wrong 
                     MessageService.SendMessage(file, "FileScanException", new ApplicationException("Could not scan " + file.FullName,ex));
                 }
 
