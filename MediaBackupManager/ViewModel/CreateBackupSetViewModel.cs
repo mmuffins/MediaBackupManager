@@ -1,4 +1,5 @@
 ﻿using MediaBackupManager.SupportingClasses;
+using MediaBackupManager.ViewModel.Popups;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +21,8 @@ namespace MediaBackupManager.ViewModel
         FileIndexViewModel index;
         CancellationTokenSource tokenSource;
         ObservableCollection<string> fileScanErrors;
-        bool showScanResultsPopup;
+        bool showPopup;
+        ViewModelBase currentPopup;
 
         RelayCommand selectDirectoryCommand;
         RelayCommand cancelCommand;
@@ -171,20 +173,34 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Property controlling if the scan results should be displayed as popup.</summary>  
-        public bool ShowScanResultsPopup
+        /// Property controlling if a popup is currently displayed.</summary>  
+        public bool ShowPopup
         {
-            get { return showScanResultsPopup; }
+            get { return showPopup; }
             set
             {
-                if (value != showScanResultsPopup)
+                if (value != showPopup)
                 {
-                    showScanResultsPopup = value;
+                    showPopup = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
+        /// <summary>
+        /// Contains the currently displayed viewmodel.</summary>  
+        public ViewModelBase CurrentPopup
+        {       
+            get { return currentPopup; }
+            set
+            {
+                if (value != currentPopup)
+                {
+                    currentPopup = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
@@ -194,6 +210,7 @@ namespace MediaBackupManager.ViewModel
         {
             this.index = index;
             this.fileScanErrors = new ObservableCollection<string>();
+            ShowYesNoPopup("message", "title");
         }
 
         /// <summary>
@@ -217,7 +234,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-
         /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
         private void SelectDirectoryCommand_Execute(object obj)
         {
@@ -237,7 +253,6 @@ namespace MediaBackupManager.ViewModel
         /// Creates a backup set for the currently selected directory.</summary>  
         private async void CreateBackupSet(object obj)
         {
-
             this.FileScanErrors.Clear();
 
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
@@ -249,6 +264,10 @@ namespace MediaBackupManager.ViewModel
             await index.CreateBackupSetAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, BackupSetLabel);
 
             //TODO: Show the error log before closing the overlay
+            if(FileScanErrors.Count() > 0)
+            {
+                ShowPopup = true;
+            }
 
             // All done, close the overlay
             CloseOverlay(null);
@@ -266,6 +285,15 @@ namespace MediaBackupManager.ViewModel
             }
 
             MessageService.SendMessage(this, "DisposeOverlay", null);
+        }
+
+        private bool ShowYesNoPopup(string message, string title ="")
+        {
+            var popupVm = new YesNoPopupViewModel(message, title);
+            currentPopup = popupVm;
+            var result = popupVm.ShowModal();
+
+            return true;
         }
 
         #endregion

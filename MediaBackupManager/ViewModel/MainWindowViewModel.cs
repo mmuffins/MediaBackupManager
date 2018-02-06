@@ -93,6 +93,8 @@ namespace MediaBackupManager.ViewModel
             //TODO: Support sorting in the file grid
             //TODO: Add context menu support for deleting/updating backup sets
             //TODO: Make sure that all commands have valid execution conditions
+            //TODO: ANIMATIONS!
+            //TODO: Change Properties to get/set style help texts => See popups
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
@@ -102,12 +104,12 @@ namespace MediaBackupManager.ViewModel
 
             //CurrentOverlay = new CreateBackupSetViewModel();
             
-            MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
+            //MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
 
         /// <summary>
         /// Event handler for the global MessageService.</summary>
-        private void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
+        protected override void OnMessageServiceMessage(object sender, MessageServiceEventArgs e)
         {
             switch (e.Property)
             {

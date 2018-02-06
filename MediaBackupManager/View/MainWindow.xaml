@@ -21,7 +21,6 @@
         <DataTemplate DataType="{x:Type viewmodel:ExclusionListViewModel}">
             <local:ExclusionListView />
         </DataTemplate>
-        
     </Window.Resources>
     
     <Grid x:Name="LayoutRoot">
