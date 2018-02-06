@@ -23,7 +23,7 @@ namespace MediaBackupManager.ViewModel
 
         FileIndexViewModel index;
         CancellationTokenSource tokenSource;
-        ObservableCollection<string> fileScanErrors;
+        string fileScanErrorString;
         Task directoryScan;
 
         RelayCommand selectDirectoryCommand;
@@ -143,7 +143,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or whether a file scan is in progress or was successfully completed.</summary>  
+        /// Gets a value indicating whether a file scan is in progress or was successfully completed.</summary>  
         public bool IsScanInProgressOrCompleted
         {
             // Needed to simplify binding
@@ -195,18 +195,26 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets the a collection containing a list of all errors that occured while scanning or hashing files.</summary>  
-        public ObservableCollection<string> FileScanErrors
+        /// Gets a list of all errors that occured while scanning or hashing files.</summary>  
+        public string FileScanErrorString
         {
-            get { return fileScanErrors; }
-            //set
-            //{
-            //    if (value != fileScanErrors)
-            //    {
-            //        fileScanErrors = value;
-            //        NotifyPropertyChanged();
-            //    }
-            //}
+            get { return fileScanErrorString; }
+
+            set
+            {
+                if (value != fileScanErrorString)
+                {
+                    fileScanErrorString = value;
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged("HasScanErrors");
+                }
+            }
+        }
+        /// <summary>
+        /// Gets a value indicating whether errors occured during a file scan process.</summary>  
+        public bool HasScanErrors
+        {
+            get => FileScanErrorString.Length > 0;
         }
 
         #endregion
@@ -216,9 +224,9 @@ namespace MediaBackupManager.ViewModel
         public CreateBackupSetViewModel(FileIndexViewModel index)
         {
             this.index = index;
-            this.fileScanErrors = new ObservableCollection<string>();
             this.CancelButtonCaption = "Cancel";
             this.IsScanInProgressOrCompleted = false;
+            this.FileScanErrorString = "";
         }
 
         /// <summary>
@@ -232,8 +240,8 @@ namespace MediaBackupManager.ViewModel
                     // add them to the error log to display to the user once done
                     if(e.Parameter is ApplicationException)
                     {
-                        var errorMsg = $"{((ApplicationException)e.Parameter).Message}: {((ApplicationException)e.Parameter).InnerException.Message}";
-                        FileScanErrors.Add(errorMsg);
+                        var errorMsg = $"{((ApplicationException)e.Parameter).Message}: {((ApplicationException)e.Parameter).InnerException.Message}\n";
+                        FileScanErrorString += errorMsg;
                     }
                     break;
 
@@ -267,7 +275,7 @@ namespace MediaBackupManager.ViewModel
                 return;
             }
 
-            this.FileScanErrors.Clear();
+            FileScanErrorString = "";
 
             if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(BackupSetLabel))
                 return;
@@ -311,6 +319,7 @@ namespace MediaBackupManager.ViewModel
                 // Indicate to the user that the progress is fully completed and that he can now
                 // close the window by changing the button caption
                 CancelButtonCaption = "Done";
+                
             }
         }
 

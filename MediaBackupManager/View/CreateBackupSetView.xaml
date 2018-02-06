@@ -20,31 +20,29 @@
     </Control.Resources>
     <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
 
-        <!--Label-->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+        <!--Label, Path and path picker-->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+                    IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}">
             <TextBox x:Name="BackupSetLabel"  Width="200" Height="40" 
-                     Text="{Binding BackupSetLabel}"
-                     IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}" />
-        </StackPanel>
-        
-        <!--Path and path picker-->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                     Text="{Binding BackupSetLabel}"/>
             <TextBox x:Name="BackupSetPath" Width="200" Height="40" 
-                     Text="{Binding Path=SelectedDirectory}"
-                     IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}" />
+                     Text="{Binding Path=SelectedDirectory}" />
             <Button x:Name="btnSelectDirectory" Content="Select Directory" 
-                    Command="{Binding SelectDirectoryCommand}"
-                    IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}" />
+                    Command="{Binding SelectDirectoryCommand}" />
         </StackPanel>
         
         <!--Progress bar and text-->
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="5">
-            <TextBox Text="{Binding ScanStatusText}" Width="230" IsReadOnly="True" 
-                     Visibility="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource BoolToVisibility}}" />
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="5"
+                    Visibility="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource BoolToVisibility}}" >
+            <TextBox Text="{Binding ScanStatusText}" Width="230" IsReadOnly="True" />
             <ProgressBar Height="20" Width="230"
                          Minimum="0" Maximum="100" 
-                         Value="{Binding ScanProgress}"
-                         Visibility="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource BoolToVisibility}}" />
+                         Value="{Binding ScanProgress}" />
+            <StackPanel Visibility="{Binding Path=HasScanErrors, Converter={StaticResource BoolToVisibility}}">
+                <Label Content="Scan errors:" />
+                <TextBox x:Name="ProgressLog" IsReadOnly="True" MaxHeight="50" Text="{Binding FileScanErrorString}" />
+                
+            </StackPanel>
         </StackPanel>
         
         <!--Start and Cancel buttons-->
