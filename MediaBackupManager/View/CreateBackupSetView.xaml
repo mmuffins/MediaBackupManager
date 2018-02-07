@@ -23,10 +23,24 @@
         <!--Label, Path and path picker-->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
                     IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}">
-            <TextBox x:Name="BackupSetLabel"  Width="200" Height="40" 
-                     Text="{Binding BackupSetLabel}"/>
-            <TextBox x:Name="BackupSetPath" Width="200" Height="40" 
-                     Text="{Binding Path=SelectedDirectory}" />
+            <TextBox x:Name="BackupSetLabel"  Width="200" Height="40">
+                <TextBox.Text>
+                    <Binding Path="BackupSetLabel" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:StringNotEmptyRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <TextBox x:Name="BackupSetPath" Width="200" Height="40">
+                <TextBox.Text>
+                    <Binding Path="SelectedDirectory" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:StringNotEmptyRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Button x:Name="btnSelectDirectory" Content="Select Directory" 
                     Command="{Binding SelectDirectoryCommand}" />
         </StackPanel>

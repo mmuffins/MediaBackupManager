@@ -76,7 +76,9 @@ namespace MediaBackupManager.ViewModel
                     startCommand = new RelayCommand(
                         //TODO:Q-Is calling Createbackupset like this still an async call?
                         CreateBackupSet,
-                        p => !IsScanInProgressOrCompleted);
+                        p => !String.IsNullOrWhiteSpace(BackupSetLabel) 
+                        && !String.IsNullOrWhiteSpace(SelectedDirectory)
+                        && !IsScanInProgressOrCompleted);
                 }
                 return startCommand;
             }
