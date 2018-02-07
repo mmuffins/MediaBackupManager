@@ -42,8 +42,6 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <Button x:Name="btnSelectDirectory" Content="Select Directory" 
-                    Command="{Binding SelectDirectoryCommand}" />
         </StackPanel>
 
         <!--Progress bar and text-->
