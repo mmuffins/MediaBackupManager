@@ -67,9 +67,6 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        ///// <summary>Returns the path of the parent directory.</summary>
-        //public override string ParentDirectoryName { get => DirectoryName; }
-
         /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
 

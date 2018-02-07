@@ -94,16 +94,13 @@ namespace MediaBackupManager.ViewModel
             //TODO: ANIMATIONS!
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
+            //TODO: If the root directory is not accessible, don't add the backup set (try perflogs) 
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
-            appViewModels.Add(new DirectoryBrowserViewModel(Index));
-            CurrentAppViewModel = appViewModels[0];
-
-            //CurrentOverlay = new CreateBackupSetViewModel();
-            
-            //MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
+            ChangeViewModel(new DirectoryBrowserViewModel(Index));
+            AppViewModels.Add(new BackupSetOverviewViewModel(Index));
         }
 
         /// <summary>
@@ -118,14 +115,35 @@ namespace MediaBackupManager.ViewModel
                     CurrentOverlay = null;
                     break;
 
-                case "CreateBackupSet":
+                case "ShowCreateBackupSetOverlay":
                     // Assigning a viewmodel to CurrentOverlay will automatically
                     // display it as overlay in the view
                     CurrentOverlay = new CreateBackupSetViewModel(Index);
                     break;
 
-                case "ShowExclusionList":
+                case "ShowExclusionListViewOverlay":
+                    // We want to use a new viewmodel each time we open
+                    // an overlay in order to have a fresh state,
+                    // so don't use ChangeViewModel here
                     CurrentOverlay = new ExclusionListViewModel(Index);
+                    break;
+
+                case "ShowDirectoryBrowserView":
+                    var newBrowserView = AppViewModels
+                        .OfType<DirectoryBrowserViewModel>()
+                        .FirstOrDefault(x => x is DirectoryBrowserViewModel);
+                    if (newBrowserView is null)
+                        newBrowserView = new DirectoryBrowserViewModel(index);
+                    ChangeViewModel(newBrowserView);
+                    break;
+
+                case "ShowBackupSetOverview":
+                    var newBackupSetView = AppViewModels
+                        .OfType<BackupSetOverviewViewModel>()
+                        .FirstOrDefault(x => x is BackupSetOverviewViewModel);
+                    if (newBackupSetView is null)
+                        newBackupSetView = new BackupSetOverviewViewModel(index);
+                    ChangeViewModel(newBackupSetView);
                     break;
 
                 default:
@@ -156,20 +174,6 @@ namespace MediaBackupManager.ViewModel
 
             CurrentAppViewModel = viewModel;
         }
-
-        ///// <summary>Displays the CreateBackupSetView overlay.</summary>
-        //private void CreateBackupSet_Execute(object obj)
-        //{
-        //    //var browser = new FolderBrowserDialog();
-        //    //browser.Description = "Please Select a folder";
-
-        //    //if (browser.ShowDialog() == DialogResult.OK)
-        //    //{
-        //    //    await Index.CreateBackupSetAsync(new DirectoryInfo(browser.SelectedPath));
-        //    //}
-        //    //MessageService.SendMessage(this, "OpenFile", "open the file dude");
-        //}
-
 
         #endregion
 

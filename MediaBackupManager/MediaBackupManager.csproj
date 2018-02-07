@@ -104,6 +104,7 @@
     <Compile Include="Supporting Classes\ObservableHashSet.cs" />
     <Compile Include="Supporting Classes\RelayCommand.cs" />
     <Compile Include="Supporting Classes\ViewModelBase.cs" />
+    <Compile Include="ViewModel\BackupSetOverviewViewModel.cs" />
     <Compile Include="ViewModel\BackupSetViewModel.cs" />
     <Compile Include="ViewModel\CreateBackupSetViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
@@ -116,6 +117,9 @@
     <Compile Include="Supporting Classes\MessageService.cs" />
     <Compile Include="ViewModel\Popups\OKCancelPopupViewModel.cs" />
     <Compile Include="ViewModel\Popups\PopupBaseViewModel.cs" />
+    <Compile Include="View\BackupSetOverview.xaml.cs">
+      <DependentUpon>BackupSetOverview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Converters.cs" />
     <Compile Include="View\CreateBackupSetView.xaml.cs">
       <DependentUpon>CreateBackupSetView.xaml</DependentUpon>
@@ -164,6 +168,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\BackupSetOverview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\CreateBackupSetView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

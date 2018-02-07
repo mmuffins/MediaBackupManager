@@ -30,12 +30,11 @@ namespace MediaBackupManager.ViewModel
         RelayCommand loadData;
         RelayCommand loadAdditionalData;
         RelayCommand scanNewData;
-        RelayCommand createBackupSetCommand;
+        RelayCommand showCreateBackupSetViewCommand;
         RelayCommand searchFilesCommand;
         RelayCommand clearSearchResultsCommand;
         RelayCommand showExclusionCommand;
-
-
+        RelayCommand showBackupSetOverviewCommand;
 
         bool showSearchResults = false;
 
@@ -136,7 +135,9 @@ namespace MediaBackupManager.ViewModel
             {
                 if (clearDataCommand == null)
                 {
-                    clearDataCommand = new RelayCommand(ClearData_Execute, param => true);
+                    clearDataCommand = new RelayCommand(
+                        ClearData_Execute,
+                        p => !Index.IsOperationInProgress);
                 }
                 return clearDataCommand;
             }
@@ -190,17 +191,18 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand CreateBackupSetCommand
+        public RelayCommand ShowCreateBackupSetViewCommand
         {
             get
             {
-                if (createBackupSetCommand == null)
+                if (showCreateBackupSetViewCommand == null)
                 {
-                    createBackupSetCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "CreateBackupSet", null), 
-                        p => true);
+                    // Messages the mainview to open the create backupset overlay
+                    showCreateBackupSetViewCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowCreateBackupSetOverlay", null), 
+                        p => !Index.IsOperationInProgress);
                 }
-                return createBackupSetCommand;
+                return showCreateBackupSetViewCommand;
             }
         }
 
@@ -212,7 +214,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     removeBackupSetCommand = new RelayCommand(
                         p => RemoveBackupSet(p as BackupSetViewModel),
-                        p => p is BackupSetViewModel);
+                        p => !Index.IsOperationInProgress);
                 }
                 return removeBackupSetCommand;
             }
@@ -246,17 +248,31 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand ShowExclusionCommand
+        public RelayCommand ShowExclusionOverlayCommand
         {
             get
             {
                 if (showExclusionCommand == null)
                 {
                     showExclusionCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowExclusionList", null),
+                        p => MessageService.SendMessage(this, "ShowExclusionListViewOverlay", null),
                         p => true);
                 }
                 return showExclusionCommand;
+            }
+        }
+
+        public RelayCommand ShowBackupSetOverviewCommand
+        {
+            get
+            {
+                if (showBackupSetOverviewCommand == null)
+                {
+                    showBackupSetOverviewCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowBackupSetOverview", null),
+                        p => true);
+                }
+                return showBackupSetOverviewCommand;
             }
         }
 
@@ -321,6 +337,8 @@ namespace MediaBackupManager.ViewModel
             await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "PortableApps");
         }
 
+        /// <summary>
+        /// Removes the provided Backupset from the file index.</summary>
         private async void RemoveBackupSet(BackupSetViewModel backupSet)
         {
             

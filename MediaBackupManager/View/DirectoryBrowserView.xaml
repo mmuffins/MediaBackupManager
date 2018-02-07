@@ -62,9 +62,10 @@
             <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}" />
             <Button x:Name="btnScanAdditional" Content="Scan Test 2" Command="{Binding ScanNewData}" />
             <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}" />
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding CreateBackupSetCommand}" />
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetViewCommand}" />
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" />
-            <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionCommand}" />
+            <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionOverlayCommand}" />
+            <Button x:Name="btnShowBackupSetView" Content="Backup Sets" Command="{Binding ShowBackupSetOverviewCommand}" />
         </StackPanel>
 
         <TreeView x:Name="treeDirectory" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"

@@ -82,6 +82,7 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+
         /// <summary>
         /// Gets or sets the currently selected directory.</summary>  
         public string SelectedDirectory
