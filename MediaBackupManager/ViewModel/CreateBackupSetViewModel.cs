@@ -260,7 +260,6 @@ namespace MediaBackupManager.ViewModel
         /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
         private void SelectDirectoryCommand_Execute(object obj)
         {
-            //TODO: Add function to read the drive label to auto-fill the label field
             var browser = new FolderBrowserDialog
             {
                 Description = "Please Select a folder"
