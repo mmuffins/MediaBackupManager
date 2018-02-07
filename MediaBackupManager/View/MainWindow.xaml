@@ -18,6 +18,10 @@
             <local:CreateBackupSetView />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type viewmodel:UpdateBackupSetViewModel}">
+            <local:UpdateBackupSetView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type viewmodel:ExclusionListViewModel}">
             <local:ExclusionListView />
         </DataTemplate>

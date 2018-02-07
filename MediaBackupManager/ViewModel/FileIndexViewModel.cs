@@ -28,7 +28,7 @@ namespace MediaBackupManager.ViewModel
 
         #region Properties
 
-        //TODO: Remove the index before going live to not directly expose the model
+        //TODO: Remove all direct references to the index
         public FileIndex Index
         {
             get { return index; }
@@ -254,6 +254,15 @@ namespace MediaBackupManager.ViewModel
             IsOperationInProgress = true;
 
             await index.CreateBackupSetAsync(dir, cancellationToken, progress, statusText, label);
+
+            IsOperationInProgress = false;
+        }
+
+        public async Task UpdateBackupSetAsync(BackupSetViewModel backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
+        {
+            IsOperationInProgress = true;
+
+            await index.UpdateBackupSetAsync(backupSet.BackupSet, cancellationToken, progress, statusText);
 
             IsOperationInProgress = false;
         }

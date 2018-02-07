@@ -82,7 +82,6 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Show a view containing a label and path field after clicking the add directory button
             //TODO: Add a function to update existing backup sets
             //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
@@ -122,6 +121,11 @@ namespace MediaBackupManager.ViewModel
                     // an overlay in order to have a fresh state,
                     // so don't use ChangeViewModel here
                     CurrentOverlay = new ExclusionListViewModel(Index);
+                    break;
+
+                case "ShowUpdateBackupSetOverlay":
+                    if(e.Parameter != null && e.Parameter is BackupSetViewModel)
+                        CurrentOverlay = new UpdateBackupSetViewModel(Index, (BackupSetViewModel)e.Parameter);
                     break;
 
                 case "ShowDirectoryBrowserView":

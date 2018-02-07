@@ -117,6 +117,7 @@
     <Compile Include="Supporting Classes\MessageService.cs" />
     <Compile Include="ViewModel\Popups\OKCancelPopupViewModel.cs" />
     <Compile Include="ViewModel\Popups\PopupBaseViewModel.cs" />
+    <Compile Include="ViewModel\UpdateBackupSetViewModel.cs" />
     <Compile Include="View\BackupSetOverview.xaml.cs">
       <DependentUpon>BackupSetOverview.xaml</DependentUpon>
     </Compile>
@@ -138,6 +139,9 @@
     </Compile>
     <Compile Include="View\Popups\PopupBase.xaml.cs">
       <DependentUpon>PopupBase.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\UpdateBackupSetView.xaml.cs">
+      <DependentUpon>UpdateBackupSetView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ValidationRules.cs" />
   </ItemGroup>
@@ -194,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Popups\PopupBase.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\UpdateBackupSetView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

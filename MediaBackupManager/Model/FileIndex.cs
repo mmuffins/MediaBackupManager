@@ -209,7 +209,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Rescans the provided BackupSet.</summary>  
-        public async Task UpdateBackupSet(BackupSet backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
+        public async Task UpdateBackupSetAsync(BackupSet backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
             if (statusText != null)
                 statusText.Report("Checking if drive is connected");
