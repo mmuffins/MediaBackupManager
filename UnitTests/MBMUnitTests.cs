@@ -769,7 +769,7 @@ namespace UnitTests
             var refFi = new FileIndex();
             var refSet = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), oldLabel);
 
-            await refSet.ChangeLabel(newLabel);
+            await refSet.UpdateLabel(newLabel);
 
             var diffFi = new FileIndex();
             await diffFi.LoadDataAsync();

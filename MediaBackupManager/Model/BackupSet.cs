@@ -137,13 +137,13 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Changes the label of the BackupSet.</summary>  
-        public async Task ChangeLabel(string label)
+        public async Task UpdateLabel(string label)
         {
             if (Label.Equals(label))
                 return;
 
+            await Database.UpdateBackupSetLabel(this, label);
             Label = label;
-            await Database.UpdateBackupSetLabel(this);
         }
 
         /// <summary>

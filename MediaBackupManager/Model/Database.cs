@@ -716,7 +716,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>Updates the label of the provided Backup Set.</summary>
-        public static async Task UpdateBackupSetLabel(BackupSet backupSet)
+        public static async Task UpdateBackupSetLabel(BackupSet backupSet, string newLabel)
         {
             var sqlCmd = new SQLiteCommand
             {
@@ -730,7 +730,7 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
             sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
-            sqlCmd.Parameters["@Label"].Value = backupSet.Label;
+            sqlCmd.Parameters["@Label"].Value = newLabel;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }

@@ -30,5 +30,10 @@ namespace MediaBackupManager.View
         {
             MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((StackPanel)sender).DataContext);
         }
+
+        private void OnBackupSetLabelKeyDown(object sender, KeyEventArgs e)
+        {
+            //
+        }
     }
 }

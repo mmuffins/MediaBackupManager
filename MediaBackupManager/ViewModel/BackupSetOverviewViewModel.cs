@@ -24,6 +24,8 @@ namespace MediaBackupManager.ViewModel
         RelayCommand showUpdateBackupSetOverlayCommand;
         RelayCommand showDirectoryBrowserViewCommand;
         RelayCommand showExclusionCommand;
+        RelayCommand enableRenamingModeCommand;
+
 
         #endregion
 
@@ -123,6 +125,20 @@ namespace MediaBackupManager.ViewModel
                         p => true);
                 }
                 return showExclusionCommand;
+            }
+        }
+
+        public RelayCommand EnableRenamingModeCommand
+        {
+            get
+            {
+                if (enableRenamingModeCommand == null)
+                {
+                    enableRenamingModeCommand = new RelayCommand(
+                        p => ((BackupSetViewModel)p).RenameMode = true,
+                        p => p is BackupSetViewModel);
+                }
+                return enableRenamingModeCommand;
             }
         }
 

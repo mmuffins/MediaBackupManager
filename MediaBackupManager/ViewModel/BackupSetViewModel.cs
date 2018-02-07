@@ -21,6 +21,9 @@ namespace MediaBackupManager.ViewModel
         private bool ignoreChanges = false;
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
+        bool renameMode;
+
+        RelayCommand renameBackupSetCommand;
 
         #endregion
 
@@ -89,7 +92,18 @@ namespace MediaBackupManager.ViewModel
 
         public string Label
         {
-            get => BackupSet.Label;
+            get
+            {
+                return  backupSet.Label;
+            }
+            set
+            {
+                if (value != backupSet.Label && !String.IsNullOrWhiteSpace(value))
+                {
+                    RenameBackupSetCommand.Execute(value);
+                    this.NotifyPropertyChanged();
+                }
+            }
         }
 
         public DateTime LastScanDate
@@ -135,7 +149,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets/sets whether the TreeViewItem 
+        /// Gets orsets whether the TreeViewItem 
         /// associated with this object is selected.
         /// </summary>
         public bool TreeViewIsSelected
@@ -152,7 +166,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets/sets whether the TreeViewItem 
+        /// Gets or sets whether the TreeViewItem 
         /// associated with this object is expanded.
         /// </summary>
         public bool TreeViewIsExpanded
@@ -172,6 +186,38 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether this backup set is currently in renaming mode.
+        /// </summary>
+        public bool RenameMode
+        {
+            get { return renameMode; }
+            set
+            {
+                if (value != renameMode)
+                {
+                    renameMode = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public RelayCommand RenameBackupSetCommand
+        {
+            get
+            {
+                if (renameBackupSetCommand == null)
+                {
+                    renameBackupSetCommand = new RelayCommand(
+                        async p => {
+                            RenameMode = false;
+                            await backupSet.UpdateLabel(p.ToString());
+                            },
+                        p => !String.IsNullOrWhiteSpace(p.ToString()));
+                }
+                return renameBackupSetCommand;
+            }
+        }
 
         #endregion
 
@@ -183,7 +229,7 @@ namespace MediaBackupManager.ViewModel
             this.Directories = new ObservableCollection<FileDirectoryViewModel>();
             this.FileNodes = new ObservableCollection<FileNodeViewModel>();
             this.Index = index;
-
+            this.RenameMode = false;
 
             foreach (var node in BackupSet.FileNodes)
             {
@@ -287,6 +333,13 @@ namespace MediaBackupManager.ViewModel
         public void RefreshVolumeStatus()
         {
             Volume.RefreshStatus();
+        }
+
+        /// <summary>
+        /// Changes the label of the BackupSet.</summary>  
+        public async Task UpdateLabel(string label)
+        {
+            await backupSet.UpdateLabel(label);
         }
 
         /// <summary>

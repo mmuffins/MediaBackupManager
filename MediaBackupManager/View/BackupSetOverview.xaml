@@ -7,7 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        
+        <!--Converters-->
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
     </UserControl.Resources>
     
     <Grid x:Name="LayoutRoot" Margin="10">
@@ -36,14 +38,14 @@
                                 Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
                                 CommandParameter="{Binding}"/>
                         <Button DockPanel.Dock="Right" Content="E" 
-                                Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
+                                Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}" 
                                 CommandParameter="{Binding}"/>
                         <Button DockPanel.Dock="Right" Content="U" 
                                 Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
                                 CommandParameter="{Binding}"/>
                         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" />
-                            <TextBox DockPanel.Dock="Left" Text="{Binding Label, Mode=OneWay}" IsEnabled="False" IsReadOnly="True" BorderBrush="Transparent" Background="Transparent" Foreground="Red" />
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
+                            <TextBox DockPanel.Dock="Left" Text="{Binding Label}" Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" KeyDown="OnBackupSetLabelKeyDown" />
                         </StackPanel>
                     </DockPanel>
                 </DataTemplate>
