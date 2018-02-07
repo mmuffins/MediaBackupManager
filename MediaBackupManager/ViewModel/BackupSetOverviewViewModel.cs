@@ -1,10 +1,12 @@
 ﻿using MediaBackupManager.Model;
 using MediaBackupManager.SupportingClasses;
+using MediaBackupManager.ViewModel.Popups;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
@@ -75,7 +77,7 @@ namespace MediaBackupManager.ViewModel
                 if (removeBackupSetCommand == null)
                 {
                     removeBackupSetCommand = new RelayCommand(
-                        p => RemoveBackupSet(p as BackupSetViewModel),
+                        async p => await RemoveBackupSet(p as BackupSetViewModel),
                         p => !Index.IsOperationInProgress);
                 }
                 return removeBackupSetCommand;
@@ -136,13 +138,19 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Removes the provided Backupset from the file index.</summary>
-        private async void RemoveBackupSet(BackupSetViewModel backupSet)
+        private async Task RemoveBackupSet(BackupSetViewModel backupSet)
         {
 
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to remove this Backup Set?", "", "Delete", "No");
+            if (confirmDiag.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            // User has clicked abort, remve the set 
             if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
             {
                 await Index.RemoveBackupSetAsync(backupSet.BackupSet);
             }
+
         }
 
         #endregion

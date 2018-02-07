@@ -28,7 +28,7 @@
         <!--BackupSet List-->
         <ListBox Grid.Row="1" Grid.Column="0"
                  ItemsSource="{Binding Index.BackupSets}"
-                  SelectedItem="{Binding SelectedBackupset}" MouseDown="ListBox_MouseDown">
+                  SelectedItem="{Binding SelectedBackupset}" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel LastChildFill="True">
