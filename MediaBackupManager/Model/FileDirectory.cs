@@ -71,15 +71,6 @@ namespace MediaBackupManager.Model
         /// <summary>Full path name including mount point of the current session.</summary>
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        ///// <summary>Returns the path of the parent directory.</summary>
-        //public virtual string ParentDirectoryName {
-        //    get
-        //    {
-        //        int lastIndex = DirectoryName.LastIndexOf("\\");
-        //        return lastIndex >= 0 ? DirectoryName.Substring(0, DirectoryName.LastIndexOf("\\")) : null;
-        //    }
-        //}
-
         /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public virtual bool BackupStatus
         {
@@ -90,7 +81,7 @@ namespace MediaBackupManager.Model
         }
 
 
-        /// <summary>Returns a list of all directories below the current object.</summary>
+        /// <summary>Gets the subdirectories of the current directory.</summary>
         public virtual IEnumerable<FileDirectory> SubDirectories
         {
             get => this.BackupSet.GetChildElements(this)
@@ -98,7 +89,7 @@ namespace MediaBackupManager.Model
                 .Where(x => x.GetType() == typeof(FileDirectory));
         }
 
-        /// <summary>Returns a list of all files below the current object.</summary>
+        /// <summary>Gets a list of all file nodes below the current object.</summary>
         public virtual IEnumerable<FileDirectory> Files { get => this.BackupSet.GetChildElements(this).OfType<FileNode>(); }
 
         /// <summary>Returns a list of all directories and files below the current object.</summary>

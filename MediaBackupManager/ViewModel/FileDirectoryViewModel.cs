@@ -2,6 +2,7 @@
 using MediaBackupManager.SupportingClasses;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace MediaBackupManager.ViewModel
         FileDirectory dir;
         BackupSetViewModel backupSet;
         FileDirectoryViewModel parent;
+        ObservableCollection<FileDirectoryViewModel> subDirectories;
+        ObservableCollection<FileNodeViewModel> fileNodes;
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
 
@@ -50,7 +53,6 @@ namespace MediaBackupManager.ViewModel
                 if (parent is null)
                 {
                     this.parent = backupSet.GetDirectory(DirectoryName);
-                    //NotifyPropertyChanged();
                 }
 
                 return parent;
@@ -90,14 +92,35 @@ namespace MediaBackupManager.ViewModel
                 }
             }
 
-        public IEnumerable<FileDirectoryViewModel> SubDirectories
+        /// <summary>
+        /// <summary>Gets the subdirectories of the current directory.</summary>
+        public ObservableCollection<FileDirectoryViewModel> SubDirectories
         {
-            get => BackupSet.GetSubDirectories(Path.Combine(DirectoryName, Name));
+            get
+            {
+                if (subDirectories is null)
+                {
+                    this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
+                        .GetSubDirectories(Path.Combine(DirectoryName, Name)));
+                }
+
+                return subDirectories;
+            }
         }
 
-        public IEnumerable<FileNodeViewModel> FileNodes
+        /// <summary>Gets a list of all file nodes below the current object.</summary>
+        public ObservableCollection<FileNodeViewModel> FileNodes
         {
-            get => BackupSet.GetFileNodes(Path.Combine(DirectoryName, Name));
+            get
+            {
+                if (fileNodes is null)
+                {
+                    this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
+                        .GetFileNodes(Path.Combine(DirectoryName, Name)));
+                }
+
+                return fileNodes;
+            }
         }
 
         public IEnumerable<FileDirectoryViewModel> BreadCrumbList

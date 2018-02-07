@@ -279,7 +279,6 @@ namespace MediaBackupManager.ViewModel
         /// Returns an IEnumerable object of all directories below the provided directory.</summary>  
         public IEnumerable<FileDirectoryViewModel> GetSubDirectories(string path)
         {
-            //return Directories.Where(x => x.Parent != null && x.Parent.DirectoryName == path);
             return Directories.Where(x => x.DirectoryName == path);
         }
 
@@ -317,6 +316,21 @@ namespace MediaBackupManager.ViewModel
         public IEnumerable<FileDirectoryViewModel> FindDirectories(string searchTerm)
         {
             return Directories.Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
+        }
+
+        /// <summary>
+        /// Rebuilds the parent/child relationship for all directories and nodes in the backup set.</summary>  
+        public void RebuildDirectoryTree()
+        {
+            // Make sure that each element has a parent
+            foreach (var dir in Directories.Where(x => x.Parent is null))
+                dir.Parent = GetDirectory(dir.DirectoryName);
+
+            foreach (var node in FileNodes.Where(x => x.Parent is null))
+                node.Parent = GetDirectory(node.DirectoryName);
+
+            // All elements except the root directory now have a parent,
+            // with this we can rebuild the children
         }
 
         #endregion

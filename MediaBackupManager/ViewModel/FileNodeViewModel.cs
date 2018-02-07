@@ -17,6 +17,7 @@ namespace MediaBackupManager.ViewModel
         FileNode node;
         BackupSetViewModel backupSet;
         FileHashViewModel hash;
+        FileDirectoryViewModel parent;
 
         #endregion
 
@@ -95,6 +96,26 @@ namespace MediaBackupManager.ViewModel
             get => Hash is null ? false : Hash.BackupCount > 1;
         }
 
+        public FileDirectoryViewModel Parent
+        {
+            get
+            {
+                if (parent is null)
+                {
+                    this.parent = backupSet.GetDirectory(DirectoryName);
+                }
+
+                return parent;
+            }
+            set
+            {
+                if (value != parent)
+                {
+                    parent = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
