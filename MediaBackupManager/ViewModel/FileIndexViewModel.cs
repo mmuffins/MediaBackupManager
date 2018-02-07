@@ -17,17 +17,30 @@ namespace MediaBackupManager.ViewModel
     {
         #region Fields
         bool ignoreChanges = false;
+        FileIndex index;
         ObservableCollection<BackupSetViewModel> backupSets;
         FileDirectory currentDirectory;
         ObservableHashSet<FileHashViewModel> hashes;
         ObservableCollection<string> exclusions;
 
 
+
         #endregion
 
         #region Properties
 
-        public FileIndex Index { get; }
+        public FileIndex Index
+        {
+            get { return index; }
+            set
+            {
+                if (value != index)
+                {
+                    index = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         public FileDirectory CurrentDirectory
         {
