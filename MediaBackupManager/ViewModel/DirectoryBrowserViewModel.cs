@@ -107,7 +107,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     searchBarText = value;
                     if (string.IsNullOrWhiteSpace(value))
-                        ClearSearchResults(null);
+                        ClearSearchResults();
                     else
                         PerformFileSearch(value);
 
@@ -121,6 +121,7 @@ namespace MediaBackupManager.ViewModel
             get { return currentDirectory; }
             set
             {
+                ClearSearchResults();
                 if(value != currentDirectory)
                 {
                     currentDirectory = value;
@@ -241,7 +242,7 @@ namespace MediaBackupManager.ViewModel
                 if (clearSearchResultsCommand == null)
                 {
                     clearSearchResultsCommand = new RelayCommand(
-                        ClearSearchResults,
+                        p => ClearSearchResults(),
                         p => true);
                 }
                 return clearSearchResultsCommand;
@@ -367,14 +368,15 @@ namespace MediaBackupManager.ViewModel
         /// Sets the provided FileDirectoryViewModel as current directory.</summary>  
         public void SetDirectory(FileDirectoryViewModel directory)
         {
-                CurrentDirectory = directory;
-                CurrentDirectory.TreeViewIsExpanded = true;
-                CurrentDirectory.TreeViewIsSelected = true;
+            ClearSearchResults();
+            CurrentDirectory = directory;
+            CurrentDirectory.TreeViewIsExpanded = true;
+            CurrentDirectory.TreeViewIsSelected = true;
         }
 
         /// <summary>
         /// Resets the search Results.</summary>  
-        private void ClearSearchResults(object obj)
+        private void ClearSearchResults()
         {
             this.ShowSearchResults = false;
             SearchResults.Clear();

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class FileNodeViewModel : ViewModelBase
+    public class FileNodeViewModel : ViewModelBase, IEquatable<FileNodeViewModel>
     {
     
         #region Fields
@@ -183,6 +183,36 @@ namespace MediaBackupManager.ViewModel
         public override string ToString()
         {
             return FullName;
+        }
+
+        public override int GetHashCode()
+        {
+            return node.GetHashCode();
+        }
+
+        public bool Equals(FileNodeViewModel other)
+        {
+            if (other == null)
+                return false;
+
+            //return this.Name.Equals(other.Name)
+            //    && this.DirectoryName.Equals(other.DirectoryName)
+            //    && this.BackupSet.Equals(other.BackupSet);
+
+            return this.node.Equals(other.node);
+
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            var otherObj = obj as FileNodeViewModel;
+            if (otherObj == null)
+                return false;
+            else
+                return Equals(otherObj);
         }
 
         #endregion
