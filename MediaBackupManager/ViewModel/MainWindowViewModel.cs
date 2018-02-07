@@ -88,7 +88,6 @@ namespace MediaBackupManager.ViewModel
             //TODO: When double clicking a file, show a view containing all other nodes of the current file hash
             //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
-            //TODO: Support sorting in the file grid
             //TODO: ANIMATIONS!
             //TODO: Make the textbox slide open when clicking the add button for exclusion
             //TODO: Change Properties to get/set style help texts => See popups

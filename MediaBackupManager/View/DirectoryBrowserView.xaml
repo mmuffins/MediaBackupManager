@@ -39,12 +39,13 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
+        <!--Compositecollections don't have support for sorting/filtering, use workaround instead-->
+        <!--<CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
         <CompositeCollection x:Key="CombinedCollection">
             <CollectionContainer Collection="{Binding Source={StaticResource DirectorySubDirs}}" />
             <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFileNodes}}" />
-        </CompositeCollection>
+        </CompositeCollection>-->
 
     </Control.Resources>
     
@@ -87,11 +88,11 @@
                 </Style>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
                                           ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Label}" IsExpanded="{Binding TreeViewIsExpanded}"/>
+                    <TreeViewItem Header="{Binding Path=Label}" IsExpanded="{Binding TreeViewIsExpanded, Mode=TwoWay}"/>
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
                                           ItemsSource="{Binding Path=SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}" IsExpanded="{Binding TreeViewIsExpanded}"/>
+                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}" IsExpanded="{Binding TreeViewIsExpanded, Mode=TwoWay}"/>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
@@ -125,10 +126,11 @@
                      Text="{Binding SearchBarText, Delay=200, UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </DockPanel>
         <ListView Grid.Row="2" Grid.Column="1" x:Name="gridFiles" Margin="2"
-                  SelectedItem="{Binding Path=SelectedFileGridItem}">
+                  SelectedItem="{Binding Path=SelectedFileGridItem}" 
+                  GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
             <ListView.Style>
                 <Style TargetType="ListView">
-                    <Setter Property="ItemsSource" Value="{StaticResource CombinedCollection}" />
+                    <Setter Property="ItemsSource" Value="{Binding Path=CurrentDirectory.ChildElements}" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowSearchResults}" Value="True">
                             <Setter Property="ItemsSource" Value="{Binding SearchResults}" />

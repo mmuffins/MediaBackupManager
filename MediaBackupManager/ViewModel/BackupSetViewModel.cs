@@ -126,6 +126,14 @@ namespace MediaBackupManager.ViewModel
 
         public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }
 
+        public List<object> ChildElements
+        {
+            get
+            {
+                return Directories.AsQueryable<object>().Concat(FileNodes.AsQueryable<object>()).ToList();
+            }
+        }
+
         /// <summary>
         /// Gets/sets whether the TreeViewItem 
         /// associated with this object is selected.

@@ -123,6 +123,19 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        public List<object> ChildElements
+        {
+            get
+            {
+                return SubDirectories
+                    .AsQueryable<object>()
+                    .Concat(FileNodes.AsQueryable<object>())
+                    .ToList();
+            }
+        }
+
+
+
         public IEnumerable<FileDirectoryViewModel> BreadCrumbList
         {
             get => GetBreadCrumbList();
