@@ -21,6 +21,8 @@ namespace MediaBackupManager.ViewModel
         object selectedDirectoryTreeItem;
         object selectedFileGridItem;
         string searchBarText;
+        bool showSearchResults = false;
+        bool highlightMissingBackupFiles =true;
 
         ObservableCollection<object> searchResults;
 
@@ -36,7 +38,6 @@ namespace MediaBackupManager.ViewModel
         RelayCommand showExclusionCommand;
         RelayCommand showBackupSetOverviewCommand;
 
-        bool showSearchResults = false;
 
         #endregion
 
@@ -93,6 +94,19 @@ namespace MediaBackupManager.ViewModel
                 if (value != showSearchResults)
                 {
                     showSearchResults = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool HighlightMissingBackupFiles
+        {
+            get { return highlightMissingBackupFiles; }
+            set
+            {
+                if (value != highlightMissingBackupFiles)
+                {
+                    highlightMissingBackupFiles = value;
                     NotifyPropertyChanged();
                 }
             }

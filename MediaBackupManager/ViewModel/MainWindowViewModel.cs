@@ -83,15 +83,14 @@ namespace MediaBackupManager.ViewModel
         public MainWindowViewModel()
         {
             //TODO: Show a view containing a label and path field after clicking the add directory button
-            //TODO: Add an option to trigger highlighting nodes without backup
             //TODO: Add a function to update existing backup sets
-            //TODO: When double clicking a file, show a view containing all other nodes of the current file hash
             //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
             //TODO: ANIMATIONS!
             //TODO: Make the textbox slide open when clicking the add button for exclusion
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
+            //TODO: Ask before deleting backup sets
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
