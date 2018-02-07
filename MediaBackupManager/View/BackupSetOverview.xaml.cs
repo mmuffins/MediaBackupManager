@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.SupportingClasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,11 @@ namespace MediaBackupManager.View
         public BackupSetOverview()
         {
             InitializeComponent();
+        }
+
+        private void ListBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((ListBoxItem)sender).Content);
         }
     }
 }

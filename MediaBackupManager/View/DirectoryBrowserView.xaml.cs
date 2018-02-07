@@ -53,10 +53,6 @@ namespace MediaBackupManager.View
 
             // An item on the item grid was double clicked, inform the viewmodel
             MessageService.SendMessage(this, "GridFiles_MouseDoubleClick", ((ListViewItem)sender).Content);
-
-            //if (DataContext != null)
-            //    ((DirectoryBrowserViewModel)DataContext).GridFiles_MouseDoubleClick(((ListViewItem)sender).Content);
-
         }
 
         private void BreadcrumbBar_MouseUp(object sender, MouseButtonEventArgs e)

@@ -6,7 +6,48 @@
              xmlns:local="clr-namespace:MediaBackupManager.View"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-            
+    <UserControl.Resources>
+        
+    </UserControl.Resources>
+    
+    <Grid x:Name="LayoutRoot" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--Command Bar-->
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetViewCommand}" />
+            <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionOverlayCommand}" />
+        </StackPanel>
+
+        <!--BackupSet List-->
+        <ListBox Grid.Row="1" Grid.Column="0"
+                 ItemsSource="{Binding Index.BackupSets}"
+                  SelectedItem="{Binding SelectedBackupset}" MouseDown="ListBox_MouseDown">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <EventSetter Event="PreviewMouseDown" Handler="ListBox_MouseDown" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel LastChildFill="True">
+                        <Button DockPanel.Dock="Right" Content="X" 
+                                Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
+                                CommandParameter="{Binding}"/>
+                        <Button DockPanel.Dock="Right" Content="E" 
+                                Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
+                                CommandParameter="{Binding}"/>
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" />
+                        <TextBox DockPanel.Dock="Left" Text="{Binding Label, Mode=OneWay}" IsEnabled="False" IsReadOnly="True" BorderBrush="Transparent" Background="Transparent" Foreground="Red" />
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

@@ -169,6 +169,13 @@ namespace MediaBackupManager.ViewModel
             return newHash;
         }
 
+        /// <summary>
+        /// Returns a list of all file nodes with the same file hash.</summary>  
+        public List<FileNodeViewModel> GetRelatedNodes()
+        {
+            return Hash.FileNodes.ToList();
+        }
+
         #endregion
 
         #region Implementations

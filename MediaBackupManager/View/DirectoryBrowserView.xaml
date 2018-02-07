@@ -44,7 +44,7 @@
         </CompositeCollection>
 
     </Control.Resources>
-
+    
     <Grid x:Name="RootGrid" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -56,6 +56,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
+        <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Height="30">
             <Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}" />
             <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}" />
@@ -76,18 +77,18 @@
                     <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded}" />
                     <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected}" />
                     <!--<Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
+                        <Trigger Property="IsExpanded" Value="True">
                             <Setter Property="FontWeight" Value="Bold" />
                         </Trigger>
                     </Style.Triggers>-->
                 </Style>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
                                           ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Label}"/>
+                    <TreeViewItem Header="{Binding Path=Label}" IsExpanded="{Binding TreeViewIsExpanded}"/>
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
                                           ItemsSource="{Binding Path=SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}"/>
+                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource BackupStatusColor}" IsExpanded="{Binding TreeViewIsExpanded}"/>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
@@ -137,6 +138,7 @@
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
                     <GridViewColumn Header="Extension" DisplayMemberBinding="{Binding Extension}" />
                     <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
+                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding FullName}" />
                     <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
                     <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
                     <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />

@@ -296,6 +296,9 @@ namespace MediaBackupManager.ViewModel
                 case "GridFiles_MouseDoubleClick":
                     if (e.Parameter is FileDirectoryViewModel)
                         SetDirectory((FileDirectoryViewModel)e.Parameter);
+                    else if (e.Parameter is FileNodeViewModel)
+                        ShowRelatedFileNodes(((FileNodeViewModel)e.Parameter));
+
                     break;
 
                 case "BreadcrumbBar_MouseUp":
@@ -389,6 +392,19 @@ namespace MediaBackupManager.ViewModel
                 SearchResults.Add(item);
 
             foreach (var item in nodes)
+                SearchResults.Add(item);
+
+            ShowSearchResults = true;
+        }
+
+        /// <summary>
+        /// Gets all file nodes that have the same hash as the provided node and displays them in the file grid.</summary>  
+        private void ShowRelatedFileNodes(FileNodeViewModel node)
+        {
+            SearchResults.Clear();
+            var relatedNodes = node.GetRelatedNodes();
+
+            foreach (var item in relatedNodes)
                 SearchResults.Add(item);
 
             ShowSearchResults = true;

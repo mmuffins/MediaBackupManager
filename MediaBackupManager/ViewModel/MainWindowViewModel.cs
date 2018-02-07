@@ -95,12 +95,14 @@ namespace MediaBackupManager.ViewModel
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
             //TODO: If the root directory is not accessible, don't add the backup set (try perflogs) 
+            //TODO: TreeViewIsExpanded is not written from wpf, the binding doesn't seem to work
+            //TODO: Clear search results when the treeview is clicked
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
 
-            ChangeViewModel(new DirectoryBrowserViewModel(Index));
-            AppViewModels.Add(new BackupSetOverviewViewModel(Index));
+            ChangeViewModel(new BackupSetOverviewViewModel(Index));
+            AppViewModels.Add(new DirectoryBrowserViewModel(Index));
         }
 
         /// <summary>
@@ -129,21 +131,26 @@ namespace MediaBackupManager.ViewModel
                     break;
 
                 case "ShowDirectoryBrowserView":
-                    var newBrowserView = AppViewModels
+                    var browserView = AppViewModels
                         .OfType<DirectoryBrowserViewModel>()
                         .FirstOrDefault(x => x is DirectoryBrowserViewModel);
-                    if (newBrowserView is null)
-                        newBrowserView = new DirectoryBrowserViewModel(index);
-                    ChangeViewModel(newBrowserView);
+                    if (browserView is null)
+                        browserView = new DirectoryBrowserViewModel(index);
+
+                    // Directly open a backup set if it was provided as parameter
+                    if (e.Parameter is BackupSetViewModel)
+                        browserView.SetDirectory(((BackupSetViewModel)e.Parameter).RootDirectory);
+
+                    ChangeViewModel(browserView);
                     break;
 
                 case "ShowBackupSetOverview":
-                    var newBackupSetView = AppViewModels
+                    var backupSetView = AppViewModels
                         .OfType<BackupSetOverviewViewModel>()
                         .FirstOrDefault(x => x is BackupSetOverviewViewModel);
-                    if (newBackupSetView is null)
-                        newBackupSetView = new BackupSetOverviewViewModel(index);
-                    ChangeViewModel(newBackupSetView);
+                    if (backupSetView is null)
+                        backupSetView = new BackupSetOverviewViewModel(index);
+                    ChangeViewModel(backupSetView);
                     break;
 
                 default:

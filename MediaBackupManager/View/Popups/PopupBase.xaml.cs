@@ -23,5 +23,10 @@ namespace MediaBackupManager.View.Popups
         {
             InitializeComponent();
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this.CommandBindings.Clear();
+        }
     }
 }

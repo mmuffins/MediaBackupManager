@@ -18,6 +18,7 @@ namespace MediaBackupManager.ViewModel
         RelayCommand showCreateBackupSetViewCommand;
         RelayCommand removeBackupSetCommand;
         RelayCommand showDirectoryBrowserViewCommand;
+        RelayCommand showExclusionCommand;
 
         #endregion
 
@@ -36,6 +37,19 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        public BackupSetViewModel SelectedBackupset
+        {
+            get { return selectedBackupSet; }
+            set
+            {
+                if (value != selectedBackupSet)
+                {
+                    selectedBackupSet = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public RelayCommand ShowCreateBackupSetViewCommand
         {
             get
@@ -45,7 +59,7 @@ namespace MediaBackupManager.ViewModel
                     // Messages the mainview to open the create backupset overlay
                     showCreateBackupSetViewCommand = new RelayCommand(
                         p => MessageService.SendMessage(this, "ShowCreateBackupSetOverlay", null),
-                        p => true);
+                        p => !Index.IsOperationInProgress);
                 }
                 return showCreateBackupSetViewCommand;
             }
@@ -59,7 +73,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     removeBackupSetCommand = new RelayCommand(
                         p => RemoveBackupSet(p as BackupSetViewModel),
-                        p => true);
+                        p => !Index.IsOperationInProgress);
                 }
                 return removeBackupSetCommand;
             }
@@ -79,16 +93,17 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public BackupSetViewModel SelectedBackupset
+        public RelayCommand ShowExclusionOverlayCommand
         {
-            get { return selectedBackupSet; }
-            set
+            get
             {
-                if (value != selectedBackupSet)
+                if (showExclusionCommand == null)
                 {
-                    selectedBackupSet = value;
-                    NotifyPropertyChanged();
+                    showExclusionCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowExclusionListViewOverlay", null),
+                        p => true);
                 }
+                return showExclusionCommand;
             }
         }
 
