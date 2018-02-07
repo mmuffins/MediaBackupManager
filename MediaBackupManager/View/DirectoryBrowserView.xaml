@@ -30,6 +30,11 @@
         </Style>
         <Style TargetType="{x:Type ListViewItem}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=HasMultipleBackups}" Value="False">
+                    <Setter Property="Foreground" Value="Red" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
         <CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
