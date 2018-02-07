@@ -255,8 +255,10 @@ namespace MediaBackupManager.ViewModel
                     }
             }
             this.rootDirectory = GetRootDirectoryObject();
-            RebuildDirectoryTree();
-            RebuildNodeTree();
+            // Rebuilding the tree after every change of the collection is very expensive,
+            // and generally not needed since nodes are scanned in sequence
+            //RebuildDirectoryTree();
+            //RebuildNodeTree();
 
             ignoreChanges = false;
 
