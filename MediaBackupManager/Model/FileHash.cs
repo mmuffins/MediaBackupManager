@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -47,15 +46,15 @@ namespace MediaBackupManager.Model
         /// <param name="filePath">The fully qualified or relative name of a physical file</param>
         public static string CalculateChecksum(string filePath)
         {
-            //TODO: Speed up md5 -> https://stackoverflow.com/a/1177712/8401023
             using (var md5 = MD5.Create())
             {
-                using (var stream = File.OpenRead(filePath))
+                using (var stream = new BufferedStream(File.OpenRead(filePath), 120000))
                 {
-                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", String.Empty); ;
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", String.Empty);
                 }
             }
         }
+
 
         /// <summary>Adds a reference to a physical location for the file.</summary>  
         public void AddNode(FileNode node)
