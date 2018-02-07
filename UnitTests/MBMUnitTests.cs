@@ -824,7 +824,7 @@ namespace UnitTests
             File.Move(Path.Combine(targetDir1, "0266554465.jpeg"), Path.Combine(targetDir2, "0266554465.jpeg"));
             File.Delete(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"));
 
-            await fi1.UpdateBackupSet(set1, new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>());
+            await fi1.UpdateBackupSetAsync(set1, new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>());
             set1 = fi1.BackupSets.FirstOrDefault(x => x.Guid.Equals(set1Guid));
 
             // Also check if the changes are correctly written to the DB

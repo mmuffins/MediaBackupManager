@@ -21,7 +21,7 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetViewCommand}" />
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetOverlayCommand}" />
             <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionOverlayCommand}" />
         </StackPanel>
 
@@ -29,11 +29,6 @@
         <ListBox Grid.Row="1" Grid.Column="0"
                  ItemsSource="{Binding Index.BackupSets}"
                   SelectedItem="{Binding SelectedBackupset}" MouseDown="ListBox_MouseDown">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <EventSetter Event="PreviewMouseDown" Handler="ListBox_MouseDown" />
-                </Style>
-            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel LastChildFill="True">
@@ -43,8 +38,13 @@
                         <Button DockPanel.Dock="Right" Content="E" 
                                 Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
                                 CommandParameter="{Binding}"/>
-                        <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" />
-                        <TextBox DockPanel.Dock="Left" Text="{Binding Label, Mode=OneWay}" IsEnabled="False" IsReadOnly="True" BorderBrush="Transparent" Background="Transparent" Foreground="Red" />
+                        <Button DockPanel.Dock="Right" Content="U" 
+                                Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
+                                CommandParameter="{Binding}"/>
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" />
+                            <TextBox DockPanel.Dock="Left" Text="{Binding Label, Mode=OneWay}" IsEnabled="False" IsReadOnly="True" BorderBrush="Transparent" Background="Transparent" Foreground="Red" />
+                        </StackPanel>
                     </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

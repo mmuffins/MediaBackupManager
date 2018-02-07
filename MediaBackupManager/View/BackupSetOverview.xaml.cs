@@ -26,9 +26,9 @@ namespace MediaBackupManager.View
             InitializeComponent();
         }
 
-        private void ListBox_MouseDown(object sender, MouseButtonEventArgs e)
+        private void BackupSet_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((ListBoxItem)sender).Content);
+            MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((StackPanel)sender).DataContext);
         }
     }
 }

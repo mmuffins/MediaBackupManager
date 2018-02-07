@@ -68,14 +68,13 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets the command to create a Backup Set for the selected drive.</summary>  
         public RelayCommand StartCommand
         {
-            //TODO: Create Validation and error messages to make sure that all fields are filled
             get
             {
                 if (startCommand == null)
                 {
                     startCommand = new RelayCommand(
                         //TODO:Q-Is calling Createbackupset like this still an async call?
-                        CreateBackupSet,
+                        async p => await CreateBackupSet(),
                         p => !String.IsNullOrWhiteSpace(BackupSetLabel) 
                         && !String.IsNullOrWhiteSpace(SelectedDirectory)
                         && !IsScanInProgressOrCompleted);
@@ -83,7 +82,6 @@ namespace MediaBackupManager.ViewModel
                 return startCommand;
             }
         }
-
 
         /// <summary>
         /// Gets or sets the currently selected directory.</summary>  
@@ -277,7 +275,7 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Creates a backup set for the currently selected directory.</summary>  
-        private async void CreateBackupSet(object obj)
+        private async Task CreateBackupSet()
         {
             if(directoryScan != null && !directoryScan.IsCompleted)
             {

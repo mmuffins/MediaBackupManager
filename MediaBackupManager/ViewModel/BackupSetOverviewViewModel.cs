@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
+    /// <summary>
+    /// Overview over all BackupSets.</summary>  
     public class BackupSetOverviewViewModel :ViewModelBase
     {
         #region Fields
@@ -15,8 +17,9 @@ namespace MediaBackupManager.ViewModel
         FileIndexViewModel index;
         BackupSetViewModel selectedBackupSet;
 
-        RelayCommand showCreateBackupSetViewCommand;
+        RelayCommand showCreateBackupSetOverlayCommand;
         RelayCommand removeBackupSetCommand;
+        RelayCommand showUpdateBackupSetOverlayCommand;
         RelayCommand showDirectoryBrowserViewCommand;
         RelayCommand showExclusionCommand;
 
@@ -50,18 +53,18 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand ShowCreateBackupSetViewCommand
+        public RelayCommand ShowCreateBackupSetOverlayCommand
         {
             get
             {
-                if (showCreateBackupSetViewCommand == null)
+                if (showCreateBackupSetOverlayCommand == null)
                 {
                     // Messages the mainview to open the create backupset overlay
-                    showCreateBackupSetViewCommand = new RelayCommand(
+                    showCreateBackupSetOverlayCommand = new RelayCommand(
                         p => MessageService.SendMessage(this, "ShowCreateBackupSetOverlay", null),
                         p => !Index.IsOperationInProgress);
                 }
-                return showCreateBackupSetViewCommand;
+                return showCreateBackupSetOverlayCommand;
             }
         }
 
@@ -76,6 +79,20 @@ namespace MediaBackupManager.ViewModel
                         p => !Index.IsOperationInProgress);
                 }
                 return removeBackupSetCommand;
+            }
+        }
+
+        public RelayCommand ShowUpdateBackupSetOverlayCommand
+        {
+            get
+            {
+                if (showUpdateBackupSetOverlayCommand == null)
+                {
+                    showUpdateBackupSetOverlayCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowUpdateBackupSetOverlay", p as BackupSetViewModel),
+                        p => !Index.IsOperationInProgress);
+                }
+                return showUpdateBackupSetOverlayCommand;
             }
         }
 
