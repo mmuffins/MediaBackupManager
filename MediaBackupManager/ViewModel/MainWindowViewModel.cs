@@ -95,8 +95,6 @@ namespace MediaBackupManager.ViewModel
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
             //TODO: If the root directory is not accessible, don't add the backup set (try perflogs) 
-            //TODO: TreeViewIsExpanded is not written from wpf, the binding doesn't seem to work
-            //TODO: Clear search results when the treeview is clicked
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();

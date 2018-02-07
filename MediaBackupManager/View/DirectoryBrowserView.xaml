@@ -74,8 +74,8 @@
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
                 <Style TargetType="{x:Type TreeViewItem}">
-                    <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded}" />
-                    <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected}" />
+                    <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded, Mode=TwoWay}" />
+                    <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected, Mode=TwoWay}" />
                     <!--<Style.Triggers>
                         <Trigger Property="IsExpanded" Value="True">
                             <Setter Property="FontWeight" Value="Bold" />
