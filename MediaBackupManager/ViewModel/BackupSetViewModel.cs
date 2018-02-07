@@ -185,9 +185,10 @@ namespace MediaBackupManager.ViewModel
                     this.Directories.Add(new FileDirectoryViewModel(node, this));
             }
 
+            RebuildDirectoryTree();
+
             backupSet.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
         }
-
 
         private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -253,8 +254,11 @@ namespace MediaBackupManager.ViewModel
                             Directories.Add(new FileDirectoryViewModel((FileDirectory)item, this));
                     }
             }
-            ignoreChanges = false;
             this.rootDirectory = GetRootDirectoryObject();
+            RebuildDirectoryTree();
+            RebuildNodeTree();
+
+            ignoreChanges = false;
 
             NotifyPropertyChanged("FileNodes");
             NotifyPropertyChanged("Directories");
@@ -319,18 +323,35 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Rebuilds the parent/child relationship for all directories and nodes in the backup set.</summary>  
+        /// Rebuilds the parent/child relationship for all directories in the backup set.</summary>  
         public void RebuildDirectoryTree()
         {
             // Make sure that each element has a parent
             foreach (var dir in Directories.Where(x => x.Parent is null))
                 dir.Parent = GetDirectory(dir.DirectoryName);
 
+            // All elements except the root directory now have a parent,
+            // with this we can rebuild the children
+            foreach (var dir in Directories)
+                dir.SubDirectories.Clear();
+
+            foreach (var dir in Directories.Where(x => x.Parent != null))
+                dir.Parent.SubDirectories.Add(dir);
+        }
+
+        /// <summary>
+        /// Rebuilds the parent/child relationship for all file nodes in the backup set.</summary>  
+        public void RebuildNodeTree()
+        {
+            // Make sure that each element has a parent
             foreach (var node in FileNodes.Where(x => x.Parent is null))
                 node.Parent = GetDirectory(node.DirectoryName);
 
-            // All elements except the root directory now have a parent,
-            // with this we can rebuild the children
+            foreach (var dir in Directories)
+                dir.FileNodes.Clear();
+
+            foreach (var node in FileNodes.Where(x => x.Parent != null))
+                node.Parent.FileNodes.Add(node);
         }
 
         #endregion
