@@ -9,6 +9,9 @@
              d:DesignHeight="50" d:DesignWidth="100" 
              Unloaded="UserControl_Unloaded">
     <Control.Resources>
+        <!--Converters-->
+        <local:ByteToHumanReadableConverter x:Key="ByteToHuman" />
+
         <!--Treeview Resources-->
         <Style TargetType="TreeViewItem">
             <Style.Triggers>
@@ -142,7 +145,7 @@
                     <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
                     <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
                     <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
-                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length}" />
+                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length, Converter={StaticResource ByteToHuman}}" />
                     <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
                     <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
                 </GridView>
