@@ -19,19 +19,18 @@
         </StackPanel>
         
         <!--Exclusion List-->
-        <ListView DockPanel.Dock="Top" 
-                  ItemsSource="{Binding Exclusions}"
+        <ListBox DockPanel.Dock="Top"
+                 ItemsSource="{Binding Exclusions}"
                   SelectedItem="{Binding SelectedExclusion}">
-            <ListView.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <ListViewItem>
                         <StackPanel Orientation="Horizontal">
                             <Button Content="X" Command="{Binding DataContext.RemoveExclusionCommand, ElementName=LayoutRoot}" CommandParameter="{Binding}"/>
                             <TextBlock Text="{Binding}" />
                         </StackPanel>
-                    </ListViewItem>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
     </DockPanel>
 </UserControl>
