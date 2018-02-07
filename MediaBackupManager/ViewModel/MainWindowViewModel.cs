@@ -93,6 +93,7 @@ namespace MediaBackupManager.ViewModel
             //TODO: Make sure that all commands have valid execution conditions
             //TODO: ANIMATIONS!
             //TODO: Change Properties to get/set style help texts => See popups
+            //TODO: Make sure filenodes are consistently referred to as nodes, not files
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();

@@ -80,11 +80,6 @@ namespace MediaBackupManager.ViewModel
             get => node.DirectoryName;
         }
 
-        //public string ParentDirectoryName
-        //{
-        //    get => node.ParentDirectoryName;
-        //}
-
         public string FullName
         {
             get => node.FullName;
@@ -95,9 +90,9 @@ namespace MediaBackupManager.ViewModel
             get => node.FullSessionName;
         }
 
-        public bool BackupStatus
+        public bool HasMultipleBackups
         {
-            get => node.BackupStatus;
+            get => Hash is null ? false : Hash.BackupCount > 1;
         }
 
 

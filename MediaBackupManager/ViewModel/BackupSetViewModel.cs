@@ -285,7 +285,7 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Returns an IEnumerable object of all file nodes below the provided directory.</summary>  
-        public IEnumerable<FileNodeViewModel> GetFiles(string path)
+        public IEnumerable<FileNodeViewModel> GetFileNodes(string path)
         {
             return FileNodes.Where(x => x.DirectoryName == path);
         }

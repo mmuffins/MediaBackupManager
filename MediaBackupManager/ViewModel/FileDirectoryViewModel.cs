@@ -65,32 +65,39 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public bool BackupStatus
+        public bool HasMultipleBackups
         {
-            get => dir.BackupStatus;
+            get
+            {
+                if((SubDirectories != null && FileNodes != null) || (SubDirectories.Count() > 0 && FileNodes.Count() > 0))
+                    return SubDirectories.All(x => x.HasMultipleBackups == true) && FileNodes.All(x => x.HasMultipleBackups == true);
+                else
+                    return true;
+            }
+
         }
 
         public BackupSetViewModel BackupSet
-        {
-            get { return backupSet; }
-            set
             {
-                if (value != backupSet)
+                get { return backupSet; }
+                set
                 {
-                    backupSet = value;
-                    NotifyPropertyChanged();
+                    if (value != backupSet)
+                    {
+                        backupSet = value;
+                        NotifyPropertyChanged();
+                    }
                 }
             }
-        }
 
         public IEnumerable<FileDirectoryViewModel> SubDirectories
         {
             get => BackupSet.GetSubDirectories(Path.Combine(DirectoryName, Name));
         }
 
-        public IEnumerable<FileNodeViewModel> Files
+        public IEnumerable<FileNodeViewModel> FileNodes
         {
-            get => BackupSet.GetFiles(Path.Combine(DirectoryName, Name));
+            get => BackupSet.GetFileNodes(Path.Combine(DirectoryName, Name));
         }
 
         public IEnumerable<FileDirectoryViewModel> BreadCrumbList

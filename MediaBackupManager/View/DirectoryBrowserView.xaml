@@ -19,7 +19,7 @@
         </Style>
         <Style TargetType="TreeViewItem" x:Key="BackupStatusColor">
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=BackupStatus}" Value="False">
+                <DataTrigger Binding="{Binding Path=HasMultipleBackups}" Value="False">
                     <Setter Property="Foreground" Value="Red" />
                 </DataTrigger>
             </Style.Triggers>
@@ -31,11 +31,11 @@
         <Style TargetType="{x:Type ListViewItem}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
         </Style>
-        <CollectionViewSource x:Key="DirectoryFiles" Source="{Binding Path=CurrentDirectory.Files}"/>
+        <CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
         <CompositeCollection x:Key="CombinedCollection">
             <CollectionContainer Collection="{Binding Source={StaticResource DirectorySubDirs}}" />
-            <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFiles}}" />
+            <CollectionContainer Collection="{Binding Source={StaticResource DirectoryFileNodes}}" />
         </CompositeCollection>
 
     </Control.Resources>
