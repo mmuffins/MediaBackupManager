@@ -42,7 +42,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     selectDirectoryCommand = new RelayCommand(
                         SelectDirectoryCommand_Execute,
-                        p => true);
+                        p => !IsScanInProgressOrCompleted);
                 }
                 return selectDirectoryCommand;
             }

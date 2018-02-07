@@ -14,7 +14,15 @@
         
         <!--Bar to add new elements-->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <TextBox Text="{Binding NewExclusionText}" />
+            <TextBox>
+                <TextBox.Text>
+                    <Binding Path="NewExclusionText" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <local:StringNotEmptyRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Button Content="+" Command="{Binding AddExclusionCommand}" CommandParameter="{Binding NewExclusionText}"/>
         </StackPanel>
         

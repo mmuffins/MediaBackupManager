@@ -72,7 +72,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     addExclusionCommand = new RelayCommand(
                         p => AddExclusionAsync(p.ToString()),
-                        p => true);
+                        p => !String.IsNullOrWhiteSpace(NewExclusionText));
                 }
                 return addExclusionCommand;
             }
@@ -118,8 +118,8 @@ namespace MediaBackupManager.ViewModel
 
         private async void AddExclusionAsync(string exclusion)
         {
-            //TODO: Create proper error handler if the exclusion already exists
             await index.CreateFileExclusionAsync(exclusion);
+            NewExclusionText = String.Empty;
         }
 
         private async void RemoveExclusionAsync(string exclusion)

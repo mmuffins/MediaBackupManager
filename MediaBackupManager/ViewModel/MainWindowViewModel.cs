@@ -89,9 +89,8 @@ namespace MediaBackupManager.ViewModel
             //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
             //TODO: Support sorting in the file grid
-            //TODO: Add context menu support for deleting/updating backup sets
-            //TODO: Make sure that all commands have valid execution conditions
             //TODO: ANIMATIONS!
+            //TODO: Make the textbox slide open when clicking the add button for exclusion
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
 

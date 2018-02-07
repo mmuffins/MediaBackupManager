@@ -9,6 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Control.Resources>
+        <!--Converters-->
         <local:InvertBoolConverter x:Key="InvertBool" />
         <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" />
