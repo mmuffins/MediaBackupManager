@@ -18,17 +18,17 @@ namespace MediaBackupManager.ViewModel
         #region Fields
         bool ignoreChanges = false;
         FileIndex index;
-        ObservableCollection<BackupSetViewModel> backupSets;
         FileDirectory currentDirectory;
+        bool isOperationInProgress;
+        ObservableCollection<BackupSetViewModel> backupSets;
         ObservableHashSet<FileHashViewModel> hashes;
         ObservableCollection<string> exclusions;
-
-
 
         #endregion
 
         #region Properties
 
+        //TODO: Remove the index before going live to not directly expose the model
         public FileIndex Index
         {
             get { return index; }
@@ -42,6 +42,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current directory.</summary>  
         public FileDirectory CurrentDirectory
         {
             get { return currentDirectory; }
@@ -55,6 +57,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets a list of all backup sets on the file index.</summary>  
         public ObservableCollection<BackupSetViewModel> BackupSets
         {
             get { return backupSets; }
@@ -68,6 +72,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets a list of all file hashes on the file index.</summary>  
         public ObservableHashSet<FileHashViewModel> FileHashes
         {
             get { return hashes; }
@@ -81,6 +87,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets a list of file exclusions on the file index.</summary>  
         public ObservableCollection<string> Exclusions
         {
             get { return exclusions; }
@@ -94,6 +102,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or if a file scan or backup set deletion is currently in progress.</summary>  
+        public bool IsOperationInProgress
+        {
+            get { return isOperationInProgress; }
+            private set
+            {
+                if (value != isOperationInProgress)
+                {
+                    isOperationInProgress = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
@@ -101,23 +123,22 @@ namespace MediaBackupManager.ViewModel
 
         public FileIndexViewModel(FileIndex index)
         {
-            this.Index = index;
+            this.index = index;
             this.BackupSets = new ObservableCollection<BackupSetViewModel>();
             this.FileHashes = new ObservableHashSet<FileHashViewModel>();
             this.Exclusions = new ObservableCollection<string>();
-            foreach (var hash in Index.Hashes)
+            foreach (var hash in index.Hashes)
                 this.FileHashes.Add(new FileHashViewModel(hash));
 
-            foreach (var set in Index.BackupSets)
+            foreach (var set in index.BackupSets)
                 this.BackupSets.Add(new BackupSetViewModel(set, this));
 
-            foreach (var item in Index.Exclusions)
+            foreach (var item in index.Exclusions)
                 this.Exclusions.Add(item);
 
-            //Index.PropertyChanged += new PropertyChangedEventHandler(OnIndexPropertyChanged);
-            Index.Hashes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileHashes_CollectionChanged);
-            Index.BackupSets.CollectionChanged += new NotifyCollectionChangedEventHandler(BackupSets_CollectionChanged);
-            Index.Exclusions.CollectionChanged += new NotifyCollectionChangedEventHandler(Exclusions_CollectionChanged);
+            index.Hashes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileHashes_CollectionChanged);
+            index.BackupSets.CollectionChanged += new NotifyCollectionChangedEventHandler(BackupSets_CollectionChanged);
+            index.Exclusions.CollectionChanged += new NotifyCollectionChangedEventHandler(Exclusions_CollectionChanged);
         }
 
         private void FileHashes_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -132,7 +153,7 @@ namespace MediaBackupManager.ViewModel
             {
                 FileHashes.Clear();
 
-                foreach (var hash in Index.Hashes)
+                foreach (var hash in index.Hashes)
                     hashes.Add(new FileHashViewModel(hash));
             }
             else
@@ -170,7 +191,7 @@ namespace MediaBackupManager.ViewModel
             {
                 BackupSets.Clear();
 
-                foreach (var set in Index.BackupSets)
+                foreach (var set in index.BackupSets)
                     BackupSets.Add(new BackupSetViewModel(set, this));
             }
             else
@@ -207,7 +228,7 @@ namespace MediaBackupManager.ViewModel
             {
                 Exclusions.Clear();
 
-                foreach (var ex in Index.Exclusions)
+                foreach (var ex in index.Exclusions)
                     Exclusions.Add(ex);
             }
             else
@@ -230,27 +251,38 @@ namespace MediaBackupManager.ViewModel
 
         public async Task CreateBackupSetAsync(DirectoryInfo dir, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
+            IsOperationInProgress = true;
 
-            await Index.CreateBackupSetAsync(dir, cancellationToken, progress, statusText, label);
+            await index.CreateBackupSetAsync(dir, cancellationToken, progress, statusText, label);
+
+            IsOperationInProgress = false;
         }
 
         public async Task RemoveBackupSetAsync(BackupSet backupSet)
         {
-            await Index.RemoveBackupSetAsync(backupSet, true);
+            IsOperationInProgress = true;
+
+            await index.RemoveBackupSetAsync(backupSet, true);
+
+            IsOperationInProgress = false;
         }
 
         /// <summary>
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
-            await Index.RestoreDefaultExclusionsAsync();
+            await index.RestoreDefaultExclusionsAsync();
         }
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
         public async Task LoadDataAsync()
         {
-            await Index.LoadDataAsync();
+            IsOperationInProgress = true;
+
+            await index.LoadDataAsync();
+
+            IsOperationInProgress = true;
         }
 
         /// <summary>
@@ -295,7 +327,7 @@ namespace MediaBackupManager.ViewModel
         /// <param name="exclusion">A regex string matching a file or path name.</param>
         public async Task CreateFileExclusionAsync(string exclusion)
         {
-            await Index.CreateFileExclusionAsync(exclusion);
+            await index.CreateFileExclusionAsync(exclusion);
         }
 
         /// <summary>
@@ -303,7 +335,7 @@ namespace MediaBackupManager.ViewModel
         /// <param name="exclusion">The string to be removed.</param>
         public async Task RemoveFileExclusionAsync(string exclusion)
         {
-            await Index.RemoveFileExclusionAsync(exclusion, true);
+            await index.RemoveFileExclusionAsync(exclusion, true);
         }
 
         #endregion
