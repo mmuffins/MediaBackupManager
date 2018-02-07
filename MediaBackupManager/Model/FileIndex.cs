@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MediaBackupManager.SupportingClasses;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -112,14 +113,21 @@ namespace MediaBackupManager.Model
             if (statusText != null)
                 statusText.Report("Starting scan");
 
-            //TODO: Inform the user if he tries to add a root directory on the exclusion list
-            //TODO: Prompt the user on what to do when the directory is already indexed
-            if (ContainsDirectory(directoryPath) || IsSubsetOf(directoryPath))
+            if (FileIndexContainsDirectory(directoryPath))
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is already indexed in another Backup Set."));
                 return null;
+            }
+
+            if (IsDirectoryParentOfFileIndex(directoryPath))
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is the parent directory of another Backup Set. Please first remove the existing Set before proceeding."));
+                return null;
+            }
 
             var stagingSet = await PrepareBackupSet(directoryPath, cancellationToken, progress, statusText, label);
 
-            //TODO: Inform the user that something went wrong
+            // No need to inform the user here, all errors have been handled inside PrepareBackupSet
             if (stagingSet is null)
                 return null;
 
@@ -130,6 +138,7 @@ namespace MediaBackupManager.Model
 
             if (cancellationToken.IsCancellationRequested)
             {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("User requested to abort the scanning operation."));
                 if (statusText != null)
                     statusText.Report("Operation cancelled");
                 return null;
@@ -162,7 +171,10 @@ namespace MediaBackupManager.Model
         {
 
             if (!Directory.Exists(directoryPath.FullName))
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not find directory" + directoryPath.FullName));
                 return null;
+            }
 
             if (statusText != null)
                 statusText.Report("Scanning logical volumes");
@@ -182,16 +194,15 @@ namespace MediaBackupManager.Model
             await stagingSet.ScanFilesAsync(cancellationToken);
 
             if (cancellationToken.IsCancellationRequested)
-            {
-                if (statusText != null)
-                    statusText.Report("Operation cancelled");
                 return null;
-            }
 
             // There is either an issue with the provided directory or it's
             // on the exclusion list. In either case, abort the function
             if (stagingSet.FileNodes is null || stagingSet.FileNodes.Count == 0)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not access the scan directory: " + directoryPath.FullName));
                 return null;
+            }
 
             return stagingSet;
         }
@@ -206,9 +217,11 @@ namespace MediaBackupManager.Model
             // Make sure that the volume is connected and the directory not deleted
             backupSet.Volume.RefreshStatus();
 
-            //TODO: Inform the user that the drive could not be updated and/or if it should be deleted if the directory can't be found
             if (!backupSet.Volume.IsConnected)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not verify that logical volume " + backupSet.Volume.SerialNumber + " is connected."));
                 return;
+            }
 
             var guid = backupSet.Guid;
             var rootDirectory = backupSet.RootDirectory;
@@ -218,13 +231,23 @@ namespace MediaBackupManager.Model
             var rootDirObject = new DirectoryInfo(Path.Combine(mountPoint,rootDirectory));
 
             if (!rootDirObject.Exists)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not find directory " + rootDirObject.FullName + "."));
                 return;
+            }
 
             // We now know that the drive is connected and the directory still exists
             // Create a temporary backup set to get a list of all files
             var newSet = await PrepareBackupSet(rootDirObject, cancellationToken, progress, statusText, label);
 
-            //TODO: Inform the user that something went wrong
+            if (cancellationToken.IsCancellationRequested)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("User requested to abort the scanning operation."));
+                if (statusText != null)
+                    statusText.Report("Operation cancelled");
+                return;
+            }
+
             if (newSet is null)
                 return;
 
@@ -235,6 +258,14 @@ namespace MediaBackupManager.Model
                 statusText.Report("Hashing files");
 
             await newSet.HashFilesAsync(cancellationToken, progress, statusText);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("User requested to abort the scanning operation."));
+                if (statusText != null)
+                    statusText.Report("Operation cancelled");
+                return;
+            }
 
             // Now that all files are hashed, remove the old backup set and append the new one
             // ignore the cancellation token in order to avoid DB corruption
@@ -343,7 +374,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Determines whether the provided directory is already indexed in one of the backup sets.</summary>  
-        public bool ContainsDirectory(DirectoryInfo dir)
+        public bool FileIndexContainsDirectory(DirectoryInfo dir)
         {
             bool result = false;
 
@@ -361,7 +392,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Determines whether the provided directory is a parent of one of the backup sets.</summary>  
-        public bool IsSubsetOf(DirectoryInfo dir)
+        public bool IsDirectoryParentOfFileIndex(DirectoryInfo dir)
         {
             bool result = false;
 

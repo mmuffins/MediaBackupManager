@@ -94,7 +94,6 @@ namespace MediaBackupManager.ViewModel
             //TODO: ANIMATIONS!
             //TODO: Change Properties to get/set style help texts => See popups
             //TODO: Make sure filenodes are consistently referred to as nodes, not files
-            //TODO: If the root directory is not accessible, don't add the backup set (try perflogs) 
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();

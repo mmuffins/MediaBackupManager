@@ -236,12 +236,19 @@ namespace MediaBackupManager.ViewModel
         {
             switch (e.Property)
             {
+                case "ScanLogicException":
+                // General exception in the scanning logic procedure
                 case "FileScanException":
                     // Sent during scanning or hashing operations
                     // add them to the error log to display to the user once done
                     if(e.Parameter is ApplicationException)
                     {
-                        var errorMsg = $"{((ApplicationException)e.Parameter).Message}: {((ApplicationException)e.Parameter).InnerException.Message}\n";
+                        var errorMsg = $"{((ApplicationException)e.Parameter).Message}";
+                        if (((ApplicationException)e.Parameter).InnerException != null)
+                            errorMsg += $": { ((ApplicationException)e.Parameter).InnerException.Message}";
+
+                        errorMsg += "\n";
+
                         FileScanErrorString += errorMsg;
                     }
                     break;
