@@ -14,18 +14,26 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Manages a collection of FileHash objects.</summary>  
+    /// Manages a collection of Backup Sets and provides an index of unique file hash objects.</summary>  
     public class FileIndex
     {
-        #region Fields
-
-        #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Gets a list of file hashes contained in the current file index.</summary>  
         public ObservableHashSet<FileHash> Hashes { get; private set; }
+
+        /// <summary>
+        /// Gets a list of logical volumes contained in the current file index.</summary>  
         public List<LogicalVolume> LogicalVolumes { get; private set; }
+
+        /// <summary>
+        /// Gets a list of Backup Sets contained in the current file index.</summary>  
         public ObservableCollection<BackupSet> BackupSets { get; private set; }
+
+        /// <summary>
+        /// Gets a list of file exclusions contained in the current file index.</summary>  
         public ObservableHashSet<string> Exclusions { get; private set; }
 
         #endregion
@@ -334,7 +342,6 @@ namespace MediaBackupManager.Model
                 // No other backup set shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
                 LogicalVolumes.Remove(set.Volume);
-                //NotifyPropertyChanged("LogicalVolume");
                 if(writeToDb)
                     await Database.DeleteLogicalVolumeAsync(set.Volume);
             }
@@ -443,8 +450,8 @@ namespace MediaBackupManager.Model
                 }
                 else
                 {
-                    Hashes.Add(file.Hash); // Hashes are written to the DB in batches, so no reason for a dedicated method here
-                    //NotifyPropertyChanged("FileHash");
+                    // Hashes are written to the DB in batches, so no reason for a dedicated method here
+                    Hashes.Add(file.Hash);
                     newHashes.Add(file.Hash); 
                 }
             }
@@ -466,10 +473,6 @@ namespace MediaBackupManager.Model
 
             await AddBackupSet(stagingSet, true);
         }
-
-        #endregion
-
-        #region Implementations
 
         #endregion
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Represents the location of a FileHash object in the file system.</summary>  
+    /// The location of a file hash object in the file system.</summary>  
     public class FileNode : FileDirectory
     {
 
@@ -22,6 +22,8 @@ namespace MediaBackupManager.Model
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the file extension of the current file node.</summary>  
         public string Extension
         {
             get { return extension; }
@@ -35,6 +37,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the file hash related to the current file node.</summary>  
         public FileHash Hash
         {
             get { return hash; }
@@ -48,6 +52,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the checksum of the file hash related to the current file node.</summary>  
         public string Checksum
         {
             get { return checkSum; }
@@ -70,7 +76,7 @@ namespace MediaBackupManager.Model
         /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
 
-        /// <summary>Returns a list of all subdirectories of the current object.</summary>
+        /// <summary>Returns a list of all subdirectories of the current file node.</summary>
         public override IEnumerable<FileDirectory> SubDirectories { get => null; }
 
         #endregion
@@ -96,7 +102,8 @@ namespace MediaBackupManager.Model
         public FileNode(string fileName, BackupSet backupSet, FileHash file)
             : this(new FileInfo(fileName), backupSet, file) { }
 
-        /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
+        /// <summary>
+        /// Removes the reference to this node from the related file hash.</summary>
         public override void RemoveFileReference()
         {
             if (!(this.Hash is null)) // If the current object refers to a directory it has no file

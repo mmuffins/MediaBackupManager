@@ -10,17 +10,37 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Virtual representation of a file in one or multiple backup set.</summary>  
+    /// A unique checksum for a file which can be related to one or more file nodes.</summary>  
     public class FileHash : IEquatable<FileHash>
     {
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the file length of the current file hash.</summary>  
         public long Length { get; set; }
+
+        /// <summary>
+        /// Gets or sets the creation time of the current file hash.</summary>  
         public DateTime CreationTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last write time of the current file hash.</summary>  
         public DateTime LastWriteTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the checksum of the current file hash.</summary>  
         public string Checksum { get; set; }
+
+        /// <summary>
+        /// Gets a list of all file nodes related to the current file hash.</summary>  
         public ObservableHashSet<FileNode> Nodes { get; }
+
+        /// <summary>
+        /// Gets the count of all file nodes related to the current file hash.</summary>  
         public int NodeCount { get => Nodes.Count; }
+
+        /// <summary>
+        /// Gets the count logical volumes containing the current file hash.</summary>  
         public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
         #endregion
@@ -56,13 +76,15 @@ namespace MediaBackupManager.Model
         }
 
 
-        /// <summary>Adds a reference to a physical location for the file.</summary>  
+        /// <summary>
+        /// Adds a reference to a physical location for the file.</summary>  
         public void AddNode(FileNode node)
         {
             Nodes.Add(node);
         }
 
-        /// <summary>Removes reference to a phyisical location for the file.</summary>  
+        /// <summary>
+        /// Removes reference to a phyisical location for the file.</summary>  
         public void RemoveNode(FileNode node)
         {
             Nodes.Remove(node);

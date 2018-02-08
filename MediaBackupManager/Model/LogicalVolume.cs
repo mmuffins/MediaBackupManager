@@ -12,23 +12,33 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Represents a logical volume on a physical drive or network location</summary>  
+    /// A logical volume on a fixed or removable drive.</summary>  
     public class LogicalVolume : IEquatable<LogicalVolume>
     {
-        #region Fields
-
-        #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets or sets the volume serial number of the current logical volume.</summary>  
         public string SerialNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total size of the current logical volume.</summary>  
         public ulong Size { get; set; }
+
+        /// <summary>
+        /// Gets or sets the drive type of the current logical volume.</summary>  
         public DriveType Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the friendly name of the current logical volume.</summary>  
         public string VolumeName { get; set; }
 
-        /// <summary>Mount point or drive letter, only valid in the current session.</summary>
+        /// <summary>
+        /// Gets or sets the mount point or drive letter of the current logical volume, which is only valid in the current session.</summary>  
         public string MountPoint { get; set; }
 
-        /// <summary>Returns true if the volume is currently connected to the host. To update, execute RefreshStatus</summary>
+        /// <summary>
+        /// Gets or sets a value indicating if the logical volume is currently connected to the host. To update, execute RefreshStatus.</summary>  
         public bool IsConnected { get; set; }
 
         #endregion
@@ -46,7 +56,8 @@ namespace MediaBackupManager.Model
             RefreshStatus();
         }
 
-        /// <summary>Populates internal properties from WMI.</summary>
+        /// <summary>
+        /// Populates internal properties from WMI.</summary>
         private void GetLogicalDriveInformation()
         {
             var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE Name = '{MountPoint.Replace("\\", "") }'").Get();
@@ -64,7 +75,8 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Refreshes mount point and connected status of the current volume.</summary>
+        /// <summary>
+        /// Refreshes mount point and connected status of the current volume.</summary>
         public void RefreshStatus()
         {
             var w32LogicalDisk = new ManagementObjectSearcher("root\\CIMV2", $"SELECT * FROM Win32_LogicalDisk WHERE VolumeSerialNumber = '{SerialNumber}'").Get();
