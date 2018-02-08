@@ -77,8 +77,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="50" MaxWidth="250" />
-            <ColumnDefinition />
+            <ColumnDefinition MinWidth="50" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <!--Command Bar-->
@@ -94,10 +95,13 @@
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" Style="{DynamicResource HeaderButton}" />-->
         </StackPanel>
 
+
+
+
         <!--Directory Tree-->
-        <CheckBox x:Name="ToggleTreeViewHighlights" Content="Show files without backup" Grid.Row="1" Grid.Column="0" 
+        <CheckBox x:Name="ToggleTreeViewHighlights" Grid.Row="1" Grid.Column="0"  Content="Show files without backup" 
                   IsChecked="{Binding HighlightMissingBackupFiles}" />
-        <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50" MaxWidth="250"
+        <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged">
             <TreeView.Resources>
@@ -116,7 +120,9 @@
             </TreeView.Resources>
         </TreeView>
 
-        <DockPanel Grid.Row="1" Grid.Column="1">
+        <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"  Background="Transparent"/>
+
+        <DockPanel Grid.Row="1" Grid.Column="2">
             <!--Breadcrumb Navigation-->
             <ItemsControl DockPanel.Dock="Left" 
                           ItemsSource="{Binding Path=CurrentDirectory.BreadCrumbList}">
@@ -144,7 +150,7 @@
             <TextBox DockPanel.Dock="Right" 
                      Text="{Binding SearchBarText, Delay=200, UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </DockPanel>
-        <ListView Grid.Row="2" Grid.Column="1" x:Name="gridFiles" Margin="2"
+        <ListView Grid.Row="2" Grid.Column="2" x:Name="gridFiles" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}" 
                   GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
             <ListView.Style>
