@@ -23,6 +23,8 @@ namespace MediaBackupManager.ViewModel
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the Backup Set containing the current directory.</summary>  
         public BackupSetViewModel BackupSet
         {
             get { return backupSet; }
@@ -36,6 +38,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the file hash related to the current file node.</summary>  
         public FileHashViewModel Hash
         {
             get
@@ -61,41 +65,57 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the checksum of the file hash related to the current file node.</summary>  
         public string Checksum
         {
             get => node.Checksum;
         }
 
+        /// <summary>
+        /// Gets or sets the Name of the current file node.</summary>  
         public string Name
         {
             get => node.Name;
         }
 
+        /// <summary>
+        /// Gets or sets the file extension of the current file node.</summary>  
         public string Extension
         {
             get => node.Extension;
         }
 
+        /// <summary>
+        /// Gets or sets the Name of the file node containing the current directory.</summary>  
         public string DirectoryName
         {
             get => node.DirectoryName;
         }
 
+        /// <summary>
+        /// Gets the full path Name from the of the file node, with its parent Backup Set as root.</summary>  
         public string FullName
         {
             get => node.FullName;
         }
 
+        /// <summary>
+        /// Gets the full path Name from the of the current file node, with its current mount point as root.</summary>  
         public string FullSessionName
         {
             get => node.FullSessionName;
         }
 
+        /// <summary>
+        /// Gets a value indicating if the file hash related to this file node is contained on more than one logical volumes.</summary>  
         public bool HasMultipleBackups
         {
             get => Hash is null ? false : Hash.BackupCount > 1;
         }
 
+        /// <summary>
+        /// Gets or sets the parent directory object of the current file node.</summary>  
         public FileDirectoryViewModel Parent
         {
             get

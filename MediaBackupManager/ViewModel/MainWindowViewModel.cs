@@ -30,6 +30,8 @@ namespace MediaBackupManager.ViewModel
             set { index = value; }
         }
 
+        /// <summary>
+        /// Gets a list of all viemodels in the application.</summary>
         public List<ViewModelBase> AppViewModels { get => appViewModels; }
 
         /// <summary>
@@ -177,11 +179,5 @@ namespace MediaBackupManager.ViewModel
         }
 
         #endregion
-
-        #region Implementations
-
-        #endregion
-
-
     }
 }

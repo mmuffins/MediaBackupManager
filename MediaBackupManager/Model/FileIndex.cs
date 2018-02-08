@@ -113,8 +113,8 @@ namespace MediaBackupManager.Model
         /// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
+        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
@@ -172,8 +172,8 @@ namespace MediaBackupManager.Model
         /// Prepares a BackupSet without hashing any files.</summary>  
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
+        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         private async Task<BackupSet> PrepareBackupSet(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
@@ -216,7 +216,12 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Rescans the provided BackupSet.</summary>  
+        /// Rescans the provided BackupSet and refreshes all file hashes, nodes and the directory structure.</summary>  
+        /// <param name="backupSet">The Backup Set that should be updated.</param>
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
+        /// <param name="progress">Progress object used to report the progress of the operation.</param>
+        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="label">The display name for the new backup set.</param>
         public async Task UpdateBackupSetAsync(BackupSet backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
             if (statusText != null)

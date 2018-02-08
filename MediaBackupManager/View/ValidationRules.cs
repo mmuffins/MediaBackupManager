@@ -8,7 +8,8 @@ using System.Windows.Controls;
 
 namespace MediaBackupManager.View
 {
-
+    /// <summary>
+    /// Validates that a string is not null or empty. </summary>
     public class StringNotEmptyRule : ValidationRule
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)

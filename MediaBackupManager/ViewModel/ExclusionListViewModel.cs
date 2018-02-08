@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-
     public class ExclusionListViewModel : ViewModelBase
     {
         #region Fields

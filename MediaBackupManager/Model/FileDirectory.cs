@@ -70,15 +70,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the full path Name from the pof the current directory, with its parent Backup Set as root.</summary>  
+        /// Gets the full path Name from the of the current directory, with its parent Backup Set as root.</summary>  
         public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
 
         /// <summary>
-        /// Gets the full path Name from the pof the current directory, with its current mount point as root.</summary>  
+        /// Gets the full path Name from the of the current directory, with its current mount point as root.</summary>  
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
         /// <summary>
-        /// Gets a value indicating if all subdirectories and child file nodes have more than one related backup set.</summary>  
+        /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volumes.</summary>  
         public virtual bool BackupStatus
         {
             get
@@ -87,7 +87,8 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Gets the subdirectories of the current directory.</summary>
+        /// <summary>
+        /// Gets the subdirectories of the current directory.</summary>
         public virtual IEnumerable<FileDirectory> SubDirectories
         {
             get => this.BackupSet.GetChildElements(this)
@@ -95,10 +96,12 @@ namespace MediaBackupManager.Model
                 .Where(x => x.GetType() == typeof(FileDirectory));
         }
 
-        /// <summary>Gets a list of all file nodes below the current object.</summary>
+        /// <summary>
+        /// Gets a list of all file nodes below the current object.</summary>
         public virtual IEnumerable<FileDirectory> Files { get => this.BackupSet.GetChildElements(this).OfType<FileNode>(); }
 
-        /// <summary>Returns a list of all directories and files below the current object.</summary>
+        /// <summary>
+        /// Returns a list of all directories and files below the current object.</summary>
         public virtual IEnumerable<FileDirectory> Children { get => this.BackupSet.GetChildElements(this); }
 
         #endregion

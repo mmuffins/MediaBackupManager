@@ -92,7 +92,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the date the current Backup Set was updated.</summary>  
+        /// Gets or sets the date the current Backup Set was last updated.</summary>  
         public DateTime LastScanDate
         {
             get { return lastScanDate; }
@@ -107,14 +107,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the mount point of the current Backup Set.</summary>  
+        /// Gets the mount point or drive letter of the current Backup Set.</summary>  
         public string MountPoint { get => Volume.MountPoint; }
 
         /// <summary>
-        /// Gets a collection of file nodes contained in the current Backup Set.</summary>  
+        /// Gets a collection of file nodes and directories contained in the current Backup Set.</summary>  
         public ObservableHashSet<FileDirectory> FileNodes { get; }
 
-        /// <summary>User defined label for the drive</summary>
+        /// <summary>
+        /// Gets or sets the user defined label for the current Backup Set.</summary>
         public string Label
         {
             get { return label; }

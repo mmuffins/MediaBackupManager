@@ -26,26 +26,36 @@ namespace MediaBackupManager.ViewModel
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the Name of the current directory.</summary>  
         public string Name
         {
             get => dir.Name;
         }
 
+        /// <summary>
+        /// Gets or sets the Name of the directory containing the current directory.</summary>  
         public string DirectoryName
         {
             get => dir.DirectoryName;
         }
 
+        /// <summary>
+        /// Gets the full path Name from the pof the current directory, with its parent Backup Set as root.</summary>  
         public string FullName
         {
             get => dir.FullName;
         }
 
+        /// <summary>
+        /// Gets the full path Name from the pof the current directory, with its current mount point as root.</summary>  
         public string FullSessionName
         {
             get => dir.FullSessionName;
         }
 
+        /// <summary>
+        /// Gets or sets the parent directory object of the current directory.</summary>  
         public FileDirectoryViewModel Parent
         {
             get
@@ -67,6 +77,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating if all subdirectories and child file nodes have are related to more than one logical volumes.</summary>  
         public bool HasMultipleBackups
         {
             get
@@ -79,6 +91,8 @@ namespace MediaBackupManager.ViewModel
 
         }
 
+        /// <summary>
+        /// Gets or sets the Backup Set containing the current directory.</summary>  
         public BackupSetViewModel BackupSet
             {
                 get { return backupSet; }
@@ -214,6 +228,10 @@ namespace MediaBackupManager.ViewModel
         {
             return fileDirectory.Equals(dir);
         }
+
+        #endregion
+
+        #region Implementations
 
         public override string ToString()
         {

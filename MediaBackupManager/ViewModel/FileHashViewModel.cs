@@ -22,6 +22,8 @@ namespace MediaBackupManager.ViewModel
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the file length of the current file hash.</summary>  
         public long Length
         {
             get { return hash.Length; }
@@ -35,6 +37,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the creation time of the current file hash.</summary>  
         public DateTime CreationTime
         {
             get { return hash.CreationTime; }
@@ -48,6 +52,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the last write time of the current file hash.</summary>  
         public DateTime LastWriteTime
         {
             get { return hash.LastWriteTime; }
@@ -61,6 +67,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the checksum of the current file hash.</summary>  
         public string Checksum
         {
             get { return hash.Checksum; }
@@ -74,10 +82,16 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets the count of all file nodes related to the current file hash.</summary>  
         public int NodeCount { get => FileNodes.Count; }
 
+        /// <summary>
+        /// Gets the count logical volumes containing the current file hash.</summary>  
         public int BackupCount { get => FileNodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
 
+        /// <summary>
+        /// Gets a list of all file nodes related to the current file hash.</summary>  
         public ObservableCollection<FileNodeViewModel> FileNodes
         {
             get { return fileNodes; }

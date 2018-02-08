@@ -29,6 +29,8 @@ namespace MediaBackupManager.ViewModel
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the file Index containing the current Backup Set.</summary>  
         public FileIndexViewModel Index
         {
             get { return index; }
@@ -42,6 +44,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets the Backup set for this viewmodel.</summary>
         public BackupSet BackupSet
         {
             get { return backupSet; }
@@ -55,6 +59,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets the Guid of the current Backup Set.</summary>  
         public Guid Guid
         {
             get => backupSet.Guid;
@@ -68,6 +74,8 @@ namespace MediaBackupManager.ViewModel
             //}
         }
 
+        /// <summary>
+        /// Gets or sets the root directory of the current Backup Set.</summary>  
         public FileDirectoryViewModel RootDirectory
         {
             get
@@ -75,7 +83,6 @@ namespace MediaBackupManager.ViewModel
                 if (this.rootDirectory is null)
                 {
                     this.rootDirectory = GetRootDirectoryObject();
-                    //NotifyPropertyChanged();
                 }
 
                 return this.rootDirectory;
@@ -90,6 +97,8 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the user defined label for the current Backup Set.</summary>
         public string Label
         {
             get
@@ -106,40 +115,58 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets the date the current Backup Set was last updated.</summary>  
         public DateTime LastScanDate
         {
             get => BackupSet.LastScanDate;
         }
 
+        /// <summary>
+        /// Gets or sets the logical volume of the current Backup Set.</summary>  
         public LogicalVolume Volume
         {
             get => BackupSet.Volume;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating if the logical volume containing the current Backup Set is currently connected to the host. To update, execute RefreshVolumeStatus.</summary>  
         public bool IsConnected
         {
             get => Volume.IsConnected;
         }
 
+        /// <summary>
+        /// Gets point or drive letter of the current Backup Set.</summary>  
         public string MountPoint
         {
             get => BackupSet.MountPoint;
         }
 
+        /// <summary>
+        /// Gets the volume serial number of the logical volume containing the current Backup Set.</summary>  
         public string SerialNumber
         {
             get => Volume.SerialNumber;
         }
 
+        /// <summary>
+        /// Gets the drive type of the logical volume containing the current Backup Set.</summary>  
         public DriveType DriveType
         {
             get => Volume.Type;
         }
 
+        /// <summary>
+        /// Gets a collection of directories contained in the current Backup Set.</summary>  
         public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
 
+        /// <summary>
+        /// Gets a collection of file nodes contained in the current Backup Set.</summary>  
         public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }
 
+        /// <summary>
+        /// Gets a collection of file nodes and directories contained in the current Backup Set.</summary>  
         public List<object> ChildElements
         {
             get

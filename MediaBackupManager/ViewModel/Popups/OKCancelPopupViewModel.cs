@@ -8,6 +8,8 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel.Popups
 {
+    /// <summary>
+    /// A popup containing optional Ok, Ignore and Cancel buttons.</summary>  
     public class OKCancelPopupViewModel : PopupBaseViewModel
     {
         #region Fields

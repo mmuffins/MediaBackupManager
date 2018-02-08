@@ -10,8 +10,6 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
-    /// <summary>
-    /// Overview over all BackupSets.</summary>  
     public class BackupSetOverviewViewModel :ViewModelBase
     {
         #region Fields

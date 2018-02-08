@@ -67,16 +67,20 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Full path name including volume serial.</summary>
+        /// <summary>
+        /// Gets the full path Name from the of the file node, with its parent Backup Set as root.</summary>  
         public override string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
 
-        /// <summary>Full path name including mount point of the current session.</summary>
+        /// <summary>
+        /// Gets the full path Name from the of the current file node, with its current mount point as root.</summary>  
         public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
+        /// <summary>
+        /// Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
 
-        /// <summary>Returns a list of all subdirectories of the current file node.</summary>
+        /// <summary>
+        /// Returns a list of all subdirectories of the current file node.</summary>
         public override IEnumerable<FileDirectory> SubDirectories { get => null; }
 
         #endregion
