@@ -65,9 +65,13 @@
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
-                <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2"
-                        Content="..."
-                        Command="{Binding SelectDirectoryCommand}" />
+                <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2" 
+                        VerticalAlignment="Bottom"
+                        Command="{Binding SelectDirectoryCommand}">
+                    <StackPanel>
+                        <Image Source="/icons/appbar.folder.open.png" />
+                    </StackPanel>
+                </Button>
             </Grid>
 
             <!--Progress bar and text-->
