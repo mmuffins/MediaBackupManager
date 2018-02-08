@@ -84,8 +84,6 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Add different highlighting for directories in the file grid
-            //TODO: ANIMATIONS!
             //TODO: Make the textbox slide open when clicking the add button for exclusion
 
             this.Index = new FileIndexViewModel(new FileIndex());

@@ -11,7 +11,7 @@
     <Control.Resources>
         <!--Converters-->
         <local:ByteToHumanReadableConverter x:Key="ByteToHuman" />
-
+        <local:TypeToStringConverter x:Key="TypeToString" />
         <!--Treeview Resources-->
 
         <!--Highlight files with backup count of 1-->
@@ -40,6 +40,7 @@
         <Style TargetType="{x:Type ListViewItem}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
             <Style.Triggers>
+                <!--Highlight items with backup count of 1 if HighlightmissingBackupFiles is checked-->
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding Path=HasMultipleBackups}" Value="False" />
@@ -53,6 +54,10 @@
                         <Setter Property="Foreground" Value="Red" />
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
+                <!--Different highlight for Directories-->
+                <DataTrigger Binding="{Binding Path=. , Converter={StaticResource TypeToString}}"  Value="{x:Type viewmodel:FileDirectoryViewModel}">
+                    <Setter Property="Background" Value="LightGray" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
         <!--Compositecollections don't have support for sorting/filtering, use workaround instead-->
