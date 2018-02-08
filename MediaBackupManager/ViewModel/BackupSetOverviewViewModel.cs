@@ -155,7 +155,7 @@ namespace MediaBackupManager.ViewModel
         private async Task RemoveBackupSet(BackupSetViewModel backupSet)
         {
 
-            var confirmDiag = new OKCancelPopupViewModel("Do you want to remove this Backup Set?", "", "Delete", "No");
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to remove Backup Set " + backupSet.Label + "?", "", "Delete", "No");
             if (confirmDiag.ShowDialog() == DialogResult.Cancel)
                 return;
 

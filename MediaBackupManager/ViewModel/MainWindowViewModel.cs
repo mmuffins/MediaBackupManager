@@ -84,11 +84,9 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Make sure all major functions have a description
             //TODO: Add different highlighting for directories in the file grid
             //TODO: ANIMATIONS!
             //TODO: Make the textbox slide open when clicking the add button for exclusion
-            //TODO: Change Properties to get/set style help texts => See popups
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
@@ -113,6 +111,7 @@ namespace MediaBackupManager.ViewModel
                     // Assigning a viewmodel to CurrentOverlay will automatically
                     // display it as overlay in the view
                     CurrentOverlay = new CreateBackupSetViewModel(Index);
+                    CurrentOverlay.Title = "Add Backup Set";
                     break;
 
                 case "ShowExclusionListViewOverlay":
@@ -120,11 +119,16 @@ namespace MediaBackupManager.ViewModel
                     // an overlay in order to have a fresh state,
                     // so don't use ChangeViewModel here
                     CurrentOverlay = new ExclusionListViewModel(Index);
+                    CurrentOverlay.Title = "File Exlusions";
                     break;
 
                 case "ShowUpdateBackupSetOverlay":
                     if(e.Parameter != null && e.Parameter is BackupSetViewModel)
+                    {
                         CurrentOverlay = new UpdateBackupSetViewModel(Index, (BackupSetViewModel)e.Parameter);
+                        CurrentOverlay.Title = "Update Backup Set";
+                    }
+
                     break;
 
                 case "ShowDirectoryBrowserView":
@@ -132,7 +136,10 @@ namespace MediaBackupManager.ViewModel
                         .OfType<DirectoryBrowserViewModel>()
                         .FirstOrDefault(x => x is DirectoryBrowserViewModel);
                     if (browserView is null)
+                    {
                         browserView = new DirectoryBrowserViewModel(index);
+                        browserView.Title = "Directory Browser";
+                    }
 
                     // Directly open a backup set if it was provided as parameter
                     if (e.Parameter is BackupSetViewModel)
@@ -146,7 +153,11 @@ namespace MediaBackupManager.ViewModel
                         .OfType<BackupSetOverviewViewModel>()
                         .FirstOrDefault(x => x is BackupSetOverviewViewModel);
                     if (backupSetView is null)
+                    {
                         backupSetView = new BackupSetOverviewViewModel(index);
+                        backupSetView.Title = "Backup Sets";
+                    }
+
                     ChangeViewModel(backupSetView);
                     break;
 

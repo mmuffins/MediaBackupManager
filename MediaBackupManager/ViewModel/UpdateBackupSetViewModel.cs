@@ -193,6 +193,7 @@ namespace MediaBackupManager.ViewModel
             this.IsScanInProgressOrCompleted = false;
             this.FileScanErrorString = "";
             this.UpdateSet = backupSet;
+            this.Title = "Updating " + backupSet.Label;
             StartCommand.Execute(null);
         }
 
