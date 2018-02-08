@@ -87,7 +87,6 @@ namespace MediaBackupManager.ViewModel
             //TODO: ANIMATIONS!
             //TODO: Make the textbox slide open when clicking the add button for exclusion
             //TODO: Change Properties to get/set style help texts => See popups
-            //TODO: Make sure filenodes are consistently referred to as nodes, not files
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
@@ -158,7 +157,6 @@ namespace MediaBackupManager.ViewModel
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
         public async Task PrepareDatabaseAsync(FileIndex index)
         {
-            Database.Index = index;
             bool newDB = Database.CreateDatabase();
             await Database.PrepareDatabaseAsync();
 

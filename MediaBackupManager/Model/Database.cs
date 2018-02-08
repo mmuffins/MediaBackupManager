@@ -15,52 +15,67 @@ namespace MediaBackupManager.Model
         #region Fields
 
         private const string fileName = "db.sqlite";
-        private const string folderName = "MediaBackupManager";
+        private const string directory = "MediaBackupManager";
 
         #endregion
 
         #region Properties
 
-        public static FileIndex Index { get; set; }
+        /// <summary>
+        /// Gets the file name of the database.</summary>  
+        public static string FileName
+        {
+            get => fileName;
+        }
+
+        /// <summary>
+        /// Gets the directory name of the database.</summary>  
+        public static string Directory
+        {
+            get => directory;
+        }
+
+        /// <summary>
+        /// Gets the file path to the database.</summary>  
+        public static string FilePath
+        {
+            get => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), Directory);
+        }
+
+        /// <summary>
+        /// Gets the full file name of the database.</summary>  
+        public static string FullName
+        {
+            get => Path.Combine(FilePath, FileName);
+        }
+
 
         #endregion
 
         #region Methods
 
-        public static string GetPath()
-        {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), folderName);
-        }
-
-        public static string GetName()
-        {
-            return fileName;
-        }
-
-        public static string GetFullName()
-        {
-            return Path.Combine(GetPath(), fileName);
-        }
-
+        /// <summary>
+        /// Returns the connection string of the database.</summary>  
         public static string GetConnectionString()
         {
             return (new SQLiteConnectionStringBuilder()
             {
-                DataSource = GetFullName(),
+                DataSource = FullName,
                 Version = 3,
                 UseUTF16Encoding = true,
                 ForeignKeys = true
             }).ConnectionString;
         }
 
-        /// <summary>Ensures that the database exists.</summary>
+        /// <summary>
+        /// Ensures that the database exists.</summary>
         /// <returns>Returns true if a new database was created.</returns>
         public static bool CreateDatabase()
         {
-            string dbPath = GetFullName();
+            string dbPath = FullName;
 
-            if (!Directory.Exists(GetPath()))
-                Directory.CreateDirectory(GetPath());
+            if (!System.IO.Directory.Exists(FilePath))
+                System.IO.Directory.CreateDirectory(FilePath);
 
             if (!(File.Exists(dbPath)))
             {
@@ -70,7 +85,8 @@ namespace MediaBackupManager.Model
             return false;
         }
 
-        /// <summary>Ensures that all needed database objects are created.</summary>
+        /// <summary>
+        /// Ensures that all needed database objects are created.</summary>
         public static async Task PrepareDatabaseAsync()
         {
             using (var dbConn = new SQLiteConnection(GetConnectionString(),true))
@@ -123,7 +139,8 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Execute the command and return the number of rows inserted/affected by it.</summary>
+        /// <summary>
+        /// Execute the command and return the number of rows inserted/affected by it.</summary>
         /// <param name="command">The command object that will be executed.</param>
         private static async Task<int> ExecuteNonQueryAsync(SQLiteCommand command)
         {
@@ -151,7 +168,8 @@ namespace MediaBackupManager.Model
 
         }
 
-        /// <summary>Retrieves the specified LogicalVolume objects from the database.</summary>
+        /// <summary>
+        /// Retrieves the specified LogicalVolume objects from the database.</summary>
         /// <param name="guid">Guid of the Backupset containing the logical volume.</param>
         public static async Task<List<LogicalVolume>> GetLogicalVolumeAsync(string guid = "")
         {
@@ -192,7 +210,8 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Retrieves the specified BackupSet objects from the database and creates related child objects.</summary>
+        /// <summary>
+        /// Retrieves the specified BackupSet objects from the database.</summary>
         /// <param name="guid">Guid of the object that should be retrieved.</param>
         public static async Task<List<BackupSet>> GetBackupSetAsync(string guid = "")
         {
@@ -241,7 +260,8 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Retrieves the specified FileHash objects from the database.</summary>
+        /// <summary>
+        /// Retrieves the specified FileHash objects from the database.</summary>
         /// <param name="guid">Guid of the Backupset containing the File hashes.</param>
         public static async Task<List<FileHash>> GetFileHashAsync(string guid = "")
         {
@@ -285,7 +305,8 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Retrieves list of all file exclusions from the database.</summary>
+        /// <summary>
+        /// Retrieves list of all file exclusions from the database.</summary>
         public static async Task<List<string>> GetExclusionsAsync()
         {
             var res = new List<string>();
@@ -311,7 +332,8 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Retrieves the specified FileDirectory and FileNode objects from the database.</summary>
+        /// <summary>
+        /// Retrieves the specified FileDirectory and FileNode objects from the database.</summary>
         /// <param name="guid">Guid of the Backupset containing the File nodes.</param>
         public static async Task<List<FileDirectory>> GetFileNodeAsync(string guid = "")
         {
@@ -350,17 +372,6 @@ namespace MediaBackupManager.Model
                             ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
                             ((FileNode)node).Checksum = reader["Checksum"].ToString();
-
-                            // Make sure to also properly set the relations between nodes and files
-                            //FileHash file;
-                            //var crc = reader["File"].ToString();
-                            //Index.Hashes.TryGetValue(crc, out file);
-
-                            //if (!(file is null))
-                            //{
-                            //    ((FileNode)node).Hash = file;
-                            //    file.AddNode((FileNode)node);
-                            //}
                         }
 
                         res.Add(node);
@@ -371,91 +382,8 @@ namespace MediaBackupManager.Model
             return res;
         }
 
-        /// <summary>Populates the specified BackupSet with filenodes from the database.</summary>
-        public static void LoadBackupSetNodes(BackupSet backupSet)
-        {
-            using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
-            {
-                var sqlCmd = new SQLiteCommand(dbConn)
-                {
-                    CommandText = "SELECT h.*, n.DirectoryName, n.Name, n.Extension, n.NodeType  FROM FileNode n" +
-                    " INNER JOIN FileHash h ON n.Checksum = h.Checksum" +
-                    " WHERE BackupSet = @Guid",
-
-                    CommandType = CommandType.Text
-                };
-
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-                sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
-
-                dbConn.Open();
-                using (var reader = sqlCmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        // Each line contains both a file node and the related has
-                        // make sure that the hash is added to the index before creating the node
-
-                        var hash = Index.Hashes.FirstOrDefault(x => x.Checksum.Equals(reader["Checksum"].ToString()));
-                        if (hash is null)
-                        {
-                            // Only create a new hash if it doesn't exist in the index yet
-                            hash = new FileHash()
-                            {
-                                Checksum = reader["Checksum"].ToString(),
-                                CreationTime = DateTime.Parse(reader["CreationTime"].ToString()),
-                                LastWriteTime = DateTime.Parse(reader["LastWriteTime"].ToString()),
-                                Length = long.Parse(reader["Length"].ToString())
-                            };
-
-                            Index.Hashes.Add(hash);
-                        }
-
-                        var node = new FileDirectory();
-
-                        if (int.Parse(reader["NodeType"].ToString()) == 0)  // 0 => Directory, 1 => Node
-                        {
-                            node.DirectoryName = reader["DirectoryName"].ToString();
-                            node.BackupSet = backupSet;
-                        }
-                        else
-                        {
-                            // Filenode and FileDirectory are stored in the same table,
-                            // based on the nodetype we need to cast to the correct data type
-                            node = new FileNode
-                            {
-                                DirectoryName = reader["DirectoryName"].ToString(),
-                                BackupSet = backupSet
-                            };
-
-                            ((FileNode)node).Name = reader["Name"].ToString();
-                            ((FileNode)node).Extension = reader["Extension"].ToString();
-
-                            // Make sure to also properly set the relations between nodes and files
-                            //FileHash file;
-                            //var crc = reader["File"].ToString();
-                            //Index.Hashes.TryGetValue(crc, out file);
-
-                            //if (!(file is null))
-                            //{
-                            //    ((FileNode)node).File = file;
-                            //    file.AddNode((FileNode)node);
-                            //}
-                            ((FileNode)node).Hash = hash;
-                            hash.AddNode(((FileNode)node));
-
-                        }
-
-                        // Don't use the AddFileNode function as it would 
-                        // try to rescan the nodes that we just downloaded 
-                        // right back to the database causing duplicate errors
-                        backupSet.FileNodes.Add(node);
-                    }
-                }
-            }
-        }
-
-        /// <summary>Inserts the specified FileDirectory or FileNode object to the database.</summary>
+        /// <summary>
+        /// Inserts the specified FileDirectory or FileNode object to the database.</summary>
         public static async Task InsertFileNodeAsync(FileDirectory fileNode)
         {
             var sqlCmd = new SQLiteCommand
@@ -504,7 +432,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Inserts the specified object to the database.</summary>
+        /// <summary>
+        /// Inserts the specified object to the database.</summary>
         public static async Task InsertBackupSetAsync(BackupSet backupSet)
         {
             var sqlCmd = new SQLiteCommand
@@ -541,7 +470,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Inserts the specified object to the database.</summary>
+        /// <summary>
+        /// Inserts the specified object to the database.</summary>
         public static async Task InsertFileHashAsync(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand
@@ -574,7 +504,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Inserts the specified object to the database.</summary>
+        /// <summary>
+        /// Inserts the specified object to the database.</summary>
         public static async Task InsertLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
             var sqlCmd = new SQLiteCommand
@@ -607,7 +538,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Inserts the specified object to the database.</summary>
+        /// <summary>
+        /// Inserts the specified object to the database.</summary>
         public static async Task InsertExclusionAsync(string exclusion)
         {
             var sqlCmd = new SQLiteCommand
@@ -627,7 +559,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Deletes the specified object from the database.</summary>
+        /// <summary>
+        /// Deletes the specified object from the database.</summary>
         public static async Task DeleteFileHashAsync(FileHash hash)
         {
             var sqlCmd = new SQLiteCommand
@@ -642,7 +575,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Deletes the specified object from the database.</summary>
+        /// <summary>
+        /// Deletes the specified object from the database.</summary>
         public static async Task DeleteLogicalVolumeAsync(LogicalVolume logicalVolume)
         {
             var sqlCmd = new SQLiteCommand
@@ -657,7 +591,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Deletes the specified object from the database.</summary>
+        /// <summary>
+        /// Deletes the specified object from the database.</summary>
         public static async Task DeleteBackupSetAsync(BackupSet backupSet)
         {
             var sqlCmd = new SQLiteCommand
@@ -672,7 +607,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Deletes the specified object from the database.</summary>
+        /// <summary>
+        /// Deletes the specified object from the database.</summary>
         public static async Task DeleteFileNodeAsync(FileDirectory fileNode)
         {
             var sqlCmd = new SQLiteCommand();
@@ -700,7 +636,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Deletes the specified object from the database.</summary>
+        /// <summary>
+        /// Deletes the specified object from the database.</summary>
         public static async Task DeleteExclusionAsync(string exclusion)
         {
             var sqlCmd = new SQLiteCommand
@@ -715,7 +652,8 @@ namespace MediaBackupManager.Model
             await ExecuteNonQueryAsync(sqlCmd);
         }
 
-        /// <summary>Updates the label of the provided Backup Set.</summary>
+        /// <summary>
+        /// Updates the label of the provided Backup Set.</summary>
         public static async Task UpdateBackupSetLabel(BackupSet backupSet, string newLabel)
         {
             var sqlCmd = new SQLiteCommand

@@ -147,7 +147,7 @@ namespace UnitTests
         {
             // Reset the database to a known state
 
-            if (File.Exists(Database.GetFullName()))
+            if (File.Exists(Database.FullName))
             {
                 using (var dbConn = new SQLiteConnection(Database.GetConnectionString(), true))
                 {
@@ -177,7 +177,7 @@ namespace UnitTests
                 try
                 {
                     Database.CreateDatabase();
-                    if (!File.Exists(Database.GetFullName()))
+                    if (!File.Exists(Database.FullName))
                         return false;
 
                     await Database.PrepareDatabaseAsync();
