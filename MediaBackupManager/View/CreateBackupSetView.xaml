@@ -17,10 +17,6 @@
         <Style TargetType="Button">
             <Setter Property="Margin" Value="2" />
         </Style>
-
-        <Style TargetType="Label" x:Key="Title">
-            <Setter Property="FontSize" Value="20" />
-        </Style>
     </Control.Resources>
     <Border VerticalAlignment="Center" HorizontalAlignment="Center"
             MinHeight="200" MinWidth="350" Background="White"
