@@ -16,9 +16,9 @@
     <SolidColorBrush x:Key="ButtonBlue.Static.Foreground" Color="Black"/>
     <SolidColorBrush x:Key="ButtonBlue.Static.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBlue.Static.Border" Color="Transparent"/>
-    <SolidColorBrush x:Key="ButtonBlue.MouseOver.Foreground" Color="Red"/>
+    <SolidColorBrush x:Key="ButtonBlue.MouseOver.Foreground" Color="#FF2399EC"/>
     <SolidColorBrush x:Key="ButtonBlue.MouseOver.Background" Color="Transparent"/>
-    <SolidColorBrush x:Key="ButtonBlue.MouseOver.Border" Color="Red"/>
+    <SolidColorBrush x:Key="ButtonBlue.MouseOver.Border" Color="#FF2399EC"/>
     <SolidColorBrush x:Key="ButtonBlue.Pressed.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBlue.Disabled.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBlue.Disabled.Foreground" Color="Black"/>

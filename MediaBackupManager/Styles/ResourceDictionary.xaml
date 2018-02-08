@@ -20,5 +20,108 @@
         <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
 
+
+    <!--ListViews-->
+    <Style TargetType="ListViewItem" x:Key="ListViewStyle" >
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Height" Value="35" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="MT Extra" />
+        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Border CornerRadius="0" SnapsToDevicePixels="True"
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        Background="{TemplateBinding Background}">
+                        <Border Name="InnerBorder" CornerRadius="1"   BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition MaxHeight="11" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" />
+                                <GridViewRowPresenter Grid.RowSpan="2" 
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Grid>
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#FFAFECFF"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="#FFC1F0FF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <!--Highlight items with backup count of 1 if HighlightmissingBackupFiles is checked-->
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Path=HasMultipleBackups}" Value="False" />
+                    <Condition Binding="{Binding 
+                            RelativeSource={RelativeSource FindAncestor, 
+                            AncestorType={x:Type UserControl}}, 
+                            Path=DataContext.HighlightMissingBackupFiles }" 
+                                   Value="True" />
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="Foreground" Value="Red" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+            <!--Darker background highlight for Directories-->
+            <!--<DataTrigger Binding="{Binding Path=. , Converter={StaticResource TypeToString}}"  Value="{x:Type viewmodel:FileDirectoryViewModel}">
+                    <Setter Property="Background" Value="#FFF0F0F0" />
+                </DataTrigger>-->
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type GridViewColumnHeader}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                    <Border BorderThickness="1,1,0,1" BorderBrush="DarkGray" Background="#FFE8E8E8">
+                        <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="5,5,5,0" Width="{TemplateBinding Width}" TextAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="FontFamily" Value="MT Extra" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Height" Value="30" />
+    </Style>
+
+
+    <!--Treeview-->
+    <Style TargetType="TreeViewItem" x:Key="TreeViewStyle" >
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="MT Extra" />
+        <Setter Property="Foreground" Value="DimGray" />
+        <Style.Triggers>
+            <!--Highlight files with backup count of 1-->
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Path=HasMultipleBackups}" Value="False" />
+                    <Condition Binding="{Binding 
+                            RelativeSource={RelativeSource FindAncestor, 
+                            AncestorType={x:Type UserControl}}, 
+                            Path=DataContext.HighlightMissingBackupFiles }" 
+                                   Value="True" />
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="Foreground" Value="Red" />
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
+
 </ResourceDictionary>
 

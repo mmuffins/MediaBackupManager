@@ -12,54 +12,21 @@
         <!--Converters-->
         <local:ByteToHumanReadableConverter x:Key="ByteToHuman" />
         <local:TypeToStringConverter x:Key="TypeToString" />
-        <!--Treeview Resources-->
-
-        <!--Highlight files with backup count of 1-->
-        <Style TargetType="TreeViewItem" x:Key="MissingBackupColor">
-            <Style.Triggers>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding Path=HasMultipleBackups}" Value="False" />
-                        <Condition Binding="{Binding 
-                            RelativeSource={RelativeSource FindAncestor, 
-                            AncestorType={x:Type UserControl}}, 
-                            Path=DataContext.HighlightMissingBackupFiles }" 
-                                   Value="True" />
-                    </MultiDataTrigger.Conditions>
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Foreground" Value="Red" />
-                    </MultiDataTrigger.Setters>
-                </MultiDataTrigger>
-            </Style.Triggers>
+        
+        <Style TargetType="TreeView">
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
         </Style>
 
         <!--GridView Resources-->
-        <Style TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Style TargetType="ListView">
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
-        <Style TargetType="{x:Type ListViewItem}">
+        
+        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewStyle}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
-            <Style.Triggers>
-                <!--Highlight items with backup count of 1 if HighlightmissingBackupFiles is checked-->
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding Path=HasMultipleBackups}" Value="False" />
-                        <Condition Binding="{Binding 
-                            RelativeSource={RelativeSource FindAncestor, 
-                            AncestorType={x:Type UserControl}}, 
-                            Path=DataContext.HighlightMissingBackupFiles }" 
-                                   Value="True" />
-                    </MultiDataTrigger.Conditions>
-                    <MultiDataTrigger.Setters>
-                        <Setter Property="Foreground" Value="Red" />
-                    </MultiDataTrigger.Setters>
-                </MultiDataTrigger>
-                <!--Different highlight for Directories-->
-                <DataTrigger Binding="{Binding Path=. , Converter={StaticResource TypeToString}}"  Value="{x:Type viewmodel:FileDirectoryViewModel}">
-                    <Setter Property="Background" Value="LightGray" />
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
+        
+        
         <!--Compositecollections don't have support for sorting/filtering, use workaround instead-->
         <!--<CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
@@ -77,9 +44,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="50" />
+            <ColumnDefinition MinWidth="50" Width="20*"/>
             <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="80*" />
         </Grid.ColumnDefinitions>
 
         <!--Command Bar-->
@@ -104,20 +71,25 @@
         <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged" >
+            <TreeView.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FFAFECFF" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="DimGray" />
+            </TreeView.Resources>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
-                                          ItemsSource="{Binding RootDirectory.SubDirectories}">
+                                          ItemsSource="{Binding RootDirectory.SubDirectories}" >
                     <TextBlock Text="{Binding Label}" />
                     <HierarchicalDataTemplate.ItemTemplate>
                         <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
-                                          ItemsSource="{Binding SubDirectories}">
-                            <TextBlock Text="{Binding Name}" />
+                                          ItemsSource="{Binding SubDirectories}" >
+                            <TextBlock Text="{Binding Name}" Height="20" 
+                                      />
                         </HierarchicalDataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
             <TreeView.ItemContainerStyle>
-                <Style TargetType="{x:Type TreeViewItem}">
+                <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewStyle}"> 
                     <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded, Mode=TwoWay}" />
                     <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected, Mode=TwoWay}" />
                     <Style.Resources>
@@ -164,6 +136,9 @@
                   GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
             <ListView.Style>
                 <Style TargetType="ListView">
+                    <Setter Property="BorderThickness" Value="0,0,0,0" />
+                    
+                    <!--Show search results if ShowSearchResults is true-->
                     <Setter Property="ItemsSource" Value="{Binding Path=CurrentDirectory.ChildElements}" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowSearchResults}" Value="True">
