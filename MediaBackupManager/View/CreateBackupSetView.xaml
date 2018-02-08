@@ -98,11 +98,11 @@
             <!--Start and Cancel buttons-->
             <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal"
                         HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                <Button x:Name="btnConfirm" Content="Start" Style="{StaticResource ColorButton}"
+                <Button x:Name="btnConfirm" Content="Start" Style="{StaticResource ColorButtonBlue}"
                         Command="{Binding StartCommand}"
                         Visibility="{Binding IsScanInProgressOrCompleted, Converter={StaticResource InvertBoolToVisibility}}">
                 </Button>
-                <Button x:Name="btnCancel" Style="{StaticResource ColorButton}"
+                <Button x:Name="btnCancel" Style="{StaticResource ColorButtonBlue}"
                         Content="{Binding CancelButtonCaption}" 
                         Command="{Binding CancelCommand}" />
             </StackPanel>
