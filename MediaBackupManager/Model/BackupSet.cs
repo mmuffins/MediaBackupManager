@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Represents an index filesystem location.</summary>  
+    /// A collection of directories and files below a root location.</summary>  
     public class BackupSet : IEquatable<BackupSet>, INotifyPropertyChanged
     {
         #region Fields
@@ -31,6 +31,8 @@ namespace MediaBackupManager.Model
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the file Index containing the current Backup Set.</summary>  
         public FileIndex Index
         {
             get { return index; }
@@ -44,6 +46,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Guid of the current Backup Set.</summary>  
         public Guid Guid
         {
             get { return guid; }
@@ -57,6 +61,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the logical volume of the current Backup Set.</summary>  
         public LogicalVolume Volume
         {
             get { return volume; }
@@ -70,6 +76,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the root directory of the current Backup Set.</summary>  
         public string RootDirectory
         {
             get { return rootDirectory; }
@@ -83,6 +91,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the date the current Backup Set was updated.</summary>  
         public DateTime LastScanDate
         {
             get { return lastScanDate; }
@@ -96,8 +106,12 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets the mount point of the current Backup Set.</summary>  
         public string MountPoint { get => Volume.MountPoint; }
 
+        /// <summary>
+        /// Gets a collection of file nodes contained in the current Backup Set.</summary>  
         public ObservableHashSet<FileDirectory> FileNodes { get; }
 
         /// <summary>User defined label for the drive</summary>
@@ -292,13 +306,7 @@ namespace MediaBackupManager.Model
             {
                 if (Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase))
                     return true;
-
-                //var pathX = path.Replace("\\\\", "\\");
-                //var itemX = item;
-                //var dd = Regex.IsMatch("F:\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
-                //dd = Regex.IsMatch("F:\\SomeDir\\Archive", ".*\\\\archive.*", RegexOptions.IgnoreCase);
-                //dd = Regex.IsMatch("F:\\SomeDir\\Archive\file.zip", ".*\\.zip.*", RegexOptions.IgnoreCase);
-            }
+           }
             return false;
         }
 

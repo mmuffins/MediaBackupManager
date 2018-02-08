@@ -22,9 +22,10 @@ namespace MediaBackupManager.Model
 
         #endregion
 
-
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the Name of the current directory.</summary>  
         public string Name
         {
             get { return name; }
@@ -38,6 +39,8 @@ namespace MediaBackupManager.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Backup Set containing the current directory.</summary>  
         public BackupSet BackupSet
         {
             get { return backupSet; }
@@ -51,7 +54,8 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Name of the containing directory.</summary>
+        /// <summary>
+        /// Gets or sets the Name of the directory containing the current directory.</summary>  
         public string DirectoryName
         {
             get { return directoryName; }
@@ -65,13 +69,16 @@ namespace MediaBackupManager.Model
             }
         }
 
-        /// <summary>Full path name including volume serial.</summary>
+        /// <summary>
+        /// Gets the full path Name from the pof the current directory, with its parent Backup Set as root.</summary>  
         public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
 
-        /// <summary>Full path name including mount point of the current session.</summary>
+        /// <summary>
+        /// Gets the full path Name from the pof the current directory, with its current mount point as root.</summary>  
         public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
 
-        /// <summary>Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
+        /// <summary>
+        /// Gets a value indicating if all subdirectories and child file nodes have more than one related backup set.</summary>  
         public virtual bool BackupStatus
         {
             get
@@ -79,7 +86,6 @@ namespace MediaBackupManager.Model
                 return Children.Count() > 0 ? Children.All(x => x.BackupStatus.Equals(true)) : true;
             }
         }
-
 
         /// <summary>Gets the subdirectories of the current directory.</summary>
         public virtual IEnumerable<FileDirectory> SubDirectories
@@ -114,7 +120,8 @@ namespace MediaBackupManager.Model
         // FileDirectory objects don't have any FileHash references,
         // so the class is not implemented here, but still needed for
         // compatibility reasons
-        /// <summary>Removes the reference to this node from the linked FileHash object.</summary>
+        /// <summary>
+        /// Removes the reference to this node from the linked FileHash object.</summary>
         public virtual void RemoveFileReference() { }
 
         #endregion
@@ -157,7 +164,6 @@ namespace MediaBackupManager.Model
         {
             return DirectoryName.CompareTo(other.DirectoryName);
         }
-
 
         public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
