@@ -17,7 +17,6 @@ namespace MediaBackupManager.ViewModel.Popups
 
         protected PopupBase window;
         ViewModelBase popupViewModel;
-        string title;
         DialogResult result;
         bool showOkButton;
         bool showCancelButton;
@@ -44,21 +43,6 @@ namespace MediaBackupManager.ViewModel.Popups
                 if (value != popupViewModel)
                 {
                     popupViewModel = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the title text of the popup.</summary>  
-        public string Title
-        {
-            get { return title; }
-            set
-            {
-                if (value != title)
-                {
-                    title = value;
                     NotifyPropertyChanged();
                 }
             }
