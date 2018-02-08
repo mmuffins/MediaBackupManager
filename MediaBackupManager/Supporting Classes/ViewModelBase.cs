@@ -10,15 +10,33 @@ namespace MediaBackupManager.SupportingClasses
 {
     public class ViewModelBase : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        #region Fields
 
-        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        public event PropertyChangedEventHandler PropertyChanged;
+        string title;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the title of the current view.</summary>  
+        public string Title
         {
-            // take a copy to prevent thread issues
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            get { return title; }
+            set
+            {
+                if (value != title)
+                {
+                    title = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
+
+        #endregion
+
+        #region Methods
 
         public ViewModelBase()
         {
@@ -28,5 +46,16 @@ namespace MediaBackupManager.SupportingClasses
         /// <summary>
         /// Event handler for the global MessageService.</summary>
         protected virtual void OnMessageServiceMessage(object sender, MessageServiceEventArgs e) { }
+
+        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            // take a copy to prevent thread issues
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        #endregion
     }
 }
