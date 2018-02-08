@@ -14,7 +14,7 @@
 
     <Grid x:Name="LayoutRoot" Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -23,8 +23,12 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetOverlayCommand}" Style="{DynamicResource ColorButtonBlue}" Background="#FF2CA8FF" />
-            <Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionOverlayCommand}" />
+            <Button x:Name="btnCreateBackupSet" Content="Index Directory" 
+                    Command="{Binding ShowCreateBackupSetOverlayCommand}" 
+                    Style="{DynamicResource HeaderButton}"/>
+            <Button x:Name="btnShowExclusionList" Content="File Exclusions" 
+                    Command="{Binding ShowExclusionOverlayCommand}" 
+                    Style="{DynamicResource HeaderButton}" />
         </StackPanel>
 
         <!--BackupSet List-->
@@ -44,8 +48,10 @@
                                 Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
                                 CommandParameter="{Binding}"/>
                         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
-                            <TextBox DockPanel.Dock="Left" Text="{Binding Label}" Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" KeyDown="OnBackupSetLabelKeyDown" />
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" 
+                                       Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
+                            <TextBox DockPanel.Dock="Left" Text="{Binding Label}" 
+                                     Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" KeyDown="OnBackupSetLabelKeyDown" />
                         </StackPanel>
                     </DockPanel>
                 </DataTemplate>
