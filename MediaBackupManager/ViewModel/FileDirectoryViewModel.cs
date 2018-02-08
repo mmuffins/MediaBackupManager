@@ -188,8 +188,14 @@ namespace MediaBackupManager.ViewModel
                 }
 
                 // Expand all the way up to the root.
-                if (treeViewIsExpanded && Parent != null)
-                    Parent.TreeViewIsExpanded = true;
+                if (treeViewIsExpanded)
+                {
+                    this.BackupSet.TreeViewIsExpanded = true;
+                    if(parent != null)
+                    {
+                        Parent.TreeViewIsExpanded = true;
+                    }
+                }
             }
         }
         #endregion

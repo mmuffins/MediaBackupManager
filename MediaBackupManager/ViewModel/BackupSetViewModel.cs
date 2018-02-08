@@ -206,10 +206,6 @@ namespace MediaBackupManager.ViewModel
                     treeViewIsExpanded = value;
                     this.NotifyPropertyChanged();
                 }
-
-                // Backupsets are always a root node, so no need to check a parent
-                //if (treeViewIsExpanded && Parent != null)
-                //    Parent.TreeViewIsExpanded = true;
             }
         }
 
@@ -395,7 +391,8 @@ namespace MediaBackupManager.ViewModel
         private FileDirectoryViewModel GetRootDirectoryObject()
         {
             return Directories
-                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) .Equals(backupSet.RootDirectory));
+                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name)
+                .Equals(backupSet.RootDirectory));
         }
 
         /// <summary>

@@ -103,21 +103,30 @@
                   IsChecked="{Binding HighlightMissingBackupFiles}" />
         <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
                   ItemsSource="{Binding Path=Index.BackupSets}"
-                  SelectedItemChanged="treeDirectory_SelectedItemChanged">
-            <TreeView.Resources>
+                  SelectedItemChanged="treeDirectory_SelectedItemChanged" >
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
+                                          ItemsSource="{Binding RootDirectory.SubDirectories}">
+                    <TextBlock Text="{Binding Label}" />
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
+                                          ItemsSource="{Binding SubDirectories}">
+                            <TextBlock Text="{Binding Name}" />
+                        </HierarchicalDataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+            <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="IsExpanded" Value="{Binding TreeViewIsExpanded, Mode=TwoWay}" />
                     <Setter Property="IsSelected" Value="{Binding TreeViewIsSelected, Mode=TwoWay}" />
+                    <Style.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="Grid.ColumnSpan" Value="2" />
+                        </Style>
+                    </Style.Resources>
                 </Style>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodel:BackupSetViewModel}" 
-                                          ItemsSource="{Binding Path=RootDirectory.SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Label}" IsExpanded="{Binding TreeViewIsExpanded, Mode=TwoWay}"/>
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
-                                          ItemsSource="{Binding Path=SubDirectories}">
-                    <TreeViewItem Header="{Binding Path=Name}" Style="{StaticResource MissingBackupColor}" IsExpanded="{Binding TreeViewIsExpanded, Mode=TwoWay}"/>
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
+            </TreeView.ItemContainerStyle>
         </TreeView>
 
         <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"  Background="Transparent"/>
