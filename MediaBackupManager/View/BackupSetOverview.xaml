@@ -12,7 +12,7 @@
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
         <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
-            <Setter Property="Foreground" Value="DimGray" />
+            <Setter Property="Foreground" Value="#FF303030" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Foreground" Value="#FF2CA8FF" />
@@ -21,7 +21,7 @@
         </Style>
 
         <Style x:Key="IconButtonRed" TargetType="Button" BasedOn="{StaticResource IconButton}">
-            <Setter Property="Foreground" Value="DimGray" />
+            <Setter Property="Foreground" Value="#FF303030" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Foreground" Value="Red" />
@@ -106,7 +106,7 @@
                                               Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
                                 </Button>
                             </StackPanel>
-                            <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Background="DimGray" />
+                            <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Background="#FF303030" />
                             <StackPanel Grid.Row="1" Grid.Column="0">
                                 <StackPanel.Resources>
                                     <Style TargetType="Label">
@@ -124,22 +124,36 @@
 
                             <!--Buttons-->
                             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
                                         Width="33" Height="38" Margin="3,0"
+                                        Foreground="Gray"
                                         Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="31" Height="36" Style="{StaticResource appbar_refresh}"
-                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
                                 </Button>
+                                
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonRed}" 
                                         Width="32" Height="38"  Margin="3,0"
+                                        Foreground="Gray"
                                         Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="28" Height="36"  Style="{StaticResource appbar_delete}"
-                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
                                 </Button>
+
+                                <!--<Button x:Name="btnCancel" Style="{StaticResource ColorButtonGray}"
+                                    Content="Update" 
+                                    Command="{Binding CancelCommand}" 
+                                    Visibility="{Binding IsScanCompleted, Converter={StaticResource InvertBoolToVisibility}}" Background="LightGray"/>
+                                
+                                <Button x:Name="btnDelete" Style="{StaticResource ColorButtonGray}"
+                                    Content="Delete" 
+                                    Command="{Binding CancelCommand}" 
+                                    Visibility="{Binding IsScanCompleted, Converter={StaticResource InvertBoolToVisibility}}"/>-->
 
                             </StackPanel>
                         </Grid>

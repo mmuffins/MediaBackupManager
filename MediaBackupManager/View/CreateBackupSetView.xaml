@@ -15,7 +15,7 @@
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
         <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
-            <Setter Property="Foreground" Value="DimGray" />
+            <Setter Property="Foreground" Value="#FF303030" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Foreground" Value="#FF2CA8FF" />
@@ -42,7 +42,7 @@
             <Label Grid.Row="0" Grid.Column="0"
                    Content="{Binding Title}" 
                    Style="{StaticResource Title}"/>
-            <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="DimGray" />
+            <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="#FF303030" />
             <!--Label, Path and path picker-->
             <Grid Grid.Row="1" Grid.Column="0" Margin="0,20"
                 IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}">

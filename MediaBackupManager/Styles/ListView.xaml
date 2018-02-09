@@ -8,7 +8,7 @@
         <Setter Property="Height" Value="35" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="MT Extra" />
-        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Foreground" Value="#FF303030" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
@@ -111,7 +111,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
                     <Grid>
-                        <Border BorderThickness="1,1,0,1" BorderBrush="DarkGray" Background="#FFE8E8E8">
+                        <Border BorderThickness="1,1,0,1" BorderBrush="LightGray" Background="#FFE8E8E8">
                             <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="5,5,5,0" Width="{TemplateBinding Width}" TextAlignment="Center" />
                         </Border>
                         <Thumb x:Name="PART_HeaderGripper"
@@ -123,7 +123,7 @@
             </Setter.Value>
         </Setter>
         <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Foreground" Value="#FF303030" />
         <Setter Property="FontFamily" Value="MT Extra" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Height" Value="30" />

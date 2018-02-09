@@ -68,13 +68,13 @@
     </Style>
 
 
-    <SolidColorBrush x:Key="ButtonGray.Static.Foreground" Color="DimGray"/>
+    <SolidColorBrush x:Key="ButtonGray.Static.Foreground" Color="#FF303030"/>
     <SolidColorBrush x:Key="ButtonGray.Static.Background" Color="LightGray"/>
     <SolidColorBrush x:Key="ButtonGray.Static.Border" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonGray.MouseOver.Background" Color="DarkGray"/>
     <SolidColorBrush x:Key="ButtonGray.Pressed.Background" Color="DarkGray"/>
     <SolidColorBrush x:Key="ButtonGray.Disabled.Background" Color="Transparent"/>
-    <SolidColorBrush x:Key="ButtonGray.Disabled.Foreground" Color="Black"/>
+    <SolidColorBrush x:Key="ButtonGray.Disabled.Foreground" Color="#FF303030"/>
     <SolidColorBrush x:Key="ButtonGray.Disabled.Border" Color="Black"/>
 
     <Style x:Key="ColorButtonGray" TargetType="{x:Type Button}">
