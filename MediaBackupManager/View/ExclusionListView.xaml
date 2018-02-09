@@ -6,39 +6,128 @@
              xmlns:local="clr-namespace:MediaBackupManager.View"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="200">
-    <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="LayoutRoot">
-        <DockPanel DockPanel.Dock="Bottom">
-            <Button DockPanel.Dock="Right" x:Name="btnCloseView" Content="Ok" 
-                    Command="{Binding CloseOverlayCommand}" />
-        </DockPanel>
+
+    <Control.Resources>
+
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="#FF303030" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconButtonRed" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="Gray" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Red" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Control.Resources>
+
+
+    <Border x:Name="LayoutRoot" VerticalAlignment="Center" HorizontalAlignment="Center"
+            MinHeight="200" MinWidth="400" MaxWidth="900" Background="White"
+            CornerRadius="4">
+
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" MaxHeight="400"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--Title-->
+            <Label Grid.Row="0" Grid.Column="0"
+                   Content="{Binding Title}" 
+                   Style="{StaticResource Title}"/>
+            <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="#FF303030" />
+
+                <!--Exclusion List-->
+            <ListBox Grid.Row="1"
+                     BorderThickness="0"
+                     Margin="0,15,0,0"
+                     HorizontalAlignment="Stretch"
+                     ItemsSource="{Binding Exclusions}"
+                     SelectedItem="{Binding SelectedExclusion}"
+                     >
+                <ListBox.Resources>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="0,0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        
+                    </Style>
+                </ListBox.Resources>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                        <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Content="{Binding}" />
+                            
+                        <Button Grid.Column="1" Style="{StaticResource IconButtonRed}" 
+                                Width="32" Height="22"  Margin="0,0"
+                                Command="{Binding DataContext.RemoveExclusionCommand, ElementName=LayoutRoot}"
+                                CommandParameter="{Binding}" >
+                        <!--Set the fill to whatever color the parent button currently has-->
+                        <Path Width="15" Height="19"  Style="{StaticResource appbar_delete}"
+                                    Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
+                        </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!--Bar to add new elements-->
+            <Grid Grid.Row="2" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0">
+                    <TextBox.Text>
+                        <Binding Path="NewExclusionText" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <local:StringNotEmptyRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <Button Grid.Column="1" Style="{StaticResource IconButtonBlue}"
+                                        Width="23" Height="20" Margin="3,0"
+                                        Command="{Binding AddExclusionCommand}"
+                                        CommandParameter="{Binding NewExclusionText}"
+                        HorizontalContentAlignment="Left" HorizontalAlignment="Left">
+                    <!--Set the fill to whatever color the parent button currently has-->
+                    <Path Width="20" Height="17" Style="{StaticResource appbar_check}"
+                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
+                </Button>
+
+
+            </Grid>
+
+
+            <StackPanel Grid.Row="3" Grid.Column="0" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right" >
+                <Button x:Name="btnCloseView" 
+                        Content="Done"
+                        Style="{StaticResource ColorButtonBlue}"
+                        Command="{Binding CloseOverlayCommand}" />
+            </StackPanel>
+
+        </Grid>
         
-        <!--Bar to add new elements-->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <TextBox>
-                <TextBox.Text>
-                    <Binding Path="NewExclusionText" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <local:StringNotEmptyRule />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-            <Button Content="+" Command="{Binding AddExclusionCommand}" CommandParameter="{Binding NewExclusionText}"/>
-        </StackPanel>
-        
-        <!--Exclusion List-->
-        <ListBox DockPanel.Dock="Top"
-                 ItemsSource="{Binding Exclusions}"
-                  SelectedItem="{Binding SelectedExclusion}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="X" Command="{Binding DataContext.RemoveExclusionCommand, ElementName=LayoutRoot}" CommandParameter="{Binding}"/>
-                            <TextBlock Text="{Binding}" />
-                        </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
-    </DockPanel>
+    </Border>
 </UserControl>
