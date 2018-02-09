@@ -16,6 +16,7 @@ namespace MediaBackupManager.ViewModel
         int scanProgress;
         string cancelButtonCaption;
         bool isScanInProgressOrCompleted;
+        bool isScanCompleted;
         BackupSetViewModel updateSet;
 
         FileIndexViewModel index;
@@ -109,6 +110,22 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
+        /// Gets a value indicating whether a file scan was successfully completed.</summary>  
+        public bool IsScanCompleted
+        {
+            // Needed to simplify binding
+            get { return isScanCompleted; }
+            set
+            {
+                if (value != isScanCompleted)
+                {
+                    isScanCompleted = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the numerical progress of the current scanning operation.</summary>  
         public int ScanProgress
         {
@@ -191,6 +208,7 @@ namespace MediaBackupManager.ViewModel
             this.index = index;
             this.CancelButtonCaption = "Cancel";
             this.IsScanInProgressOrCompleted = false;
+            this.IsScanCompleted = false;
             this.FileScanErrorString = "";
             this.UpdateSet = backupSet;
             this.Title = "Updating " + backupSet.Label;
@@ -276,6 +294,7 @@ namespace MediaBackupManager.ViewModel
                 // Indicate to the user that the progress is fully completed and that he can now
                 // close the window by changing the button caption
                 CancelButtonCaption = "Done";
+                IsScanCompleted = true;
 
             }
         }

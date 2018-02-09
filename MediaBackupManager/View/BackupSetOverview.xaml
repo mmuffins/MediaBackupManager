@@ -23,7 +23,7 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" 
+            <Button x:Name="btnCreateBackupSet" Content="Add Backup Set" 
                     Command="{Binding ShowCreateBackupSetOverlayCommand}" 
                     Style="{DynamicResource HeaderButton}"/>
             <Button x:Name="btnShowExclusionList" Content="File Exclusions" 
