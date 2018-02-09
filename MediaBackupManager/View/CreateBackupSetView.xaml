@@ -14,6 +14,15 @@
         <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="DimGray" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Control.Resources>
 
     <Border VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -66,13 +75,18 @@
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
-                <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2" 
-                        VerticalAlignment="Bottom" Width="26" Height="16" 
-                        BorderBrush="Transparent" Background="Transparent"
-                        Margin="0,5" Foreground="Red"
+
+                <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2"
+                        Style="{StaticResource IconButtonBlue}"
+                        Width="31" Height="26" Margin="0,5"
                         Command="{Binding SelectDirectoryCommand}" 
-                        Content="{StaticResource appbar_folder_open}">
+                        VerticalAlignment="Bottom"
+                        VerticalContentAlignment="Bottom">
+                    <!--Set the fill to whatever color the parent button currently has-->
+                    <Path Width="29" Height="17" Style="{StaticResource appbar_folder_open}"
+                                              Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
                 </Button>
+                
             </Grid>
 
             <!--Progress bar and text-->
