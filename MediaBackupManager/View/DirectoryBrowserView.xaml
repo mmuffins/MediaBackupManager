@@ -22,7 +22,7 @@
             <Setter Property="BorderThickness" Value="0" />
         </Style>
         
-        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewStyle}">
+        <Style TargetType="{x:Type ListViewItem}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
         </Style>
         
