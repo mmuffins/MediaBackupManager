@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:MediaBackupManager.icons">
 
-    <Path x:Key="appbar_folder_open" Canvas.Left="19" Canvas.Top="24" Stretch="Fill" Fill="#FF000000" Data="F1 M 19,50L 28,34L 63,34L 54,50L 19,50 Z M 19,28.0001L 35,28C 36,25 37.4999,24.0001 37.4999,24.0001L 48.75,24C 49.3023,24 50,24.6977 50,25.25L 50,28L 53.9999,28.0001L 53.9999,32L 27,32L 19,46.4L 19,28.0001 Z "/>
+    <Path x:Key="appbar_folder_open" Canvas.Left="19" Canvas.Top="24" Stretch="Fill" Fill="DimGray" Data="F1 M 19,50L 28,34L 63,34L 54,50L 19,50 Z M 19,28.0001L 35,28C 36,25 37.4999,24.0001 37.4999,24.0001L 48.75,24C 49.3023,24 50,24.6977 50,25.25L 50,28L 53.9999,28.0001L 53.9999,32L 27,32L 19,46.4L 19,28.0001 Z "/>
 
     <Style x:Key="appbar_magnify" TargetType="Path">
         <Setter Property="Stretch" Value="Fill"/>

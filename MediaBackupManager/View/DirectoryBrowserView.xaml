@@ -152,7 +152,7 @@
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <Path Style="{StaticResource appbar_magnify}" Height="18" Width="18" Fill="DarkSlateGray"/>
+                <Path Style="{StaticResource appbar_magnify}" Height="18" Width="18" Fill="DimGray"/>
             </StackPanel>
 
         </Grid>

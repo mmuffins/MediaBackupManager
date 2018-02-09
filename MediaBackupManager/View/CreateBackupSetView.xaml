@@ -73,7 +73,7 @@
                 <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2" 
                         VerticalAlignment="Bottom" Width="26" Height="16" 
                         BorderBrush="Transparent" Background="Transparent"
-                        Margin="0,5"
+                        Margin="0,5" Foreground="Red"
                         Command="{Binding SelectDirectoryCommand}" 
                         Content="{StaticResource appbar_folder_open}">
                 </Button>
