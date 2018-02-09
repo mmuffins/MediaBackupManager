@@ -1,10 +1,12 @@
 ﻿using MediaBackupManager.SupportingClasses;
+using MediaBackupManager.ViewModel.Popups;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
@@ -123,7 +125,16 @@ namespace MediaBackupManager.ViewModel
 
         private async void RemoveExclusionAsync(string exclusion)
         {
+
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to delete File Exclusion " + exclusion + "?", "", "Delete", "No");
+            if (confirmDiag.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            // User has confirmed the deletion, continue 
             await index.RemoveFileExclusionAsync(exclusion);
+
+
+
         }
 
         #endregion
