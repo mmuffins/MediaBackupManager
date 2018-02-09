@@ -57,13 +57,13 @@
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" Style="{DynamicResource HeaderButton}" />-->
         </StackPanel>
 
-        <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" />
+        <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Background="DimGray" />
 
         <!--Show files without backup-->
         <CheckBox x:Name="ToggleTreeViewHighlights" Grid.Row="1" Grid.Column="0"  Content="Show files without backup" 
                   IsChecked="{Binding HighlightMissingBackupFiles}" VerticalAlignment="Center" />
 
-        <Separator Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" />
+        <Separator Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Background="DimGray" />
         
         <!--Directory Tree-->
         <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
