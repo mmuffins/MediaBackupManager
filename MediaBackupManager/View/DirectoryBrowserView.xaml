@@ -21,8 +21,8 @@
         <Style TargetType="ListView">
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        
-        <Style TargetType="{x:Type ListViewItem}">
+
+        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewStyle}">
             <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
         </Style>
         
@@ -133,7 +133,7 @@
         </DockPanel>
         <ListView Grid.Row="2" Grid.Column="2" x:Name="gridFiles" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}" 
-                  GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
+                  GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler" >
             <ListView.Style>
                 <Style TargetType="ListView">
                     <Setter Property="BorderThickness" Value="0,0,0,0" />
