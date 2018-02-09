@@ -29,6 +29,7 @@
             </Style.Triggers>
         </Style>
 
+        
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" Margin="20" HorizontalAlignment="Stretch">
@@ -62,9 +63,11 @@
 
             <!--BackupSet List-->
             <ListBox Grid.Row="0" Grid.Column="0"
-                 ItemsSource="{Binding Index.BackupSets}"
-                 SelectedItem="{Binding SelectedBackupset}" 
-                 BorderThickness="0" HorizontalAlignment="Stretch" MaxWidth="600">
+                     ItemsSource="{Binding Index.BackupSets}"
+                     SelectedItem="{Binding SelectedBackupset}" 
+                     BorderThickness="0" HorizontalAlignment="Stretch" MaxWidth="600" 
+                     ItemContainerStyle="{DynamicResource BackupSetListStyle}"
+                     >
                 <ListBox.Resources>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Margin" Value="0,10"/>
