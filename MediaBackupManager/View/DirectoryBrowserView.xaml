@@ -22,11 +22,6 @@
             <Setter Property="BorderThickness" Value="0" />
         </Style>
 
-        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewStyle}">
-            <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
-        </Style>
-        
-        
         <!--Compositecollections don't have support for sorting/filtering, use workaround instead-->
         <!--<CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
@@ -40,7 +35,7 @@
     <Grid x:Name="LayoutRoot" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -62,12 +57,15 @@
             <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" Style="{DynamicResource HeaderButton}" />-->
         </StackPanel>
 
+        <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" />
 
-
-
-        <!--Directory Tree-->
+        <!--Show files without backup-->
         <CheckBox x:Name="ToggleTreeViewHighlights" Grid.Row="1" Grid.Column="0"  Content="Show files without backup" 
-                  IsChecked="{Binding HighlightMissingBackupFiles}" />
+                  IsChecked="{Binding HighlightMissingBackupFiles}" VerticalAlignment="Center" />
+
+        <Separator Grid.Row="1"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" />
+        
+        <!--Directory Tree-->
         <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
                   ItemsSource="{Binding Path=Index.BackupSets}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged" >
@@ -103,16 +101,21 @@
 
         <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"  Background="Transparent"/>
 
-        <DockPanel Grid.Row="1" Grid.Column="2">
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
             <!--Breadcrumb Navigation-->
-            <ItemsControl DockPanel.Dock="Left" 
+            <ListView Grid.Row="0" Grid.Column="0"  VerticalAlignment="Center"
                           ItemsSource="{Binding Path=CurrentDirectory.BreadCrumbList}">
-                <ItemsControl.ItemsPanel>
+                <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
                     <DataTemplate>
                         <DataTemplate.Resources>
                             <Style TargetType="{x:Type StackPanel}">
@@ -120,24 +123,49 @@
                             </Style>
                         </DataTemplate.Resources>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text=">" />
-                            <TextBlock Text="{Binding Path=Name}" />
+                            <TextBlock x:Name="dirDelimiter" Text=">" />
+                            <TextBlock Text="{Binding Path=Name}" TextDecorations="Underline" />
                         </StackPanel>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                <Setter TargetName="dirDelimiter" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListView.ItemTemplate>
+            </ListView>
 
             <!--File Search-->
-            <TextBox DockPanel.Dock="Right" 
-                     Text="{Binding SearchBarText, Delay=200, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                <TextBox
+                     Text="{Binding SearchBarText, Delay=200, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="Height" Value="25" />
+                            <Setter Property="Width" Value="160" />
+                            <Setter Property="TextAlignment" Value="Left" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="HorizontalAlignment" Value="Right" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Margin" Value="0,0,2,0" />
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <Path Style="{StaticResource appbar_magnify}" Height="18" Width="18" Fill="DarkSlateGray"/>
+            </StackPanel>
+
+        </Grid>
+        <DockPanel Grid.Row="1" Grid.Column="2">
+
         </DockPanel>
         <ListView Grid.Row="2" Grid.Column="2" x:Name="gridFiles" Margin="2"
                   SelectedItem="{Binding Path=SelectedFileGridItem}" 
                   GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler" >
             <ListView.Style>
-                <Style TargetType="ListView">
+                <Style TargetType="ListView" >
                     <Setter Property="BorderThickness" Value="0,0,0,0" />
-                    
+
                     <!--Show search results if ShowSearchResults is true-->
                     <Setter Property="ItemsSource" Value="{Binding Path=CurrentDirectory.ChildElements}" />
                     <Style.Triggers>
@@ -147,18 +175,23 @@
                     </Style.Triggers>
                 </Style>
             </ListView.Style>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource FileGridStyle}">
+                    <EventSetter Event="MouseDoubleClick" Handler="GridFiles_MouseDoubleClick" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
                     <GridViewColumn Header="Extension" DisplayMemberBinding="{Binding Extension}" />
-                    <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
-                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding FullName}" />
-                    <GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />
-                    <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
-                    <GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
-                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Hash.Length, Converter={StaticResource ByteToHuman}}" />
+                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Path=Hash.Length, Converter={StaticResource ByteToHuman}}" />
                     <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
                     <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
+                    <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
+                    <!--<GridViewColumn Header="Directory" DisplayMemberBinding="{Binding FullName}" />-->
+                    <!--<GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />-->
+                    <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
+                    <!--<GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />-->
                 </GridView>
             </ListView.View>
         </ListView>

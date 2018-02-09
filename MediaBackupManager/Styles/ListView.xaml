@@ -3,12 +3,12 @@
                     xmlns:local="clr-namespace:MediaBackupManager.Styles">
 
 
-    <Style TargetType="ListViewItem" x:Key="ListViewStyle" >
+    <Style TargetType="ListViewItem" x:Key="FileGridStyle" >
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Height" Value="35" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="MT Extra" />
-        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Foreground" Value="DarkSlateGray" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
@@ -62,7 +62,6 @@
         </Style.Triggers>
     </Style>
 
-
     <Style x:Key="GridViewColumnHeaderGripper"
        TargetType="Thumb">
         <Setter Property="Width"
@@ -107,8 +106,6 @@
         </Setter>
     </Style>
 
-
-
     <Style TargetType="{x:Type GridViewColumnHeader}">
         <Setter Property="Template">
             <Setter.Value>
@@ -126,12 +123,10 @@
             </Setter.Value>
         </Setter>
         <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Foreground" Value="DarkSlateGray" />
         <Setter Property="FontFamily" Value="MT Extra" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Height" Value="30" />
     </Style>
-    
-    
 
 </ResourceDictionary>

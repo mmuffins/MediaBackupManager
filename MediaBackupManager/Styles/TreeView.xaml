@@ -6,7 +6,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="MT Extra" />
-        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="Foreground" Value="DarkSlateGray" />
         <Style.Triggers>
             <!--Highlight files with backup count of 1-->
             <MultiDataTrigger>
