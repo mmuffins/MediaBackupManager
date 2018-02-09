@@ -129,7 +129,7 @@ namespace MediaBackupManager.Model
 
             if (IsDirectoryParentOfFileIndex(directoryPath))
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is the parent directory of another Backup Set. Please first remove the existing Set before proceeding."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is the parent directory of another Backup Set. Please remove the existing Set before proceeding."));
                 return null;
             }
 
