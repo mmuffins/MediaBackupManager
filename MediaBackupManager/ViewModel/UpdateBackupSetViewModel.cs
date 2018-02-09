@@ -211,7 +211,7 @@ namespace MediaBackupManager.ViewModel
             this.IsScanCompleted = false;
             this.FileScanErrorString = "";
             this.UpdateSet = backupSet;
-            this.Title = "Updating " + backupSet.Label;
+            this.Title = "Updating Backup Set" + backupSet.Label;
             StartCommand.Execute(null);
         }
 

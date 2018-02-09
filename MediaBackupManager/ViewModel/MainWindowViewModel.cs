@@ -126,7 +126,6 @@ namespace MediaBackupManager.ViewModel
                     if(e.Parameter != null && e.Parameter is BackupSetViewModel)
                     {
                         CurrentOverlay = new UpdateBackupSetViewModel(Index, (BackupSetViewModel)e.Parameter);
-                        CurrentOverlay.Title = "Update Backup Set";
                     }
 
                     break;

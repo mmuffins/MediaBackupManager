@@ -30,7 +30,7 @@
             CornerRadius="4">
         <Grid Margin="30">
             <Grid.RowDefinitions>
-                <RowDefinition Height="35"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" MaxHeight="300"/>
                 <RowDefinition Height="50"/>
@@ -38,11 +38,13 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
+            
             <!--Title-->
             <Label Grid.Row="0" Grid.Column="0"
                    Content="{Binding Title}" 
                    Style="{StaticResource Title}"/>
             <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="#FF303030" />
+            
             <!--Label, Path and path picker-->
             <Grid Grid.Row="1" Grid.Column="0" Margin="0,20"
                 IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}">
@@ -90,7 +92,7 @@
             </Grid>
 
             <!--Progress bar and text-->
-            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical"
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical"  Margin="0,15"
                     Visibility="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource BoolToVisibility}}" >
                 <StackPanel Width="500" Orientation="Vertical">
                     <Label Content="{Binding ScanStatusText}" />

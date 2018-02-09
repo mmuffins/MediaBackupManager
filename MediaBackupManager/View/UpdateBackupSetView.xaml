@@ -11,59 +11,74 @@
     <Control.Resources>
         <!--Converters-->
         <local:InvertBoolConverter x:Key="InvertBool" />
-        <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" />
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="2" />
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="#FF303030" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
     </Control.Resources>
-    <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
 
-        <!--Label, Path and path picker-->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
-                    IsEnabled="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource InvertBool}}">
-            <TextBox x:Name="BackupSetLabel"  Width="200" Height="40">
-                <TextBox.Text>
-                    <Binding Path="BackupSetLabel" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <local:StringNotEmptyRule />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-            <TextBox x:Name="BackupSetPath" Width="200" Height="40">
-                <TextBox.Text>
-                    <Binding Path="SelectedDirectory" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <local:StringNotEmptyRule />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-        </StackPanel>
+    <Border VerticalAlignment="Center" HorizontalAlignment="Center"
+            MinHeight="200" MinWidth="550" MaxWidth="900" Background="White"
+            CornerRadius="4">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" MaxHeight="300"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            
+            <!--Title-->
+            <Label Grid.Row="0" Grid.Column="0"
+                   Content="{Binding Title}" 
+                   Style="{StaticResource Title}"/>
+            <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="#FF303030" />
 
-        <!--Progress bar and text-->
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="5"
+            <!--Progress bar and text-->
+            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Margin="0,15"
                     Visibility="{Binding Path=IsScanInProgressOrCompleted, Converter={StaticResource BoolToVisibility}}" >
-            <TextBox Text="{Binding ScanStatusText}" Width="230" IsReadOnly="True" />
-            <ProgressBar Height="20" Width="230"
-                         Minimum="0" Maximum="100" 
-                         Value="{Binding ScanProgress}" />
-            <StackPanel Visibility="{Binding Path=HasScanErrors, Converter={StaticResource BoolToVisibility}}">
-                <Label Content="Scan errors:" />
-                <TextBox x:Name="ProgressLog" IsReadOnly="True" MaxHeight="50" Text="{Binding FileScanErrorString}" />
-
+                <StackPanel Width="500" Orientation="Vertical">
+                    <Label Content="{Binding ScanStatusText}" />
+                    <ProgressBar Height="30"
+                         Minimum="0" Maximum="100"
+                         Value="{Binding ScanProgress}"/>
+                </StackPanel>
+                <TextBox x:Name="ProgressLog" IsReadOnly="False" Width="500" MaxHeight="200"
+                         Text="{Binding FileScanErrorString}" 
+                         Visibility="{Binding Path=HasScanErrors, Converter={StaticResource BoolToVisibility}}"
+                         Height="Auto" VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap"/>
             </StackPanel>
-        </StackPanel>
 
-        <!--Start and Cancel buttons-->
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="25" Margin="5" HorizontalAlignment="Right">
-            <Button x:Name="btnConfirm" Content="Start" Command="{Binding StartCommand}"
-                    Visibility="{Binding IsScanInProgressOrCompleted, Converter={StaticResource InvertBoolToVisibility}}">
-            </Button>
-            <Button x:Name="btnCancel" Content="{Binding CancelButtonCaption}" Command="{Binding CancelCommand}"></Button>
-        </StackPanel>
-    </DockPanel>
+            <!--Start and Cancel buttons-->
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Button x:Name="btnConfirm" Content="Start" Style="{StaticResource ColorButtonBlue}"
+                        Command="{Binding StartCommand}"
+                        Visibility="{Binding IsScanInProgressOrCompleted, Converter={StaticResource InvertBoolToVisibility}}">
+                </Button>
+
+                <!--Replace the gray cancel button with a nice blue one if the scan is done-->
+                <Button x:Name="btnCancel" Style="{StaticResource ColorButtonGray}"
+                        Content="{Binding CancelButtonCaption}" 
+                        Command="{Binding CancelCommand}" 
+                        Visibility="{Binding IsScanCompleted, Converter={StaticResource InvertBoolToVisibility}}"/>
+
+                <Button x:Name="btnCancelBlue" Style="{StaticResource ColorButtonBlue}"
+                        Content="{Binding CancelButtonCaption}" 
+                        Command="{Binding CancelCommand}"
+                        Visibility="{Binding IsScanCompleted, Converter={StaticResource BoolToVisibility}}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>
