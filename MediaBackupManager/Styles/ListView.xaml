@@ -8,7 +8,7 @@
         <Setter Property="Height" Value="35" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="MT Extra" />
-        <Setter Property="Foreground" Value="DarkSlateGray" />
+        <Setter Property="Foreground" Value="DimGray" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
@@ -123,7 +123,7 @@
             </Setter.Value>
         </Setter>
         <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Foreground" Value="DarkSlateGray" />
+        <Setter Property="Foreground" Value="DimGray" />
         <Setter Property="FontFamily" Value="MT Extra" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Height" Value="30" />

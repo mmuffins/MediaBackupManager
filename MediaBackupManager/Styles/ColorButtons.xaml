@@ -123,5 +123,59 @@
         </Setter>
     </Style>
 
+    <!--Completely transparent button, should be used with some item as content-->
+    <SolidColorBrush x:Key="IconButton.Static.Foreground" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Static.Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Static.Border" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.MouseOver.Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Pressed.Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Disabled.Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Disabled.Foreground" Color="Transparent"/>
+    <SolidColorBrush x:Key="IconButton.Disabled.Border" Color="Transparent"/>
+
+    <Style x:Key="IconButton" TargetType="{x:Type Button}">
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource IconButton.Static.Background}"/>
+        <Setter Property="Foreground" Value="{StaticResource IconButton.Static.Foreground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource IconButton.Static.Border}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true" CornerRadius="2">
+                        <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                          Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" 
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDefaulted" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource IconButton.MouseOver.Background}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource IconButton.Pressed.Background}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Opacity" TargetName="border" Value="0.25"/>
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource IconButton.Disabled.Background}"/>
+                            <Setter Property="BorderThickness" TargetName="border" Value="1" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource IconButton.Disabled.Border}"/>
+                            <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource IconButton.Disabled.Foreground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
 </ResourceDictionary>

@@ -28,7 +28,8 @@ namespace MediaBackupManager.View
 
         private void BackupSet_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((StackPanel)sender).DataContext);
+            
+            MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((Grid)sender).DataContext);
         }
 
         private void OnBackupSetLabelKeyDown(object sender, KeyEventArgs e)
@@ -37,7 +38,6 @@ namespace MediaBackupManager.View
             {
                 BindingExpression binding = ((TextBox)sender).GetBindingExpression(TextBox.TextProperty);
                 binding.UpdateSource();
-
             }
         }
     }

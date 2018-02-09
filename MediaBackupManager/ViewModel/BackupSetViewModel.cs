@@ -112,6 +112,10 @@ namespace MediaBackupManager.ViewModel
                     RenameBackupSetCommand.Execute(value);
                     this.NotifyPropertyChanged();
                 }
+
+                // Always disable rename mode, even if the value remains 
+                // the same, in case the user changed his mind
+                this.RenameMode = false;
             }
         }
 

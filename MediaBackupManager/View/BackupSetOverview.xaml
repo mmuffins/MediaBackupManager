@@ -10,9 +10,28 @@
         <!--Converters-->
         <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
+
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="DimGray" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconButtonRed" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="DimGray" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Red" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </UserControl.Resources>
 
-    <Grid x:Name="LayoutRoot" Margin="20">
+    <Grid x:Name="LayoutRoot" Margin="20" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -33,17 +52,28 @@
 
         <Separator Grid.Row="0"  Grid.Column="0" VerticalAlignment="Bottom" />
 
-        <!--BackupSet List-->
-        <ListBox Grid.Row="1" Grid.Column="0"
+
+        <Grid Grid.Row="1" Grid.Column="1" 
+              HorizontalAlignment="Stretch"
+              Margin="20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--BackupSet List-->
+            <ListBox Grid.Row="0" Grid.Column="0"
                  ItemsSource="{Binding Index.BackupSets}"
                  SelectedItem="{Binding SelectedBackupset}" 
-                 BorderThickness="0" 
-                 HorizontalContentAlignment="Center">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel LastChildFill="True">
-
-                        <Grid Width="300">
+                 BorderThickness="0" HorizontalAlignment="Stretch" MaxWidth="600">
+                <ListBox.Resources>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="0,10"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListBox.Resources>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid MouseDown="BackupSet_MouseDown">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="8*" />
@@ -52,32 +82,70 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            
+
                             <!--Description-->
-                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
-                                <Label DockPanel.Dock="Left" Content="{Binding Label}"
-                                           Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
-                                <TextBox DockPanel.Dock="Left" Text="{Binding Label}"
-                                         KeyDown="OnBackupSetLabelKeyDown"
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                                <Label DockPanel.Dock="Left" Content="{Binding Label}" Style="{StaticResource BackupSetTitle}"
+                                        Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
+                                
+                                <TextBox Text="{Binding Label}"
+                                         KeyDown="OnBackupSetLabelKeyDown" 
+                                         FontSize="20" 
+                                         Background="Transparent" 
+                                         Foreground="#FF44ABB0"
+                                         BorderThickness="0"
                                          Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" />
+                                
+                                <Button Style="{StaticResource IconButtonBlue}"
+                                            Width="20" Height="20" Margin="3,0"
+                                            Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}"
+                                            Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}"
+                                            CommandParameter="{Binding}" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Left" >
+                                    <!--Set the fill to whatever color the parent button currently has-->
+                                    <Path Width="12" Height="12" Style="{StaticResource appbar_edit_box}"
+                                              Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                                </Button>
                             </StackPanel>
-                            
+                            <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Background="DimGray" />
+                            <StackPanel Grid.Row="1" Grid.Column="0">
+                                <StackPanel.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="Margin" Value="0,-5"/>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <Label Content="{Binding RootDirectory}" FontWeight="Bold" />
+                                <Label Content="{Binding LastScanDate}" ContentStringFormat="Last Scanned {0}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding DriveType}" ContentStringFormat="{}{0} Volume" />
+                                    <Label Content="{Binding MountPoint}" ContentStringFormat="(connected on Drive {0})" 
+                                        Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibility}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
                             <!--Buttons-->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                                <Button DockPanel.Dock="Right" Content="X"
-                                        Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
-                                        CommandParameter="{Binding}"/>
-                                <Button DockPanel.Dock="Right" Content="E" 
-                                        Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}" 
-                                        CommandParameter="{Binding}"/>
-                                <Button DockPanel.Dock="Right" Content="U" 
-                                        Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
-                                        CommandParameter="{Binding}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
+                                        Width="33" Height="38" Margin="3,0"
+                                        Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}"
+                                        CommandParameter="{Binding}" >
+                                    <!--Set the fill to whatever color the parent button currently has-->
+                                    <Path Width="31" Height="36" Style="{StaticResource appbar_refresh}"
+                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                                </Button>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonRed}" 
+                                        Width="32" Height="38"  Margin="3,0"
+                                        Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}"
+                                        CommandParameter="{Binding}" >
+                                    <!--Set the fill to whatever color the parent button currently has-->
+                                    <Path Width="28" Height="36"  Style="{StaticResource appbar_delete}"
+                                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                                </Button>
+
                             </StackPanel>
                         </Grid>
-                    </DockPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
     </Grid>
 </UserControl>
