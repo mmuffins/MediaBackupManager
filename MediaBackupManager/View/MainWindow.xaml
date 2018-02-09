@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MediaBackupManager.View"
         xmlns:viewmodel="clr-namespace:MediaBackupManager.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="400" MinWidth="600" Height="400" Width="800" 
+        Title="{Binding Title}" MinHeight="400" MinWidth="600" Height="500" Width="800" 
         Closed="Window_Closed">
     
     <Window.Resources>

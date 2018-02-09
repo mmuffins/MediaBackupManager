@@ -85,7 +85,8 @@ namespace MediaBackupManager.ViewModel
         public MainWindowViewModel()
         {
             //TODO: Make the textbox slide open when clicking the add button for exclusion
-            //TODO: Add the current tab to the control bar and highlight it
+
+            this.Title = "Media Backup Manager";
 
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync(Index.Index).Wait();
