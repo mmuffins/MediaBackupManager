@@ -12,7 +12,7 @@
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
     </UserControl.Resources>
 
-    <Grid x:Name="LayoutRoot" Margin="10">
+    <Grid x:Name="LayoutRoot" Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -31,28 +31,50 @@
                     Style="{DynamicResource HeaderButton}" />
         </StackPanel>
 
+        <Separator Grid.Row="0"  Grid.Column="0" VerticalAlignment="Bottom" />
+
         <!--BackupSet List-->
         <ListBox Grid.Row="1" Grid.Column="0"
                  ItemsSource="{Binding Index.BackupSets}"
-                  SelectedItem="{Binding SelectedBackupset}" >
+                 SelectedItem="{Binding SelectedBackupset}" 
+                 BorderThickness="0" 
+                 HorizontalContentAlignment="Center">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel LastChildFill="True">
-                        <Button DockPanel.Dock="Right" Content="X" 
-                                Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
-                                CommandParameter="{Binding}"/>
-                        <Button DockPanel.Dock="Right" Content="E" 
-                                Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}" 
-                                CommandParameter="{Binding}"/>
-                        <Button DockPanel.Dock="Right" Content="U" 
-                                Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
-                                CommandParameter="{Binding}"/>
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding Label}" 
-                                       Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
-                            <TextBox DockPanel.Dock="Left" Text="{Binding Label}" 
-                                     Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" KeyDown="OnBackupSetLabelKeyDown" />
-                        </StackPanel>
+
+                        <Grid Width="300">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="8*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <!--Description-->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" MouseDown="BackupSet_MouseDown">
+                                <Label DockPanel.Dock="Left" Content="{Binding Label}"
+                                           Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
+                                <TextBox DockPanel.Dock="Left" Text="{Binding Label}"
+                                         KeyDown="OnBackupSetLabelKeyDown"
+                                         Visibility="{Binding RenameMode, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                            
+                            <!--Buttons-->
+                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                                <Button DockPanel.Dock="Right" Content="X"
+                                        Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}" 
+                                        CommandParameter="{Binding}"/>
+                                <Button DockPanel.Dock="Right" Content="E" 
+                                        Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}" 
+                                        CommandParameter="{Binding}"/>
+                                <Button DockPanel.Dock="Right" Content="U" 
+                                        Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}" 
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </Grid>
                     </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

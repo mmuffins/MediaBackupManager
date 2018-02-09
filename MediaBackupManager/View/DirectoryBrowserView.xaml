@@ -32,7 +32,7 @@
 
     </Control.Resources>
     
-    <Grid x:Name="LayoutRoot" Margin="10">
+    <Grid x:Name="LayoutRoot" Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="40" />
@@ -78,8 +78,8 @@
                                           ItemsSource="{Binding RootDirectory.SubDirectories}" >
                     <TextBlock Text="{Binding Label}" />
                     <HierarchicalDataTemplate.ItemTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}" 
-                                          ItemsSource="{Binding SubDirectories}" >
+                        <HierarchicalDataTemplate DataType="{x:Type viewmodel:FileDirectoryViewModel}"
+                                                  ItemsSource="{Binding SubDirectories}" >
                             <TextBlock Text="{Binding Name}" Height="20" 
                                       />
                         </HierarchicalDataTemplate>
