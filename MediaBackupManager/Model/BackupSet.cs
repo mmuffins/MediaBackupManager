@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -274,12 +275,15 @@ namespace MediaBackupManager.Model
 
                         continue;
                     }
+                    finally
+                    {
+                        if (progress != null)
+                            progress.Report((int)((double)currentNodeCount / nodeCount * 100));
+                    }
+
                     node.Hash = new FileHash(node.FullSessionName, checkSum);
                     node.Checksum = checkSum;
                     node.Hash.AddNode(node);
-
-                    if(progress != null)
-                        progress.Report((int)((double)currentNodeCount / nodeCount * 100));
                 }
             }, cancellationToken);
 
