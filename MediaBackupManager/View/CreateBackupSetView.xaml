@@ -100,7 +100,7 @@
                          Minimum="0" Maximum="100"
                          Value="{Binding ScanProgress}"/>
                 </StackPanel>
-                <TextBox x:Name="ProgressLog" IsReadOnly="False" Width="500" MaxHeight="200"
+                <TextBox x:Name="ProgressLog" IsReadOnly="True" Width="500" MaxHeight="200"
                          Text="{Binding FileScanErrorString}" 
                          Visibility="{Binding Path=HasScanErrors, Converter={StaticResource BoolToVisibility}}"
                          Height="Auto" VerticalScrollBarVisibility="Auto"
