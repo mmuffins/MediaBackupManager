@@ -9,9 +9,12 @@
         mc:Ignorable="d"
         Title="{Binding Title}" 
         Height="300" MinHeight="150" 
-        Width="500" MinWidth="500"
+        Width="400" MinWidth="400"
         SizeToContent="WidthAndHeight"
-        WindowStyle="None" Closed="Window_Closed">
+        WindowStyle="None" 
+        AllowsTransparency="True"
+        Background="Transparent"        
+        Closed="Window_Closed">
     <Window.Resources>
 
         <!--Converters-->
@@ -35,9 +38,9 @@
     </Window.Resources>
 
     <Border VerticalAlignment="Stretch" HorizontalAlignment="Center"
-            MinWidth="500" MaxWidth="900" Background="White"
-            CornerRadius="4">
-        <Grid Margin="30">
+            MinWidth="400" MaxWidth="900" Background="White"
+            CornerRadius="4" BorderBrush="#FF2CA8FF" BorderThickness="1">
+        <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*" MaxHeight="500"/>
@@ -45,11 +48,10 @@
             </Grid.RowDefinitions>
 
             <!--Title-->
-            <Label Grid.Row="0"
-                   Content="{Binding Title}" 
-                   Style="{StaticResource Title}"
-                   Visibility="{Binding Path=ShowTitle, Converter={StaticResource BoolToVisibility}}" />
-            <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#FF303030" />
+            <Grid Grid.Row="0" Visibility="{Binding Path=ShowTitle, Converter={StaticResource BoolToVisibility}}">
+                <Label Content="{Binding Title}" Style="{StaticResource Title}"/>
+                <Separator VerticalAlignment="Bottom" Background="#FF303030" />
+            </Grid>
 
             <!--Main content-->
             <ContentControl Grid.Row="1" Content="{Binding PopupViewModel}" Margin="0,15"/>
@@ -60,7 +62,7 @@
                 <Button x:Name="btnOk" Style="{StaticResource ColorButtonBlue}"
                         Content="{Binding OkButtonCaption}" 
                         Command="{Binding OkCommand}"
-                        Visibility="{Binding IsScanCompleted, Converter={StaticResource BoolToVisibility}}"/>
+                        Visibility="{Binding ShowOkButton, Converter={StaticResource BoolToVisibility}}"/>
 
                 <Button x:Name="btnIgnore" Style="{StaticResource ColorButtonGray}"
                         Content="{Binding IgnoreButtonCaption}" 
