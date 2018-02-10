@@ -17,7 +17,6 @@ namespace MediaBackupManager.Model
     /// Manages a collection of Backup Sets and provides an index of unique file hash objects.</summary>  
     public class FileIndex
     {
-
         #region Properties
 
         /// <summary>
@@ -39,16 +38,14 @@ namespace MediaBackupManager.Model
         #endregion
 
         #region Methods
+
         public FileIndex()
         {
-            //LoadData();
-            //Database.CreateDatabase();
             this.Hashes = new ObservableHashSet<FileHash>();
             this.LogicalVolumes = new List<LogicalVolume>();
             this.BackupSets = new ObservableCollection<BackupSet>();
             this.Exclusions = new ObservableHashSet<string>();
         }
-
 
         /// <summary>
         /// Populates the index with data stored in the database.</summary>  
@@ -120,8 +117,6 @@ namespace MediaBackupManager.Model
         {
             if (statusText != null)
                 statusText.Report("Starting scan");
-
-
 
             if (FileIndexContainsDirectory(directoryPath))
             {

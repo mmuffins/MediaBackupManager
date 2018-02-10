@@ -117,8 +117,13 @@ namespace MediaBackupManager.ViewModel
             {
                 if (subDirectories is null)
                 {
-                    this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
-                        .GetSubDirectories(Path.Combine(DirectoryName, Name)));
+                    if(DirectoryName == @"\")
+                        this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
+                            .GetSubDirectories(Name));
+                    else
+                        this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
+                            .GetSubDirectories(Path.Combine(DirectoryName, Name)));
+
                 }
 
                 return subDirectories;
@@ -132,8 +137,13 @@ namespace MediaBackupManager.ViewModel
             {
                 if (fileNodes is null)
                 {
-                    this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
-                        .GetFileNodes(Path.Combine(DirectoryName, Name)));
+                    if (DirectoryName == @"\")
+                        this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
+                            .GetFileNodes(Name));
+                    else
+                        this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
+                            .GetFileNodes(Path.Combine(DirectoryName, Name)));
+
                 }
 
                 return fileNodes;
