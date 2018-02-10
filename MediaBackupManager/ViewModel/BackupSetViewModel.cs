@@ -406,10 +406,10 @@ namespace MediaBackupManager.ViewModel
             if (backupSet.RootDirectory == @"\")
                 return Directories
                     .FirstOrDefault(x => x.DirectoryName == backupSet.RootDirectory && x.Name == backupSet.RootDirectory);
-
-            return Directories
-                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name)
-                .Equals(backupSet.RootDirectory));
+            else
+                return Directories
+                    .FirstOrDefault(x => Path.Combine(x.DirectoryName.TrimStart('\\'), x.Name)
+                    .Equals(backupSet.RootDirectory));
         }
 
         /// <summary>

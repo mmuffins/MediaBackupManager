@@ -84,12 +84,10 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Remove test functions
-
             this.Title = "Media Backup Manager";
 
             this.Index = new FileIndexViewModel(new FileIndex());
-            PrepareDatabaseAsync(Index.Index).Wait();
+            PrepareDatabaseAsync().Wait();
 
             ChangeViewModel(new BackupSetOverviewViewModel(Index));
             AppViewModels.Add(new DirectoryBrowserViewModel(Index));
@@ -167,7 +165,7 @@ namespace MediaBackupManager.ViewModel
 
 
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
-        public async Task PrepareDatabaseAsync(FileIndex index)
+        public async Task PrepareDatabaseAsync()
         {
             bool newDB = Database.CreateDatabase();
             await Database.PrepareDatabaseAsync();

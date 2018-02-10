@@ -29,18 +29,18 @@ namespace MediaBackupManager.ViewModel
         #region Properties
 
         //TODO: Remove all direct references to the index
-        public FileIndex Index
-        {
-            get { return index; }
-            set
-            {
-                if (value != index)
-                {
-                    index = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        //public FileIndex Index
+        //{
+        //    get { return index; }
+        //    set
+        //    {
+        //        if (value != index)
+        //        {
+        //            index = value;
+        //            NotifyPropertyChanged();
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Gets or sets the current directory.</summary>  
