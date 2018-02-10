@@ -133,7 +133,7 @@
                                         Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
-                                    <Path Width="27" Height="32" Style="{StaticResource appbar_refresh}"
+                                    <Path Width="20" Height="23" Style="{StaticResource appbar_refresh}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
                                 </Button>
                                 
@@ -142,7 +142,7 @@
                                         Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
-                                    <Path Width="24" Height="31"  Style="{StaticResource appbar_delete}"
+                                    <Path Width="18" Height="23"  Style="{StaticResource appbar_delete}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
                                 </Button>
 
