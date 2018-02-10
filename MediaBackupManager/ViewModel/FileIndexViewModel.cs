@@ -312,9 +312,9 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Refreshes the connected status for all logical volumes in the file index.</summary>  
-        public void RefreshVolumeStatus()
+        public async Task RefreshVolumeStatus()
         {
-            index.RefreshVolumeStatus();
+            await Task.Run(() => index.RefreshVolumeStatus());
         }
 
         /// <summary>

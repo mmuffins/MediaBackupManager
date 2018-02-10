@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace MediaBackupManager.ViewModel
 {
@@ -91,6 +92,14 @@ namespace MediaBackupManager.ViewModel
 
             ChangeViewModel(new BackupSetOverviewViewModel(Index));
             AppViewModels.Add(new DirectoryBrowserViewModel(Index));
+
+            // Check what drives are connected every few seconds
+            // to show the correct status in the backupset overview
+            DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background);
+            //TODO: Q-Any better way to do this?
+            timer.Tick += RefreshVolumeStatus;
+            timer.Interval = new TimeSpan(0, 0, 5);
+            timer.Start();
         }
 
         /// <summary>
@@ -163,7 +172,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-
         /// <summary>Makes sure that the backend database is created and in a good state.</summary>
         public async Task PrepareDatabaseAsync()
         {
@@ -184,6 +192,14 @@ namespace MediaBackupManager.ViewModel
                 appViewModels.Add(viewModel);
 
             CurrentAppViewModel = viewModel;
+        }
+
+        /// <summary>
+        /// Refreshes the connected status for all logical volumes in the file index.</summary>  
+        private void RefreshVolumeStatus(object sender, EventArgs e)
+        {
+            if (index != null)
+                Task.Run(() => index.RefreshVolumeStatus());
         }
 
         #endregion

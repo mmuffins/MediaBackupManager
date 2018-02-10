@@ -267,8 +267,47 @@ namespace MediaBackupManager.ViewModel
             }
 
             RebuildDirectoryTree();
-
             backupSet.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
+            backupSet.PropertyChanged += BackupSet_PropertyChanged;
+        }
+
+        private void BackupSet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            //TODO: Q-Any way to directly pass notifications from model to view instead of hooking up the event and manually forward it?
+            switch (e.PropertyName)
+            {
+                case "MountPoint":
+                    this.NotifyPropertyChanged("MountPoint");
+                    break;
+
+                case "LastScanDate":
+                    this.NotifyPropertyChanged("DriveType");
+                    break;
+
+                case "Volume":
+                    backupSet.Volume.PropertyChanged += Volume_PropertyChanged;
+                    this.NotifyPropertyChanged("Volume");
+                    break;
+            }
+        }
+
+        private void Volume_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "IsConnected":
+                    this.NotifyPropertyChanged("IsConnected");
+                    break;
+
+                case "SerialNumber":
+                    this.NotifyPropertyChanged("SerialNumber");
+                    break;
+
+                case "Type":
+                    this.NotifyPropertyChanged("Type");
+                    break;
+
+            }
         }
 
         private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
