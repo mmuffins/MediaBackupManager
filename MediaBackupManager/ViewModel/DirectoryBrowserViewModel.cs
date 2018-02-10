@@ -26,18 +26,12 @@ namespace MediaBackupManager.ViewModel
 
         ObservableCollection<object> searchResults;
 
-        RelayCommand clearDataCommand;
-        RelayCommand removeNewData;
         RelayCommand removeBackupSetCommand;
-        RelayCommand loadData;
-        RelayCommand loadAdditionalData;
-        RelayCommand scanNewData;
         RelayCommand showCreateBackupSetViewCommand;
         RelayCommand searchFilesCommand;
         RelayCommand clearSearchResultsCommand;
         RelayCommand showExclusionCommand;
         RelayCommand showBackupSetOverviewCommand;
-
 
         #endregion
 
@@ -144,68 +138,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand ClearDataCommand
-        {
-            get
-            {
-                if (clearDataCommand == null)
-                {
-                    clearDataCommand = new RelayCommand(
-                        ClearData_Execute,
-                        p => !Index.IsOperationInProgress);
-                }
-                return clearDataCommand;
-            }
-        }
-
-        public RelayCommand RemoveNewData
-        {
-            get
-            {
-                if (removeNewData == null)
-                {
-                    removeNewData = new RelayCommand(RemoveNewData_Execute, param => true);
-                }
-                return removeNewData;
-            }
-        }
-
-        public RelayCommand LoadData
-        {
-            get
-            {
-                if (loadData == null)
-                {
-                    loadData = new RelayCommand(LoadData_Execute, param => true);
-                }
-                return loadData;
-            }
-        }
-
-        public RelayCommand LoadAdditionalData
-        {
-            get
-            {
-                if (loadAdditionalData == null)
-                {
-                    loadAdditionalData = new RelayCommand(TestLoadAdditionalData_Execute, param => true);
-                }
-                return loadAdditionalData;
-            }
-        }
-
-        public RelayCommand ScanNewData
-        {
-            get
-            {
-                if (scanNewData == null)
-                {
-                    scanNewData = new RelayCommand(ScanNewData_Execute, param => true);
-                }
-                return scanNewData;
-            }
-        }
-
         public RelayCommand ShowCreateBackupSetViewCommand
         {
             get
@@ -299,7 +231,6 @@ namespace MediaBackupManager.ViewModel
         {
             this.Index = index;
             searchResults = new ObservableCollection<object>();
-            //MessageService.RoutedMessage += new EventHandler<MessageServiceEventArgs>(OnMessageServiceMessage);
         }
 
         /// <summary>
@@ -326,56 +257,14 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        private async void ClearData_Execute(object obj)
-        {
-            for (int i = Index.Index.BackupSets.Count - 1; i >= 0; i--)
-            {
-                var deleteElement = Index.Index.BackupSets.ElementAt(i);
-                await Index.Index.RemoveBackupSetAsync(deleteElement, true);
-            }
-        }
-
-        private async void RemoveNewData_Execute(object obj)
-        {
-            var deleteSet = Index.Index.BackupSets.FirstOrDefault(x => x.RootDirectory == "indexdir" && x.MountPoint == "C:\\");
-
-            if (!(deleteSet is null))
-            {
-                await Index.RemoveBackupSetAsync(deleteSet);
-            }
-        }
-
-        private async void LoadData_Execute(object obj)
-        {
-            await Index.Index.LoadDataAsync();
-        }
-
-        private async void ScanNewData_Execute(object obj)
-        {
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\Portable Apps"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "PortableApps");
-        }
-
         /// <summary>
         /// Removes the provided Backupset from the file index.</summary>
         private async void RemoveBackupSet(BackupSetViewModel backupSet)
         {
-            
             if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
             {
                 await Index.RemoveBackupSetAsync(backupSet.BackupSet);
             }
-        }
-
-        public async void TestLoadAdditionalData_Execute(object obj)
-        {
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\dd"));
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir"));
-
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "fMain");
-            await Index.CreateBackupSetAsync(new DirectoryInfo(@"D:\indexdir\main\images"), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "dMainImages");
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"C:\indexdir\main\images2\b"));
-            //await Index.CreateBackupSetAsync(new DirectoryInfo(@"F:\indexdir\main\images2"));
-
         }
 
         /// <summary>

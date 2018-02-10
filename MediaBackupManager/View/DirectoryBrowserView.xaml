@@ -47,14 +47,6 @@
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button x:Name="btnShowBackupSetView" Content="Home" Command="{Binding ShowBackupSetOverviewCommand}" Style="{DynamicResource HeaderButton}"  />
-            <!--<Button x:Name="btnShowExclusionList" Content="File Exclusions" Command="{Binding ShowExclusionOverlayCommand}" Style="{DynamicResource HeaderButton}" />-->
-            <!--<Button x:Name="btnClearData" Content="Clear" Command="{Binding ClearDataCommand}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnLoadData" Content="Load DB" Command="{Binding LoadData}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnScanFiles" Content="Scan Test 1" Command="{Binding LoadAdditionalData}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnScanAdditional" Content="Scan Test 2" Command="{Binding ScanNewData}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnDeleteAdditional" Content="Delete Test 2" Command="{Binding RemoveNewData}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnCreateBackupSet" Content="Index Directory" Command="{Binding ShowCreateBackupSetViewCommand}" Style="{DynamicResource HeaderButton}" />
-            <Button x:Name="btnRemoveBackupSet" Content="Remove Directory" Command="{Binding RemoveBackupSetCommand}" Style="{DynamicResource HeaderButton}" />-->
         </StackPanel>
 
         <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Background="#FF303030" />
