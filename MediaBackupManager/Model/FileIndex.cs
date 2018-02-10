@@ -100,8 +100,8 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Refreshes the connected status for all logical volumes in the collection.</summary>  
-        private void RefreshVolumeStatus()
+        /// Refreshes the connected status for all logical volumes in the file index.</summary>  
+        public void RefreshVolumeStatus()
         {
             LogicalVolumes.ForEach(x => x.RefreshStatus());
         }

@@ -311,6 +311,13 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
+        /// Refreshes the connected status for all logical volumes in the file index.</summary>  
+        public void RefreshVolumeStatus()
+        {
+            index.RefreshVolumeStatus();
+        }
+
+        /// <summary>
         /// Returns the FileHashViewModel object for the provided string.</summary>  
         public FileHashViewModel GetFileHashViewModel(string hash)
         {
