@@ -188,6 +188,12 @@ namespace MediaBackupManager.Model
                 statusText.Report("Scanning logical volumes");
 
             var stagingVolume = new LogicalVolume(directoryPath);
+            
+            if (stagingVolume.SerialNumber is null || stagingVolume.MountPoint is null || stagingVolume.IsConnected == false)
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not scan the logical volume for " + directoryPath.FullName));
+                return null;
+            }
 
             var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions.ToList());
             if (!string.IsNullOrWhiteSpace(label))
