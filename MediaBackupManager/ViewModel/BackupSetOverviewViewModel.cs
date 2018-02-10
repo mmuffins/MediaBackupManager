@@ -24,7 +24,6 @@ namespace MediaBackupManager.ViewModel
         RelayCommand showExclusionCommand;
         RelayCommand enableRenamingModeCommand;
 
-
         #endregion
 
         #region Properties
@@ -149,12 +148,10 @@ namespace MediaBackupManager.ViewModel
             this.Index = index;
         }
 
-
         /// <summary>
         /// Removes the provided Backupset from the file index.</summary>
         private async Task RemoveBackupSet(BackupSetViewModel backupSet)
         {
-
             var confirmDiag = new OKCancelPopupViewModel("Do you want to delete Backup Set " + backupSet.Label + "?", "", "Delete", "No");
             if (confirmDiag.ShowDialog() == DialogResult.Cancel)
                 return;
@@ -162,7 +159,6 @@ namespace MediaBackupManager.ViewModel
             // User has confirmed the deletion, continue 
             if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
                 await Index.RemoveBackupSetAsync(backupSet.BackupSet);
-
         }
 
         #endregion

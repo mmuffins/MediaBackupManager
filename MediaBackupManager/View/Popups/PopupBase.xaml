@@ -8,8 +8,8 @@
         xmlns:view="clr-namespace:MediaBackupManager.View"
         mc:Ignorable="d"
         Title="{Binding Title}" 
-        Height="300" MinHeight="150" 
-        Width="400" MinWidth="400"
+        Height="300" MinHeight="120" 
+        Width="300" MinWidth="300"
         SizeToContent="WidthAndHeight"
         WindowStyle="None" 
         AllowsTransparency="True"
@@ -38,8 +38,9 @@
     </Window.Resources>
 
     <Border VerticalAlignment="Stretch" HorizontalAlignment="Center"
-            MinWidth="400" MaxWidth="900" Background="White"
-            CornerRadius="4" BorderBrush="#FF2CA8FF" BorderThickness="1">
+            MinWidth="300" MaxWidth="900" Background="White"
+            CornerRadius="4" 
+            BorderBrush="#FF2CA8FF" BorderThickness="1">
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -49,7 +50,7 @@
 
             <!--Title-->
             <Grid Grid.Row="0" Visibility="{Binding Path=ShowTitle, Converter={StaticResource BoolToVisibility}}">
-                <Label Content="{Binding Title}" Style="{StaticResource Title}"/>
+                <Label Content="{Binding Title}" Style="{StaticResource Title}" FontSize="18"/>
                 <Separator VerticalAlignment="Bottom" Background="#FF303030" />
             </Grid>
 
@@ -59,17 +60,20 @@
             <!--Buttons-->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" >
                 
-                <Button x:Name="btnOk" Style="{StaticResource ColorButtonBlue}"
+                <Button x:Name="btnOk" 
+                        Style="{StaticResource ColorButtonBlue}"
                         Content="{Binding OkButtonCaption}" 
                         Command="{Binding OkCommand}"
                         Visibility="{Binding ShowOkButton, Converter={StaticResource BoolToVisibility}}"/>
 
-                <Button x:Name="btnIgnore" Style="{StaticResource ColorButtonGray}"
+                <Button x:Name="btnIgnore" 
+                        Style="{StaticResource ColorButtonGray}"
                         Content="{Binding IgnoreButtonCaption}" 
                         Command="{Binding IgnoreCommand}" 
                         Visibility="{Binding ShowIgnoreButton, Converter={StaticResource BoolToVisibility}}"/>
                 
-                <Button x:Name="btnCancel" Style="{StaticResource ColorButtonGray}"
+                <Button x:Name="btnCancel" 
+                        Style="{StaticResource ColorButtonGray}"
                         Content="{Binding CancelButtonCaption}" 
                         Command="{Binding CancelCommand}" 
                         Visibility="{Binding ShowCancelButton, Converter={StaticResource BoolToVisibility}}"/>
