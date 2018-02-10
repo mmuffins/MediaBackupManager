@@ -5,66 +5,74 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaBackupManager.View.Popups"
         xmlns:popupsvm="clr-namespace:MediaBackupManager.ViewModel.Popups"
+        xmlns:view="clr-namespace:MediaBackupManager.View"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="300" Width="300"
+        Title="{Binding Title}" 
+        Height="300" MinHeight="150" 
+        Width="500" MinWidth="500"
         SizeToContent="WidthAndHeight"
         WindowStyle="None" Closed="Window_Closed">
     <Window.Resources>
+
+        <!--Converters-->
+        <view:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
+        <view:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
+
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="#FF303030" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--Views used as main content-->
         <DataTemplate DataType="{x:Type popupsvm:OKCancelPopupViewModel}">
             <local:OKCancelPopup/>
         </DataTemplate>
+
     </Window.Resources>
-    <DockPanel LastChildFill="True" Background="White">
-        <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Height="30">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Visible" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Title}" Value="">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="20" HorizontalAlignment="Right" >
-            <Button x:Name="btnOk" Content="{Binding OkButtonCaption}" Command="{Binding OkCommand}">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowOkButton}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button x:Name="btnIgnore" Content="{Binding IgnoreButtonCaption}" Command="{Binding IgnoreCommand}">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowIgnoreButton}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button x:Name="btnCancel" Content="{Binding CancelButtonCaption}" Command="{Binding CancelCommand}">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ShowCancelButton}" Value="False">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
-        <ContentControl Content="{Binding PopupViewModel}"/>
-    </DockPanel>
+
+    <Border VerticalAlignment="Stretch" HorizontalAlignment="Center"
+            MinWidth="500" MaxWidth="900" Background="White"
+            CornerRadius="4">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" MaxHeight="500"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!--Title-->
+            <Label Grid.Row="0"
+                   Content="{Binding Title}" 
+                   Style="{StaticResource Title}"
+                   Visibility="{Binding Path=ShowTitle, Converter={StaticResource BoolToVisibility}}" />
+            <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#FF303030" />
+
+            <!--Main content-->
+            <ContentControl Grid.Row="1" Content="{Binding PopupViewModel}" Margin="0,15"/>
+
+            <!--Buttons-->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" >
+                
+                <Button x:Name="btnOk" Style="{StaticResource ColorButtonBlue}"
+                        Content="{Binding OkButtonCaption}" 
+                        Command="{Binding OkCommand}"
+                        Visibility="{Binding IsScanCompleted, Converter={StaticResource BoolToVisibility}}"/>
+
+                <Button x:Name="btnIgnore" Style="{StaticResource ColorButtonGray}"
+                        Content="{Binding IgnoreButtonCaption}" 
+                        Command="{Binding IgnoreCommand}" 
+                        Visibility="{Binding ShowIgnoreButton, Converter={StaticResource BoolToVisibility}}"/>
+                
+                <Button x:Name="btnCancel" Style="{StaticResource ColorButtonGray}"
+                        Content="{Binding CancelButtonCaption}" 
+                        Command="{Binding CancelCommand}" 
+                        Visibility="{Binding ShowCancelButton, Converter={StaticResource BoolToVisibility}}"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
 </Window>
