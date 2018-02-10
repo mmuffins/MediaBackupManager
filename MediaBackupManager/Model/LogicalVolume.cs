@@ -13,33 +13,110 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// A logical volume on a fixed or removable drive.</summary>  
-    public class LogicalVolume : IEquatable<LogicalVolume>
+    public class LogicalVolume : IEquatable<LogicalVolume>, INotifyPropertyChanged
     {
+        #region Fields
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        string serialNumber;
+        ulong size;
+        DriveType type;
+        string volumeName;
+        string mountPoint;
+        bool isConnected;
+
+        #endregion
 
         #region Properties
         /// <summary>
         /// Gets or sets the volume serial number of the current logical volume.</summary>  
-        public string SerialNumber { get; set; }
+        public string SerialNumber
+        {
+            get { return serialNumber; }
+            set
+            {
+                if (value != serialNumber)
+                {
+                    serialNumber = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the total size of the current logical volume.</summary>  
-        public ulong Size { get; set; }
+        public ulong Size
+        {
+            get { return size; }
+            set
+            {
+                if (value != size)
+                {
+                    size = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the drive type of the current logical volume.</summary>  
-        public DriveType Type { get; set; }
+        public DriveType Type
+        {
+            get { return type; }
+            set
+            {
+                if (value != type)
+                {
+                    type = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the friendly name of the current logical volume.</summary>  
-        public string VolumeName { get; set; }
+        public string VolumeName
+        {
+            get { return volumeName; }
+            set
+            {
+                if (value != volumeName)
+                {
+                    volumeName = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the mount point or drive letter of the current logical volume, which is only valid in the current session.</summary>  
-        public string MountPoint { get; set; }
+        public string MountPoint
+        {
+            get { return mountPoint; }
+            set
+            {
+                if (value != mountPoint)
+                {
+                    mountPoint = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating if the logical volume is currently connected to the host. To update, execute RefreshStatus.</summary>  
-        public bool IsConnected { get; set; }
+        public bool IsConnected
+        {
+            get { return isConnected; }
+            set
+            {
+                if (value != isConnected)
+                {
+                    isConnected = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
@@ -134,6 +211,14 @@ namespace MediaBackupManager.Model
                 return false;
             else
                 return Equals(otherObj);
+        }
+
+        public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            // take a copy to prevent thread issues
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
