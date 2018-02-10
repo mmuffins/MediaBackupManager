@@ -21,9 +21,11 @@ namespace MediaBackupManager.ViewModel.Popups
         bool showOkButton;
         bool showCancelButton;
         bool showIgnoreBuggon;
+        bool showTitle;
         string okButtonCaption;
         string cancelButtonCaption;
         string ignoreButtonCaption;
+        string title;
 
         RelayCommand okCommand;
         RelayCommand cancelCommand;
@@ -88,6 +90,21 @@ namespace MediaBackupManager.ViewModel.Popups
                 if (value != showIgnoreBuggon)
                 {
                     showIgnoreBuggon = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the value controlling whether the Title button should be displayed.</summary>  
+        public bool ShowTitle
+        {
+            get { return showTitle; }
+            set
+            {
+                if (value != showTitle)
+                {
+                    showTitle = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -197,6 +214,26 @@ namespace MediaBackupManager.ViewModel.Popups
                 {
                     result = value;
                     NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the title of the current view.</summary>  
+        public new string Title
+        {
+            get { return this.title; }
+            set
+            {
+                if (value != this.title)
+                {
+                    this.title = value;
+                    NotifyPropertyChanged();
+
+                    if (string.IsNullOrWhiteSpace(this.title))
+                        this.ShowTitle = false;
+                    else
+                        this.ShowTitle = true;
                 }
             }
         }
