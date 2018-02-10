@@ -307,7 +307,7 @@ namespace MediaBackupManager.ViewModel
 
             await index.LoadDataAsync();
 
-            IsOperationInProgress = true;
+            IsOperationInProgress = false;
         }
 
         /// <summary>
