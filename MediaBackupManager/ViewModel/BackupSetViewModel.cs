@@ -383,14 +383,20 @@ namespace MediaBackupManager.ViewModel
         /// Returns an IEnumerable object of all file nodes below the provided directory.</summary>  
         public IEnumerable<FileNodeViewModel> GetFileNodes(string path)
         {
-            return FileNodes.Where(x => x.DirectoryName == path);
+            if(path == @"\")
+                return FileNodes.Where(x => x.DirectoryName == path);
+            else
+                return FileNodes.Where(x => x.DirectoryName.TrimStart('\\') == path);
         }
 
         /// <summary>
         /// Returns the directory object for the provided path.</summary>  
         public FileDirectoryViewModel GetDirectory(string directory)
         {
-            return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) == directory);
+            if (directory == @"\")
+                return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) == directory);
+            else
+                return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName.TrimStart('\\'), x.Name) == directory);
         }
 
         /// <summary>
