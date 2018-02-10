@@ -73,7 +73,16 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Gets the full path Name from the of the current file node, with its current mount point as root.</summary>  
-        public override string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
+        public override string FullSessionName
+        {
+            get
+            {
+                if(DirectoryName == @"\")
+                    return Path.Combine(BackupSet.Volume.MountPoint, Name);
+                else 
+                    return Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name);
+            }
+        }
 
         /// <summary>
         /// Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
@@ -93,8 +102,13 @@ namespace MediaBackupManager.Model
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
-            this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
             this.BackupSet = backupSet;
+
+            //Set root directory to \
+            if (fileInfo.Directory is null || fileInfo.Directory.FullName == fileInfo.Directory.Root.FullName)
+                this.DirectoryName = @"\";
+            else
+                this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
         }
 
         public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file) : this (fileInfo, backupSet)

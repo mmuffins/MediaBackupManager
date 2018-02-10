@@ -84,7 +84,7 @@ namespace MediaBackupManager.ViewModel
 
         public MainWindowViewModel()
         {
-            //TODO: Make the textbox slide open when clicking the add button for exclusion
+            //TODO: Remove test functions
 
             this.Title = "Media Backup Manager";
 

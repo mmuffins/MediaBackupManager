@@ -62,7 +62,10 @@ namespace MediaBackupManager.ViewModel
             {
                 if (parent is null)
                 {
-                    this.parent = backupSet.GetDirectory(DirectoryName);
+                    if (this.Name == @"\" && this.DirectoryName == @"\")
+                        this.parent = null;
+                    else
+                        this.parent = backupSet.GetDirectory(DirectoryName);
                 }
 
                 return parent;
@@ -147,8 +150,6 @@ namespace MediaBackupManager.ViewModel
                     .ToList();
             }
         }
-
-
 
         public IEnumerable<FileDirectoryViewModel> BreadCrumbList
         {

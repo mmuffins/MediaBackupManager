@@ -121,6 +121,8 @@ namespace MediaBackupManager.Model
             if (statusText != null)
                 statusText.Report("Starting scan");
 
+
+
             if (FileIndexContainsDirectory(directoryPath))
             {
                 MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is already indexed in another Backup Set."));
@@ -205,7 +207,7 @@ namespace MediaBackupManager.Model
             if (statusText != null)
                 statusText.Report("Getting file list");
 
-            await stagingSet.ScanFilesAsync(cancellationToken);
+            await stagingSet.ScanFilesAsync(cancellationToken, statusText);
 
             if (cancellationToken.IsCancellationRequested)
                 return null;
@@ -247,7 +249,12 @@ namespace MediaBackupManager.Model
             var label = backupSet.Label;
             var mountPoint = backupSet.MountPoint;
 
-            var rootDirObject = new DirectoryInfo(Path.Combine(mountPoint,rootDirectory));
+            DirectoryInfo rootDirObject;
+
+            if(rootDirectory == @"\")
+                rootDirObject = new DirectoryInfo(Path.Combine(mountPoint));
+            else
+                rootDirObject = new DirectoryInfo(Path.Combine(mountPoint,rootDirectory));
 
             if (!rootDirObject.Exists)
             {
@@ -321,8 +328,6 @@ namespace MediaBackupManager.Model
 
             if (Exclusions.Add(exclusion))
             {
-                //NotifyPropertyChanged("Exclusion");
-
                 if (writeToDb)
                     await Database.InsertExclusionAsync(exclusion);
             }
@@ -334,7 +339,6 @@ namespace MediaBackupManager.Model
         private async Task AddBackupSet(BackupSet backupSet, bool writeToDb)
         {
             BackupSets.Add(backupSet);
-            //NotifyPropertyChanged("BackupSet");
 
             if (writeToDb)
                 await Database.InsertBackupSetAsync(backupSet);
@@ -429,11 +433,11 @@ namespace MediaBackupManager.Model
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
-            //TODO:Remove test exclusions before going live
+            //TODO: Add System volume information to exceptions
             await AddExclusionAsync(@".*usrclass.dat.log.*", true);
-            await AddExclusionAsync(@".*\\nzb.*", true);
-            await AddExclusionAsync(@".*\\filme.*", true);
-            await AddExclusionAsync(@".*\.zip", true);
+            await AddExclusionAsync(@".*\$RECYCLE\.BIN*", true);
+            await AddExclusionAsync(@".*System Volume Information*", true);
+            await AddExclusionAsync(@".*\.lnk", true);
         }
 
         /// <summary>

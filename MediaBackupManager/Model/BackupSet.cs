@@ -143,7 +143,18 @@ namespace MediaBackupManager.Model
         public BackupSet(DirectoryInfo directory, LogicalVolume drive, List<string> exclusions) : this()
         {
             this.Volume = drive;
-            this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
+            var pathRoot = Path.GetPathRoot(directory.FullName);
+            if(directory.FullName == pathRoot)
+            {
+                // Selected path is the root of a drive
+                this.rootDirectory = @"\";
+            }
+            else
+            {
+                this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
+            }
+
+            //this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
             this.exclusions = exclusions;
 
             if (string.IsNullOrWhiteSpace(this.Label))
@@ -163,18 +174,22 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
-        public async Task ScanFilesAsync(CancellationToken cancellationToken)
+        public async Task ScanFilesAsync(CancellationToken cancellationToken, IProgress<string> processingFile)
         {
-            if (IsFileExcluded((Path.Combine(MountPoint, RootDirectory)).ToString()))
+            var scanPath = Path.Combine(MountPoint, RootDirectory);
+            if (RootDirectory == @"\")
+                scanPath = MountPoint;
+
+            if (IsFileExcluded(scanPath))
                 return;
 
-            await Task.Run(()=>IndexDirectory(new DirectoryInfo(Path.Combine(MountPoint, RootDirectory)), cancellationToken), cancellationToken);
+            await Task.Run(()=>IndexDirectory(new DirectoryInfo(scanPath), cancellationToken, processingFile), cancellationToken);
             LastScanDate = DateTime.Now;
         }
 
         /// <summary>
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
-        private void IndexDirectory(DirectoryInfo directory, CancellationToken cancellationToken)
+        private void IndexDirectory(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> statusText)
         {
             if (cancellationToken.IsCancellationRequested)
                 return;
@@ -186,11 +201,11 @@ namespace MediaBackupManager.Model
             try
             {
                 foreach (var item in directory.GetDirectories())
-                    IndexDirectory(item, cancellationToken);
+                    IndexDirectory(item, cancellationToken, statusText);
 
                 FileNodes.Add(new FileDirectory(directory, this));
 
-                IndexFile(directory, cancellationToken);
+                IndexFile(directory, cancellationToken, statusText);
             }
             catch (Exception ex)
             {
@@ -201,7 +216,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files found in the provided directory and adds them to the file index.</summary>
-        private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken)
+        private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> processingFile)
         {
 
             foreach (var file in directory.GetFiles())
@@ -211,6 +226,10 @@ namespace MediaBackupManager.Model
 
                 if (IsFileExcluded(file.FullName))
                     continue;
+
+                // Report the current progress
+                if (processingFile != null)
+                    processingFile.Report(file.FullName);
 
                 try
                 {

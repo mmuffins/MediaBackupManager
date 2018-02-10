@@ -335,9 +335,9 @@ namespace MediaBackupManager.ViewModel
                             Directories.Add(new FileDirectoryViewModel((FileDirectory)item, this));
                     }
             }
-            this.rootDirectory = GetRootDirectoryObject();
+            //this.rootDirectory = GetRootDirectoryObject();
             // Rebuilding the tree after every change of the collection is very expensive,
-            // and generally not needed since nodes are scanned in sequence
+            // and generally not necessary since nodes are scanned in sequence
             //RebuildDirectoryTree();
             //RebuildNodeTree();
 
@@ -373,7 +373,10 @@ namespace MediaBackupManager.ViewModel
         /// Returns an IEnumerable object of all directories below the provided directory.</summary>  
         public IEnumerable<FileDirectoryViewModel> GetSubDirectories(string path)
         {
-            return Directories.Where(x => x.DirectoryName == path);
+            if (path == @"\")
+                return Directories.Where(x => x.DirectoryName == path && x.Name != path);
+            else 
+                return Directories.Where(x => x.DirectoryName == path);
         }
 
         /// <summary>
@@ -394,6 +397,10 @@ namespace MediaBackupManager.ViewModel
         /// Returns the root file directory object.</summary>  
         private FileDirectoryViewModel GetRootDirectoryObject()
         {
+            if (backupSet.RootDirectory == @"\")
+                return Directories
+                    .FirstOrDefault(x => x.DirectoryName == backupSet.RootDirectory && x.Name == backupSet.RootDirectory);
+
             return Directories
                 .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name)
                 .Equals(backupSet.RootDirectory));
@@ -417,8 +424,8 @@ namespace MediaBackupManager.ViewModel
         /// Rebuilds the parent/child relationship for all directories in the backup set.</summary>  
         public void RebuildDirectoryTree()
         {
-            // Make sure that each element has a parent
-            foreach (var dir in Directories.Where(x => x.Parent is null))
+            // Make sure that each element except root directories have a parent
+            foreach (var dir in Directories.Where(x => x.Parent is null && x.Name != @"\" && x.DirectoryName != @"\"))
                 dir.Parent = GetDirectory(dir.DirectoryName);
 
             // All elements except the root directory now have a parent,

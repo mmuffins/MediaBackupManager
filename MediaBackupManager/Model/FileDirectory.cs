@@ -112,9 +112,23 @@ namespace MediaBackupManager.Model
 
         public FileDirectory(DirectoryInfo directoryInfo, BackupSet backupSet)
         {
-            this.Name = directoryInfo.Name;
-            this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
             this.BackupSet = backupSet;
+            //this.name = directoryInfo.Name;
+            //this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
+
+            // set name to \ if the this is the root directory
+            if (directoryInfo.FullName == directoryInfo.Root.FullName)
+                this.name = @"\";
+            else
+                this.name = directoryInfo.Name;
+
+            // Set root directory to \
+            if (directoryInfo.Parent is null || directoryInfo.Parent.FullName == directoryInfo.Root.FullName)
+                this.directoryName = @"\";
+            else
+                this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
+
+
         }
 
         public FileDirectory(string directoryName, BackupSet backupSet)
