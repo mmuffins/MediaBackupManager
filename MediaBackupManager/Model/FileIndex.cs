@@ -433,7 +433,6 @@ namespace MediaBackupManager.Model
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
-            //TODO: Add System volume information to exceptions
             await AddExclusionAsync(@".*usrclass.dat.log.*", true);
             await AddExclusionAsync(@".*\$RECYCLE\.BIN*", true);
             await AddExclusionAsync(@".*System Volume Information*", true);
