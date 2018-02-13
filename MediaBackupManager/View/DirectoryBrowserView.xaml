@@ -17,6 +17,11 @@
             <Setter Property="BorderThickness" Value="0,0,1,0" />
         </Style>
 
+        <!--GridView Resources-->
+        <Style TargetType="ListView">
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
         <!--Compositecollections don't have support for sorting/filtering, use workaround instead-->
         <!--<CollectionViewSource x:Key="DirectoryFileNodes" Source="{Binding Path=CurrentDirectory.FileNodes}"/>
         <CollectionViewSource x:Key="DirectorySubDirs" Source="{Binding Path=CurrentDirectory.SubDirectories}"/>
