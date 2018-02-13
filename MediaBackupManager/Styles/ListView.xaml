@@ -112,7 +112,7 @@
                 <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
                     <Grid SnapsToDevicePixels="True">
                         <Border BorderThickness="1,1,0,1" BorderBrush="LightGray" Background="#FFE8E8E8">
-                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="5,5,5,0" Width="{TemplateBinding Width}" TextAlignment="Center" />
+                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="5,5,5,0" Width="{TemplateBinding Width}" TextAlignment="Left" />
                         </Border>
                         <Thumb x:Name="PART_HeaderGripper"
                  HorizontalAlignment="Right"
