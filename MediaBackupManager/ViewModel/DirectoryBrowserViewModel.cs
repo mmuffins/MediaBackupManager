@@ -21,8 +21,8 @@ namespace MediaBackupManager.ViewModel
         object selectedDirectoryTreeItem;
         object selectedFileGridItem;
         string searchBarText;
-        bool showSearchResults = false;
-        bool highlightMissingBackupFiles =true;
+        bool showSearchResults;
+        bool highlightMissingBackupFiles;
 
         ObservableCollection<object> searchResults;
 
@@ -230,6 +230,8 @@ namespace MediaBackupManager.ViewModel
         public DirectoryBrowserViewModel(FileIndexViewModel index)
         {
             this.Index = index;
+            this.HighlightMissingBackupFiles = false;
+            this.ShowSearchResults = false;
             searchResults = new ObservableCollection<object>();
         }
 

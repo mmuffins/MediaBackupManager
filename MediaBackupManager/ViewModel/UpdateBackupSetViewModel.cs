@@ -55,7 +55,6 @@ namespace MediaBackupManager.ViewModel
                 if (startCommand == null)
                 {
                     startCommand = new RelayCommand(
-                        //TODO:Q-Is calling Createbackupset like this still an async call?
                         async p => await UpdateBackupSet(UpdateSet),
                         p => true);
                 }
