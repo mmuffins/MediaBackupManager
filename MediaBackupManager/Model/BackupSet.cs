@@ -314,8 +314,8 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Determines whether the backup set is a child of a directory.</summary>  
-        public bool IsSubsetOf(DirectoryInfo dir)
+        /// Determines whether the backup set is a child of the provided directory.</summary>  
+        public bool IsParentDirectory(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)
                 return false;

@@ -130,7 +130,7 @@ namespace MediaBackupManager.Model
                 return null;
             }
 
-            var stagingSet = await PrepareBackupSet(directoryPath, cancellationToken, progress, statusText, label);
+            var stagingSet = await PrepareBackupSetAsync(directoryPath, cancellationToken, progress, statusText, label);
 
             // No need to inform the user here, all errors have been handled inside PrepareBackupSet
             if (stagingSet is null)
@@ -172,7 +172,7 @@ namespace MediaBackupManager.Model
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to report the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
-        private async Task<BackupSet> PrepareBackupSet(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
+        private async Task<BackupSet> PrepareBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
 
             if (!Directory.Exists(directoryPath.FullName))
@@ -259,7 +259,7 @@ namespace MediaBackupManager.Model
 
             // We now know that the drive is connected and the directory still exists
             // Create a temporary backup set to get a list of all files
-            var newSet = await PrepareBackupSet(rootDirObject, cancellationToken, progress, statusText, label);
+            var newSet = await PrepareBackupSetAsync(rootDirObject, cancellationToken, progress, statusText, label);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -309,6 +309,7 @@ namespace MediaBackupManager.Model
         /// <param name="exclusion">A regex string matching a file or path name.</param>
         public async Task CreateFileExclusionAsync(string exclusion)
         {
+            //TODO:Q any nicer way to do this than in a wrapper containing a single line?
             // public wrapper function for AddExclusionAsync to avoid exposing the writeToDB swich
             await AddExclusionAsync(exclusion, true);
         }
@@ -331,7 +332,7 @@ namespace MediaBackupManager.Model
         /// <summary>
         /// Adds the provided Backup set to the collection.</summary>  
         /// <param name="writeToDb">If true, the object will be written to the Database.</param>
-        private async Task AddBackupSet(BackupSet backupSet, bool writeToDb)
+        private async Task AddBackupSetAsync(BackupSet backupSet, bool writeToDb)
         {
             BackupSets.Add(backupSet);
 
@@ -415,7 +416,7 @@ namespace MediaBackupManager.Model
 
             foreach (var set in BackupSets)
             {
-                if (set.IsSubsetOf(dir))
+                if (set.IsParentDirectory(dir))
                 {
                     result = true;
                     break;
@@ -428,6 +429,7 @@ namespace MediaBackupManager.Model
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
+            //TODO: Thumbs.db exclusion
             await AddExclusionAsync(@".*usrclass.dat.log.*", true);
             await AddExclusionAsync(@".*\$RECYCLE\.BIN*", true);
             await AddExclusionAsync(@".*System Volume Information*", true);
@@ -448,18 +450,17 @@ namespace MediaBackupManager.Model
                 if (file.Hash is null)
                     continue;
 
-
+                // For each hash in the staging set, check if it already exists
+                // in the file index. If so, update the pointer of the respective node
+                // in the staging set to use the existing object. If not, add the hash to the index
                 var hash = Hashes.FirstOrDefault(x => x.Equals(file.Hash));
                 if (hash != null)
                 {
-                    // Hash is already on the index, change the reference of the file node
-                    // and add the new node location to the hash
                     hash.AddNode(file);
                     file.Hash = hash;
                 }
                 else
                 {
-                    // Hashes are written to the DB in batches, so no reason for a dedicated method here
                     Hashes.Add(file.Hash);
                     newHashes.Add(file.Hash); 
                 }
@@ -480,7 +481,7 @@ namespace MediaBackupManager.Model
                 stagingSet.Volume = LogicalVolumes.FirstOrDefault((x => x.Equals(stagingSet.Volume)));
             }
 
-            await AddBackupSet(stagingSet, true);
+            await AddBackupSetAsync(stagingSet, true);
         }
 
         #endregion
