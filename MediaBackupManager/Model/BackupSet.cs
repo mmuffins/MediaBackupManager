@@ -175,6 +175,8 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files below the root directory and adds them to the index.</summary>  
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
+        /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task ScanFilesAsync(CancellationToken cancellationToken, IProgress<string> processingFile)
         {
             var scanPath = Path.Combine(MountPoint, RootDirectory);
@@ -190,6 +192,9 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Recursively adds the provided directory and subdirectories to the file index.</summary>
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
+        /// <param name="directory">Progress object used to provide feedback over the current status of the operation.</param>
         private void IndexDirectory(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> statusText)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -217,6 +222,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files found in the provided directory and adds them to the file index.</summary>
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> processingFile)
         {
@@ -247,6 +253,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
+        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task HashFilesAsync(CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> processingFile)
