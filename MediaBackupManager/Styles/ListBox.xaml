@@ -5,6 +5,7 @@
 
 <!--Visual Style for the Backup Set List on the start page-->
     <Style TargetType="ListBoxItem" x:Key="BackupSetListStyle" >
+        <Setter Property="FontFamily" Value="MT Extra"/>
         <Setter Property="Margin" Value="0,10"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Template">
