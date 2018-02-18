@@ -179,7 +179,7 @@
                     <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Path=Hash.Length, Converter={StaticResource ByteToHuman}}" />
                     <GridViewColumn Header="Creation Time" DisplayMemberBinding="{Binding Path=Hash.CreationTime}" />
                     <GridViewColumn Header="Last Write Time" DisplayMemberBinding="{Binding Path=Hash.LastWriteTime}" />
-                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding DirectoryName}" />
+                    <GridViewColumn Header="Directory" DisplayMemberBinding="{Binding FullName}" />
                     <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
                     <!--<GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />-->
                     <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
