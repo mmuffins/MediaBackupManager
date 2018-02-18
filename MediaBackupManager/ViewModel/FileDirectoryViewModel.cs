@@ -21,6 +21,8 @@ namespace MediaBackupManager.ViewModel
         ObservableCollection<FileNodeViewModel> fileNodes;
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
+        private bool ignoreSubdirectoryChanges = false;
+        private bool ignoreFileChanges = false;
 
         #endregion
 
@@ -58,18 +60,7 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets the parent directory object of the current directory.</summary>  
         public FileDirectoryViewModel Parent
         {
-            get
-            {
-                if (parent is null)
-                {
-                    if (this.Name == @"\" && this.DirectoryName == @"\")
-                        this.parent = null;
-                    else
-                        this.parent = backupSet.GetDirectory(DirectoryName);
-                }
-
-                return parent;
-            }
+            get { return parent; }
             set
             {
                 if (value != parent)
@@ -79,6 +70,7 @@ namespace MediaBackupManager.ViewModel
                 }
             }
         }
+
 
         /// <summary>
         /// Gets a value indicating if all subdirectories and child file nodes have are related to more than one logical volumes.</summary>  
@@ -113,42 +105,15 @@ namespace MediaBackupManager.ViewModel
         /// <summary>Gets the subdirectories of the current directory.</summary>
         public ObservableCollection<FileDirectoryViewModel> SubDirectories
         {
-            get
-            {
-                if (subDirectories is null)
-                {
-                    if(DirectoryName == @"\")
-                        this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
-                            .GetSubDirectories(Name));
-                    else
-                        this.subDirectories = new ObservableCollection<FileDirectoryViewModel>(BackupSet
-                            .GetSubDirectories(Path.Combine(DirectoryName, Name)));
-
-                }
-
-                return subDirectories;
-            }
+            get => subDirectories; 
         }
 
         /// <summary>Gets a list of all file nodes below the current object.</summary>
         public ObservableCollection<FileNodeViewModel> FileNodes
         {
-            get
-            {
-                if (fileNodes is null)
-                {
-                    if (DirectoryName == @"\")
-                        this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
-                            .GetFileNodes(Name));
-                    else
-                        this.fileNodes = new ObservableCollection<FileNodeViewModel>(BackupSet
-                            .GetFileNodes(Path.Combine(DirectoryName, Name)));
-
-                }
-
-                return fileNodes;
-            }
+            get => fileNodes;
         }
+
 
         public List<object> ChildElements
         {
@@ -213,10 +178,110 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public FileDirectoryViewModel(FileDirectory fileDirectory, BackupSetViewModel backupSet)
+        public FileDirectoryViewModel(FileDirectory fileDirectory, FileDirectoryViewModel parent, BackupSetViewModel backupSet)
         {
             this.dir = fileDirectory;
             this.backupSet = backupSet;
+            this.Parent = parent;
+
+            this.subDirectories = new ObservableCollection<FileDirectoryViewModel>();
+            this.fileNodes = new ObservableCollection<FileNodeViewModel>();
+
+            foreach (var item in dir.SubDirectories)
+                this.SubDirectories.Add(new FileDirectoryViewModel(item, this, backupSet));
+
+            foreach (var item in dir.FileNodes)
+            {
+                this.FileNodes.Add(new FileNodeViewModel(item, this, backupSet));
+            }
+
+            dir.SubDirectories.CollectionChanged += SubDirectories_CollectionChanged;
+            dir.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
+
+        }
+
+        private void SubDirectories_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (ignoreSubdirectoryChanges)
+                return;
+
+            ignoreSubdirectoryChanges = true;
+
+            // If the collection was reset, then e.OldItems is empty. Just clear and reload.
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                SubDirectories.Clear();
+
+                foreach (var node in dir.SubDirectories)
+                    SubDirectories.Add(new FileDirectoryViewModel(node, null, BackupSet));
+            }
+            else
+            {
+                // Remove items from collection.
+                var toRemoveDirs = new List<FileDirectoryViewModel>();
+
+                if (null != e.OldItems && e.OldItems.Count > 0)
+                    foreach (var item in e.OldItems)
+                    {
+                        foreach (var existingItem in SubDirectories)
+                        {
+                            if (existingItem.IsViewFor((FileDirectory)item))
+                                toRemoveDirs.Add(existingItem);
+                        }
+                    }
+
+                foreach (var item in toRemoveDirs)
+                    SubDirectories.Remove(item);
+
+                // Add new items to the collection.
+                if (null != e.NewItems && e.NewItems.Count > 0)
+                    foreach (var item in e.NewItems)
+                        SubDirectories.Add(new FileDirectoryViewModel((FileDirectory)item, this, BackupSet));
+            }
+
+            ignoreSubdirectoryChanges = false;
+        }
+
+        private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (ignoreFileChanges)
+                return;
+
+            ignoreFileChanges = true;
+
+            // If the collection was reset, then e.OldItems is empty. Just clear and reload.
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                SubDirectories.Clear();
+
+                foreach (var node in dir.FileNodes)
+                    FileNodes.Add(new FileNodeViewModel(node, this, BackupSet));
+            }
+            else
+            {
+                // Remove items from collection.
+                var toRemoveNodes = new List<FileNodeViewModel>();
+
+                if (null != e.OldItems && e.OldItems.Count > 0)
+                    foreach (var item in e.OldItems)
+                    {
+                        foreach (var existingItem in FileNodes)
+                        {
+                            if (existingItem.IsViewFor((FileNode)item))
+                                toRemoveNodes.Add(existingItem);
+                        }
+                    }
+
+                foreach (var item in toRemoveNodes)
+                    FileNodes.Remove(item);
+
+                // Add new items to the collection.
+                if (null != e.NewItems && e.NewItems.Count > 0)
+                    foreach (var item in e.NewItems)
+                        FileNodes.Add(new FileNodeViewModel((FileNode)item, this, BackupSet));
+            }
+
+            ignoreFileChanges = false;
         }
 
         /// <summary>
@@ -237,6 +302,34 @@ namespace MediaBackupManager.ViewModel
             parentList.Reverse();
 
             return parentList;
+        }
+
+
+        /// <summary>
+        /// Returns a recursive list of all subdirectories of the current directory.</summary>
+        public List<FileDirectoryViewModel> GetAllSubdirectories()
+        {
+            var resultList = new List<FileDirectoryViewModel>(SubDirectories);
+            if (resultList is null || resultList.Count == 0)
+                return resultList;
+
+            foreach (var item in SubDirectories)
+            {
+                var subDirs = item.GetAllSubdirectories();
+                if (subDirs != null && subDirs.Count > 0)
+                    resultList.AddRange(subDirs);
+            }
+
+            return resultList;
+        }
+
+        /// <summary>
+        /// Returns a recursive list of all file nodes below the current directory.</summary>
+        public List<FileNodeViewModel> GetAllFileNodes()
+        {
+            var resultList = new List<FileNodeViewModel>(FileNodes);
+            GetAllSubdirectories().ForEach(x => resultList.AddRange(x.FileNodes));
+            return resultList;
         }
 
         /// <summary>

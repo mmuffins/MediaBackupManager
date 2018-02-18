@@ -15,7 +15,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// A collection of directories and files below a root location.</summary>  
-    public class BackupSet : IEquatable<BackupSet>, INotifyPropertyChanged
+    public class BackupSet : IEquatable<BackupSet>, INotifyPropertyChanged, IDisposable
     {
         #region Fields
 
@@ -23,7 +23,8 @@ namespace MediaBackupManager.Model
         FileIndex index;
         Guid guid;
         LogicalVolume volume;
-        string rootDirectory;
+        string rootDirectoryPath;
+        FileDirectory rootDirectory;
         string label;
         DateTime lastScanDate;
         List<string> exclusions;
@@ -78,8 +79,23 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
+        /// Gets or sets the root directory path of the current Backup Set.</summary>  
+        public string RootDirectoryPath
+        {
+            get { return rootDirectoryPath; }
+            set
+            {
+                if (value != rootDirectoryPath)
+                {
+                    rootDirectoryPath = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the root directory of the current Backup Set.</summary>  
-        public string RootDirectory
+        public FileDirectory RootDirectory
         {
             get { return rootDirectory; }
             set
@@ -112,10 +128,6 @@ namespace MediaBackupManager.Model
         public string MountPoint { get => Volume.MountPoint; }
 
         /// <summary>
-        /// Gets a collection of file nodes and directories contained in the current Backup Set.</summary>  
-        public ObservableHashSet<FileDirectory> FileNodes { get; }
-
-        /// <summary>
         /// Gets or sets the user defined label for the current Backup Set.</summary>
         public string Label
         {
@@ -136,7 +148,7 @@ namespace MediaBackupManager.Model
         public BackupSet()
         {
             this.Guid = Guid.NewGuid();
-            this.FileNodes = new ObservableHashSet<FileDirectory>();
+            //this.FileNodes = new ObservableHashSet<FileDirectory>();
             if (string.IsNullOrWhiteSpace(this.Label))
                 this.Label = this.Guid.ToString();
         }
@@ -148,11 +160,11 @@ namespace MediaBackupManager.Model
             if(directory.FullName == pathRoot)
             {
                 // Selected path is the root of a drive
-                this.rootDirectory = @"\";
+                this.rootDirectoryPath = @"\";
             }
             else
             {
-                this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
+                this.RootDirectoryPath = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
             }
 
             //this.RootDirectory = directory.FullName.Substring(Path.GetPathRoot(directory.FullName).Length);
@@ -179,77 +191,22 @@ namespace MediaBackupManager.Model
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task ScanFilesAsync(CancellationToken cancellationToken, IProgress<string> processingFile)
         {
-            var scanPath = Path.Combine(MountPoint, RootDirectory);
-            if (RootDirectory == @"\")
+            var scanPath = Path.Combine(MountPoint, RootDirectoryPath);
+            if (RootDirectoryPath == @"\")
                 scanPath = MountPoint;
 
             if (IsFileExcluded(scanPath))
+            {
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("The root directory of the Backup Set is excluded from scanning due to a matching file exclusion."));
                 return;
+            }
 
-            await Task.Run(()=>IndexDirectory(new DirectoryInfo(scanPath), cancellationToken, processingFile), cancellationToken);
+            RootDirectory = new FileDirectory(new DirectoryInfo(scanPath), null, this);
+
+            await Task.Run(() => RootDirectory.ScanSubDirectories(RootDirectory, cancellationToken, processingFile));
             LastScanDate = DateTime.Now;
         }
 
-        /// <summary>
-        /// Recursively adds the provided directory and subdirectories to the file index.</summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
-        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="directory">Progress object used to provide feedback over the current status of the operation.</param>
-        private void IndexDirectory(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> statusText)
-        {
-            if (cancellationToken.IsCancellationRequested)
-                return;
-
-            if (IsFileExcluded(directory.FullName))
-                return; //Don't index excluded directories at all
-
-            // Call recursively to get all subdirectories
-            try
-            {
-                foreach (var item in directory.GetDirectories())
-                    IndexDirectory(item, cancellationToken, statusText);
-
-                FileNodes.Add(new FileDirectory(directory, this));
-
-                IndexFile(directory, cancellationToken, statusText);
-            }
-            catch (Exception ex)
-            {
-                MessageService.SendMessage(directory, "FileScanException", new ApplicationException("Could not scan " + directory.FullName, ex));
-            }
-
-        }
-
-        /// <summary>
-        /// Scans all files found in the provided directory and adds them to the file index.</summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation.</param>
-        /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
-        private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> processingFile)
-        {
-
-            foreach (var file in directory.GetFiles())
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-
-                if (IsFileExcluded(file.FullName))
-                    continue;
-
-                // Report the current progress
-                if (processingFile != null)
-                    processingFile.Report(file.FullName);
-
-                try
-                {
-                    FileNodes.Add(new FileNode(file, this));
-                }
-                catch (Exception ex)
-                {
-                    MessageService.SendMessage(file, "FileScanException", new ApplicationException("Could not scan " + file.FullName,ex));
-                }
-
-            }
-        }
 
         /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
@@ -260,7 +217,7 @@ namespace MediaBackupManager.Model
         {
             await Task.Run(() =>
             {
-                var scanNodes = FileNodes.OfType<FileNode>();
+                var scanNodes = GetFileNodes();
                 var nodeCount = scanNodes.Count();
                 int currentNodeCount = 0;
 
@@ -299,26 +256,13 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Removes all Elements from the collection.</summary>  
-        public async Task ClearAsync()
-        {
-            foreach (var item in FileNodes.OfType<FileNode>())
-            {
-                item.RemoveFileReference();
-                //await Database.DeleteFileNodeAsync (item);
-            }
-            await Database.BatchDeleteFileNodeAsync(FileNodes.ToList());
-            FileNodes.Clear();
-        }
-
-        /// <summary>
         /// Determines whether a directory is already indexed in the backup set.</summary>  
         public bool ContainsDirectory(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)
                 return false;
 
-            return (dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length) + "\\").Contains(RootDirectory + "\\");
+            return (dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length) + "\\").Contains(RootDirectoryPath + "\\");
         }
 
         /// <summary>
@@ -327,7 +271,7 @@ namespace MediaBackupManager.Model
         {
             if (MountPoint != dir.Root.Name)
                 return false;
-            return (RootDirectory + "\\").Contains((dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length)) + "\\");
+            return (RootDirectoryPath + "\\").Contains((dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length)) + "\\");
         }
 
         /// <summary>
@@ -346,8 +290,7 @@ namespace MediaBackupManager.Model
         /// Returns a list of all Hashes related to the nodes in the current BackupSet.</summary>  
         public List<FileHash> GetFileHashes()
         {
-            return FileNodes
-                .OfType<FileNode>()
+            return RootDirectory.GetAllFileNodes()
                 .Where(x => x.Hash != null)
                 .Select(x => x.Hash)
                 .Distinct()
@@ -355,19 +298,34 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Returns an IEnumerable object of all elements below the provided directory.</summary>  
-        public IEnumerable<FileDirectory> GetChildElements(FileDirectory parent)
+        /// Returns a list of all File Nodes contained the current BackupSet.</summary>  
+        public List<FileNode> GetFileNodes()
         {
-            return FileNodes.Where(x => Path.Combine(x.DirectoryName, x.Name) == parent.DirectoryName); 
+            return RootDirectory.GetAllFileNodes();
         }
 
         /// <summary>
-        /// Returns the root file directory object.</summary>  
-        public FileDirectory GetRootDirectoryObject()
+        /// Returns a list of all File Directories contained the current BackupSet.</summary>  
+        public List<FileDirectory> GetFileDirectories()
         {
-            return FileNodes
-                .OfType<FileDirectory>()
-                .FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name).Equals(RootDirectory) && x.GetType() == typeof(FileDirectory));
+            var resultList = new List<FileDirectory>();
+            resultList.Add(RootDirectory);
+            resultList.AddRange(RootDirectory.GetAllSubdirectories());
+            return resultList;
+        }
+
+
+        /// <summary>
+        /// Removes all Elements from the collection.</summary>  
+        public async Task ClearAsync()
+        {
+            var deleteNodes = RootDirectory.GetAllSubdirectories();
+            deleteNodes.Add(RootDirectory);
+            deleteNodes.AddRange(RootDirectory.GetAllFileNodes());
+            await Database.BatchDeleteFileNodeAsync(deleteNodes);
+
+            RootDirectory.Dispose();
+            RootDirectory = null;
         }
 
         #endregion
@@ -378,12 +336,12 @@ namespace MediaBackupManager.Model
         {
             return Guid.GetHashCode() ^
                 Label.GetHashCode() ^ 
-                RootDirectory.GetHashCode();
+                RootDirectoryPath.GetHashCode();
         }
 
         public override string ToString()
         {
-            return Label + " " + RootDirectory;
+            return Label + " " + RootDirectoryPath;
         }
 
         public bool Equals(BackupSet other)
@@ -393,7 +351,7 @@ namespace MediaBackupManager.Model
 
             return this.Guid.Equals(other.Guid) 
                 && this.Label.Equals(other.Label)
-                && this.RootDirectory.Equals(other.RootDirectory);
+                && this.RootDirectoryPath.Equals(other.RootDirectoryPath);
         }
 
         public override bool Equals(object obj)
@@ -417,6 +375,44 @@ namespace MediaBackupManager.Model
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // dispose managed state (managed objects).
+                    if(RootDirectory != null)
+                        RootDirectory.Dispose();
+                }
+
+                // set large fields to null.
+                Index = null;
+                Volume = null;
+                RootDirectory = null;
+
+                disposedValue = true;
+            }
+        }
+
+         ~BackupSet()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

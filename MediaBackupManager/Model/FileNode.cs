@@ -9,7 +9,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// The location of a file hash object in the file system.</summary>  
-    public class FileNode : FileDirectory
+    public class FileNode : FileDirectory, IDisposable
     {
 
         #region Fields
@@ -88,21 +88,18 @@ namespace MediaBackupManager.Model
         /// Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
 
-        /// <summary>
-        /// Returns a list of all subdirectories of the current file node.</summary>
-        public override IEnumerable<FileDirectory> SubDirectories { get => null; }
-
         #endregion
 
         #region Methods
 
         public FileNode() { }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet)
+        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileDirectory parent)
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
             this.BackupSet = backupSet;
+            this.Parent = parent;
 
             //Set root directory to \
             if (fileInfo.Directory is null || fileInfo.Directory.FullName == fileInfo.Directory.Root.FullName)
@@ -111,14 +108,11 @@ namespace MediaBackupManager.Model
                 this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
         }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileHash file) : this (fileInfo, backupSet)
+        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileDirectory parent, FileHash file) : this (fileInfo, backupSet, parent)
         {
             this.Hash = file;
             this.Checksum = file.Checksum;
         }
-
-        public FileNode(string fileName, BackupSet backupSet, FileHash file)
-            : this(new FileInfo(fileName), backupSet, file) { }
 
         /// <summary>
         /// Removes the reference to this node from the related file hash.</summary>
@@ -166,6 +160,41 @@ namespace MediaBackupManager.Model
             return (DirectoryName + Name).CompareTo((other.DirectoryName + other.Name));
         }
 
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // dispose managed state (managed objects).
+                }
+
+                // set large fields to null.
+                RemoveFileReference();
+                Parent = null;
+
+                disposedValue = true;
+            }
+        }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~FileDirectory() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public override void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

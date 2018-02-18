@@ -118,15 +118,7 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets the parent directory object of the current file node.</summary>  
         public FileDirectoryViewModel Parent
         {
-            get
-            {
-                if (parent is null)
-                {
-                    this.parent = backupSet.GetDirectory(DirectoryName);
-                }
-
-                return parent;
-            }
+            get { return parent; }
             set
             {
                 if (value != parent)
@@ -137,15 +129,17 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+
         #endregion
 
         #region Methods
 
-        public FileNodeViewModel(FileNode fileNode, BackupSetViewModel backupSet)
+        public FileNodeViewModel(FileNode fileNode, FileDirectoryViewModel parent, BackupSetViewModel backupSet)
         {
             this.node = fileNode;
             this.backupSet = backupSet;
             this.Hash = RefreshHash();
+            this.Parent = parent;
 
             fileNode.PropertyChanged += Node_PropertyChanged; 
         }

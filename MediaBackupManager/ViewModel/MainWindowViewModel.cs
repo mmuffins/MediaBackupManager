@@ -13,6 +13,15 @@ namespace MediaBackupManager.ViewModel
 {
     class MainWindowViewModel : ViewModelBase
     {
+        //TODO: Font MT Extra is not readable on some machine, either include it in the assembly or replace it
+        //TODO: In some cases, when removing all cases from the label, new backup sets can still be created
+        //TODO: Reporting?
+        //TODO: file deduplication feature?
+        //TODO: Build tree structure right on import?
+        //TODO: Header buttons still show the button outline when disabled
+        //TODO: Add additional hints to indicate to the user that header buttons can be clicked?
+        //TODO: Normalize functions of file index => add/remove functions for hashes/volumes
+        //TODO: Should nodes always be registered over the file index (this way we could set the relations in both the hash and the node and don't need to worry about forgetting anything)
         #region Fields
 
         private RelayCommand changePageCommand;

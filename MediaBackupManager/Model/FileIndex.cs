@@ -52,15 +52,15 @@ namespace MediaBackupManager.Model
         public async Task LoadDataAsync()
         {
             foreach (var ex in await Database.GetExclusionsAsync())
-                this.Exclusions.Add(ex);
+                Exclusions.Add(ex);
 
             foreach (var hash in await Database.GetFileHashAsync())
-                this.Hashes.Add(hash);
+                Hashes.Add(hash);
 
-            foreach (var set in await Database.GetBackupSetAsync())
-                this.BackupSets.Add(set);
+            var loadedSets = await Database.GetBackupSetAsync();
 
-            foreach (var set in BackupSets)
+            // Prepare loaded sets before adding them to the index
+            foreach (var set in loadedSets)
             {
                 set.Index = this;
 
@@ -78,25 +78,67 @@ namespace MediaBackupManager.Model
                     LogicalVolumes.Add(set.Volume);
                 }
 
-                // Load all nodes for the set, then iterate through each item
-                // and rebuild the relationship between nodes and hashes
-                foreach (var item in await Database.GetFileNodeAsync(set.Guid.ToString()))
+                // rebuild the directory tree of the set
+
+                // load all nodes of the set
+                var loadedNodes = await Database.GetFileNodeAsync(set.Guid.ToString());
+                loadedNodes.Sort();
+
+                // create a lookup collection by grouping each node by their respective directory name
+                var groupedNodes = loadedNodes.GroupBy(x => x.DirectoryName);
+
+                // iterate through all loaded node and find their respective
+                // child items in the lookup collection
+                foreach (var node in loadedNodes)
                 {
-                    item.BackupSet = set;
-                    set.FileNodes.Add(item);
+                    node.BackupSet = set;
 
-                    if (item is FileNode)
+                    if(node is FileNode)
                     {
-
-                        var hash = Hashes.FirstOrDefault(x => x.Checksum.Equals(((FileNode)item).Checksum));
+                        // don't look for further subdirectories if the current item is a file node
+                        // instead link it with it's file hash
+                        var hash = Hashes.FirstOrDefault(x => x.Checksum.Equals(((FileNode)node).Checksum));
                         if (hash != null)
                         {
-                            hash.AddNode((FileNode)item);
-                            ((FileNode)item).Hash = hash;
+                            hash.AddNode((FileNode)node);
+                            ((FileNode)node).Hash = hash;
+                        }
+                    }
+                    else
+                    {
+                        var childNodes = groupedNodes.FirstOrDefault(x => x.Key == (Path.Combine(node.DirectoryName, node.Name)));
+
+                        if (node.Name == @"\")
+                            childNodes = groupedNodes.FirstOrDefault(x => x.Key == (node.DirectoryName));
+
+                        if (childNodes is null || childNodes.Count() == 0)
+                            continue;
+
+                        foreach (var childNode in childNodes)
+                        {
+                            // both the name and directory name for root directories are \
+                            // it's not possible for these directories to have a parent, so skipt them
+                            if (childNode.DirectoryName == @"\" && childNode.Name == @"\")
+                                continue;
+
+                            childNode.Parent = node;
+                            if (childNode is FileNode)
+                                node.FileNodes.Add((FileNode)childNode);
+                            else
+                                node.SubDirectories.Add(childNode);
                         }
                     }
                 }
+
+                // The only directory left without a parent is the root directory
+
+                set.RootDirectory = loadedNodes
+                    .OfType<FileDirectory>()
+                    .FirstOrDefault(x => x.Parent == null && x.GetType() == typeof(FileDirectory));
             }
+
+            foreach (var set in loadedSets)
+                BackupSets.Add(set);
         }
 
         /// <summary>
@@ -209,7 +251,9 @@ namespace MediaBackupManager.Model
 
             // There is either an issue with the provided directory or it's
             // on the exclusion list. In either case, abort the function
-            if (stagingSet.FileNodes is null || stagingSet.FileNodes.Count == 0)
+            var stagingSetNodes = stagingSet.GetFileDirectories();
+            stagingSetNodes.AddRange(stagingSet.GetFileNodes());
+            if (stagingSetNodes is null || stagingSetNodes.Count == 0)
             {
                 MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not access the scan directory: " + directoryPath.FullName));
                 return null;
@@ -240,7 +284,7 @@ namespace MediaBackupManager.Model
             }
 
             var guid = backupSet.Guid;
-            var rootDirectory = backupSet.RootDirectory;
+            var rootDirectory = backupSet.RootDirectoryPath;
             var label = backupSet.Label;
             var mountPoint = backupSet.MountPoint;
 
@@ -361,6 +405,7 @@ namespace MediaBackupManager.Model
             // remove all nodes from these hashes.
             var setHashes = set.GetFileHashes();
             await set.ClearAsync();
+            set.Dispose();
 
             // Get hashes in the collection with node count 0 
             // these can be removed from the index
@@ -445,7 +490,7 @@ namespace MediaBackupManager.Model
             // reapplying the correct values/relations
             var newHashes = new List<FileHash>();
 
-            foreach (var file in stagingSet.FileNodes.OfType<FileNode>())
+            foreach (var file in stagingSet.GetFileNodes())
             {
                 if (file.Hash is null)
                     continue;
@@ -468,7 +513,9 @@ namespace MediaBackupManager.Model
             await Database.BatchInsertFileHashAsync(newHashes);
 
             // All filenodes are unique to a backup set so they can be added to the DB in any case
-            await Database.BatchInsertFileNodeAsync(stagingSet.FileNodes.ToList());
+            var dbInsertList = stagingSet.GetFileDirectories();
+            dbInsertList.AddRange(stagingSet.GetFileNodes());
+            await Database.BatchInsertFileNodeAsync(dbInsertList);
 
             if (!LogicalVolumes.Contains(stagingSet.Volume))
             {

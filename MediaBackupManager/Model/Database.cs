@@ -126,7 +126,7 @@ namespace MediaBackupManager.Model
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS BackupSet (" +
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
-                    ", RootDirectory TEXT" +
+                    ", RootDirectoryPath TEXT" +
                     ", Label TEXT" +
                     ", LastScanDate TEXT" +
                     ")";
@@ -245,7 +245,7 @@ namespace MediaBackupManager.Model
                         var newSet = new BackupSet()
                         {
                             Guid = new Guid(reader["Guid"].ToString()),
-                            RootDirectory = reader["RootDirectory"].ToString(),
+                            RootDirectoryPath = reader["RootDirectoryPath"].ToString(),
                             Label = reader["Label"].ToString(),
                             LastScanDate = DateTime.Parse(reader["LastScanDate"].ToString()),
                         };
@@ -441,13 +441,13 @@ namespace MediaBackupManager.Model
                 CommandText = "INSERT INTO BackupSet (" +
                 "Guid" +
                 ", Volume" +
-                ", RootDirectory" +
+                ", RootDirectoryPath" +
                 ", Label" +
                 ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
-                ", @RootDirectory" +
+                ", @RootDirectoryPath" +
                 ", @Label" +
                 ", @LastScanDate" +
                 ")",
@@ -457,13 +457,13 @@ namespace MediaBackupManager.Model
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectoryPath", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
             sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
             sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
-            sqlCmd.Parameters["@RootDirectory"].Value = backupSet.RootDirectory;
+            sqlCmd.Parameters["@RootDirectoryPath"].Value = backupSet.RootDirectoryPath;
             sqlCmd.Parameters["@Label"].Value = backupSet.Label;
             sqlCmd.Parameters["@LastScanDate"].Value = backupSet.LastScanDate;
 
@@ -765,13 +765,13 @@ namespace MediaBackupManager.Model
             var commandText = "INSERT INTO BackupSet (" +
                 "Guid" +
                 ", Volume" +
-                ", RootDirectory" +
+                ", RootDirectoryPath" +
                 ", Label" +
                 ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
                 ", @Volume " +
-                ", @RootDirectory" +
+                ", @RootDirectoryPath" +
                 ", @Label" +
                 ", @LastScanDate" +
                 ")";
@@ -793,13 +793,13 @@ namespace MediaBackupManager.Model
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectory", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectoryPath", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
                             sqlCmd.Parameters["@Guid"].Value = set.Guid;
                             sqlCmd.Parameters["@Volume"].Value = set.Volume.SerialNumber;
-                            sqlCmd.Parameters["@RootDirectory"].Value = set.RootDirectory;
+                            sqlCmd.Parameters["@RootDirectoryPath"].Value = set.RootDirectoryPath;
                             sqlCmd.Parameters["@Label"].Value = set.Label;
                             sqlCmd.Parameters["@LastScanDate"].Value = set.LastScanDate;
 

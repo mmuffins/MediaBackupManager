@@ -18,7 +18,6 @@ namespace MediaBackupManager.ViewModel
         BackupSet backupSet;
         FileDirectoryViewModel rootDirectory;
         FileIndexViewModel index;
-        private bool ignoreChanges = false;
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
         bool renameMode;
@@ -64,29 +63,14 @@ namespace MediaBackupManager.ViewModel
         public Guid Guid
         {
             get => backupSet.Guid;
-            //set
-            //{
-            //    if (value != backupSet.Guid)
-            //    {
-            //        backupSet.Guid = value;
-            //        NotifyPropertyChanged();
-            //    }
-            //}
         }
 
         /// <summary>
         /// Gets or sets the root directory of the current Backup Set.</summary>  
         public FileDirectoryViewModel RootDirectory
         {
-            get
-            {
-                if (this.rootDirectory is null)
-                {
-                    this.rootDirectory = GetRootDirectoryObject();
-                }
+            get { return rootDirectory; }
 
-                return this.rootDirectory;
-            }
             set
             {
                 if (value != this.rootDirectory)
@@ -159,24 +143,6 @@ namespace MediaBackupManager.ViewModel
         public DriveType DriveType
         {
             get => Volume.Type;
-        }
-
-        /// <summary>
-        /// Gets a collection of directories contained in the current Backup Set.</summary>  
-        public ObservableCollection<FileDirectoryViewModel> Directories { get; set; }
-
-        /// <summary>
-        /// Gets a collection of file nodes contained in the current Backup Set.</summary>  
-        public ObservableCollection<FileNodeViewModel> FileNodes { get; set; }
-
-        /// <summary>
-        /// Gets a collection of file nodes and directories contained in the current Backup Set.</summary>  
-        public List<object> ChildElements
-        {
-            get
-            {
-                return Directories.AsQueryable<object>().Concat(FileNodes.AsQueryable<object>()).ToList();
-            }
         }
 
         /// <summary>
@@ -253,21 +219,10 @@ namespace MediaBackupManager.ViewModel
         public BackupSetViewModel(BackupSet backupSet, FileIndexViewModel index)
         {
             this.BackupSet = backupSet;
-            this.Directories = new ObservableCollection<FileDirectoryViewModel>();
-            this.FileNodes = new ObservableCollection<FileNodeViewModel>();
             this.Index = index;
             this.RenameMode = false;
+            this.RootDirectory = new FileDirectoryViewModel(backupSet.RootDirectory, null, this);
 
-            foreach (var node in BackupSet.FileNodes)
-            {
-                if(node is FileNode)
-                    this.FileNodes.Add(new FileNodeViewModel((FileNode)node, this));
-                else
-                    this.Directories.Add(new FileDirectoryViewModel(node, this));
-            }
-
-            RebuildDirectoryTree();
-            backupSet.FileNodes.CollectionChanged += FileNodes_CollectionChanged;
             backupSet.PropertyChanged += BackupSet_PropertyChanged;
         }
 
@@ -284,8 +239,17 @@ namespace MediaBackupManager.ViewModel
                     this.NotifyPropertyChanged("DriveType");
                     break;
 
+                case "RootDirectory":
+                    if (backupSet.RootDirectory is null)
+                        RootDirectory = null;
+                    else
+                        RootDirectory = new FileDirectoryViewModel(backupSet.RootDirectory, null, this);
+                    break;
+
                 case "Volume":
-                    backupSet.Volume.PropertyChanged += Volume_PropertyChanged;
+                    if(backupSet.Volume != null)
+                        backupSet.Volume.PropertyChanged += Volume_PropertyChanged;
+
                     this.NotifyPropertyChanged("Volume");
                     break;
             }
@@ -310,83 +274,6 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        private void FileNodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (ignoreChanges)
-                return;
-
-            ignoreChanges = true;
-
-            // If the collection was reset, then e.OldItems is empty. Just clear and reload.
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
-            {
-                Directories.Clear();
-                FileNodes.Clear();
-
-                foreach (var node in backupSet.FileNodes)
-                {
-                    if (node is FileNode)
-                        FileNodes.Add(new FileNodeViewModel((FileNode)node, this));
-                    else
-                        Directories.Add(new FileDirectoryViewModel(node, this));
-                }
-            }
-            else
-            {
-                // Remove items from collection.
-                var toRemoveDirs = new List<FileDirectoryViewModel>();
-                var toRemoveFiles = new List<FileNodeViewModel>();
-
-                if (null != e.OldItems && e.OldItems.Count > 0)
-                    foreach (var item in e.OldItems)
-                    {
-                        if (item is FileNode)
-                        {
-                            foreach (var existingItem in FileNodes)
-                            {
-                                if (existingItem.IsViewFor((FileNode)item))
-                                    toRemoveFiles.Add(existingItem);
-                            }
-                        }
-                        else
-                        {
-                            foreach (var existingItem in Directories)
-                            {
-                                if (existingItem.IsViewFor((FileDirectory)item))
-                                    toRemoveDirs.Add(existingItem);
-                            }
-                        }
-                    }
-
-                foreach (var item in toRemoveFiles)
-                    FileNodes.Remove(item);
-
-                foreach (var item in toRemoveDirs)
-                    Directories.Remove(item);
-
-                // Add new items to the collection.
-                if (null != e.NewItems && e.NewItems.Count > 0)
-                    foreach (var item in e.NewItems)
-                    {
-                        if (item is FileNode)
-                            FileNodes.Add(new FileNodeViewModel((FileNode)item, this));
-                        else
-                            Directories.Add(new FileDirectoryViewModel((FileDirectory)item, this));
-                    }
-            }
-            //this.rootDirectory = GetRootDirectoryObject();
-            // Rebuilding the tree after every change of the collection is very expensive,
-            // and generally not necessary since nodes are scanned in sequence
-            //RebuildDirectoryTree();
-            //RebuildNodeTree();
-
-            ignoreChanges = false;
-
-            NotifyPropertyChanged("FileNodes");
-            NotifyPropertyChanged("Directories");
-            NotifyPropertyChanged("RootDirectory");
-        }
-
         /// <summary>
         /// Returns true if the provided object is the base object of the current viewmodel.</summary>  
         public bool IsViewFor(BackupSet backupSet)
@@ -409,92 +296,19 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Returns an IEnumerable object of all directories below the provided directory.</summary>  
-        public IEnumerable<FileDirectoryViewModel> GetSubDirectories(string path)
-        {
-            if (path == @"\")
-                return Directories.Where(x => x.DirectoryName == path && x.Name != path);
-            else 
-                return Directories.Where(x => x.DirectoryName == path);
-        }
-
-        /// <summary>
-        /// Returns an IEnumerable object of all file nodes below the provided directory.</summary>  
-        public IEnumerable<FileNodeViewModel> GetFileNodes(string path)
-        {
-            if(path == @"\")
-                return FileNodes.Where(x => x.DirectoryName == path);
-            else
-                return FileNodes.Where(x => x.DirectoryName.TrimStart('\\') == path);
-        }
-
-        /// <summary>
-        /// Returns the directory object for the provided path.</summary>  
-        public FileDirectoryViewModel GetDirectory(string directory)
-        {
-            if (directory == @"\")
-                return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName, x.Name) == directory);
-            else
-                return Directories.FirstOrDefault(x => Path.Combine(x.DirectoryName.TrimStart('\\'), x.Name) == directory);
-        }
-
-        /// <summary>
-        /// Returns the root file directory object.</summary>  
-        private FileDirectoryViewModel GetRootDirectoryObject()
-        {
-            if (backupSet.RootDirectory == @"\")
-                return Directories
-                    .FirstOrDefault(x => x.DirectoryName == backupSet.RootDirectory && x.Name == backupSet.RootDirectory);
-            else
-                return Directories
-                    .FirstOrDefault(x => Path.Combine(x.DirectoryName.TrimStart('\\'), x.Name)
-                    .Equals(backupSet.RootDirectory));
-        }
-
-        /// <summary>
         /// Returns a list of all file nodes matching the provided search term.</summary>  
         public IEnumerable<FileNodeViewModel> FindFileNodes(string searchTerm)
         {
-            return FileNodes.Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
+            return RootDirectory.GetAllFileNodes()
+                .Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
         }
 
         /// <summary>
         /// Returns a list of all directories matching the provided search term.</summary>  
         public IEnumerable<FileDirectoryViewModel> FindDirectories(string searchTerm)
         {
-            return Directories.Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
-        }
-
-        /// <summary>
-        /// Rebuilds the parent/child relationship for all directories in the backup set.</summary>  
-        public void RebuildDirectoryTree()
-        {
-            // Make sure that each element except root directories have a parent
-            foreach (var dir in Directories.Where(x => x.Parent is null && x.Name != @"\" && x.DirectoryName != @"\"))
-                dir.Parent = GetDirectory(dir.DirectoryName);
-
-            // All elements except the root directory now have a parent,
-            // with this we can rebuild the children
-            foreach (var dir in Directories)
-                dir.SubDirectories.Clear();
-
-            foreach (var dir in Directories.Where(x => x.Parent != null))
-                dir.Parent.SubDirectories.Add(dir);
-        }
-
-        /// <summary>
-        /// Rebuilds the parent/child relationship for all file nodes in the backup set.</summary>  
-        public void RebuildNodeTree()
-        {
-            // Make sure that each element has a parent
-            foreach (var node in FileNodes.Where(x => x.Parent is null))
-                node.Parent = GetDirectory(node.DirectoryName);
-
-            foreach (var dir in Directories)
-                dir.FileNodes.Clear();
-
-            foreach (var node in FileNodes.Where(x => x.Parent != null))
-                node.Parent.FileNodes.Add(node);
+            return RootDirectory.GetAllSubdirectories()
+                .Where(x => x.FullName.ToUpper().Contains(searchTerm.ToUpper()));
         }
 
         #endregion
