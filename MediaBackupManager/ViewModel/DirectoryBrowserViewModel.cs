@@ -311,6 +311,9 @@ namespace MediaBackupManager.ViewModel
             SearchResults.Clear();
             var relatedNodes = node.GetRelatedNodes();
 
+            if (relatedNodes is null)
+                return;
+
             foreach (var item in relatedNodes)
                 SearchResults.Add(item);
 
