@@ -111,7 +111,7 @@ namespace MediaBackupManager.Model
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
@@ -170,7 +170,7 @@ namespace MediaBackupManager.Model
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         private async Task<BackupSet> PrepareBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
@@ -223,7 +223,7 @@ namespace MediaBackupManager.Model
         /// <param name="backupSet">The Backup Set that should be updated.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         public async Task UpdateBackupSetAsync(BackupSet backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {

@@ -217,6 +217,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Scans all files found in the provided directory and adds them to the file index.</summary>
+        /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         private void IndexFile(DirectoryInfo directory, CancellationToken cancellationToken, IProgress<string> processingFile)
         {
 
@@ -247,7 +248,7 @@ namespace MediaBackupManager.Model
         /// <summary>
         /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="processingFile">Progress object used to indicate the file that is currently being hashed.</param>
+        /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task HashFilesAsync(CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> processingFile)
         {
             await Task.Run(() =>

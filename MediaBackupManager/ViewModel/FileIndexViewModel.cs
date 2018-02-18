@@ -240,7 +240,7 @@ namespace MediaBackupManager.ViewModel
         /// <param name="dir">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         public async Task CreateBackupSetAsync(DirectoryInfo dir, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
@@ -256,7 +256,7 @@ namespace MediaBackupManager.ViewModel
         /// <param name="backupSet">The Backup Set that should be updated.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
-        /// <param name="statusText">Progress object used to report the current status of the operation.</param>
+        /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
         /// <param name="label">The display name for the new backup set.</param>
         public async Task UpdateBackupSetAsync(BackupSetViewModel backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
