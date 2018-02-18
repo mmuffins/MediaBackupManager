@@ -22,7 +22,7 @@
     <SolidColorBrush x:Key="ButtonBlue.Pressed.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBlue.Disabled.Background" Color="Transparent"/>
     <SolidColorBrush x:Key="ButtonBlue.Disabled.Foreground" Color="Black"/>
-    <SolidColorBrush x:Key="ButtonBlue.Disabled.Border" Color="Black"/>
+    <SolidColorBrush x:Key="ButtonBlue.Disabled.Border" Color="Transparent"/>
 
     <Style x:Key="HeaderButton" TargetType="{x:Type Button}">
         <Setter Property="FontFamily" Value="./Font/#Roboto"/>
