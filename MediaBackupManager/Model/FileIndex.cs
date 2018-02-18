@@ -474,11 +474,11 @@ namespace MediaBackupManager.Model
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
-            //TODO: Thumbs.db exclusion
             await AddExclusionAsync(@".*usrclass.dat.log.*", true);
             await AddExclusionAsync(@".*\$RECYCLE\.BIN*", true);
             await AddExclusionAsync(@".*System Volume Information*", true);
             await AddExclusionAsync(@".*\.lnk", true);
+            await AddExclusionAsync(@".*thumbs\.db", true);
         }
 
         /// <summary>
