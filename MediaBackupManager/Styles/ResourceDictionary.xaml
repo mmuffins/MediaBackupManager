@@ -8,26 +8,26 @@
     </Style>
 
     <Style TargetType="Label">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="VerticalAlignment" Value="Bottom" />
         <Setter Property="Foreground" Value="#FF303030" />
     </Style>
 
     <Style TargetType="Label" x:Key="Title">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="FontSize" Value="20" />
         <Setter Property="VerticalAlignment" Value="Bottom" />
     </Style>
 
     <Style TargetType="Label" x:Key="BackupSetTitle">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="FontSize" Value="20" />
         <Setter Property="VerticalAlignment" Value="Bottom" />
         <Setter Property="Foreground" Value="#FF2CA8FF" />
     </Style>
 
     <Style TargetType="TextBox">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="Margin" Value="5" />
         <Setter Property="Height" Value="30" />
         <Setter Property="TextAlignment" Value="Left" />

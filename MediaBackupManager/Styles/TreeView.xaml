@@ -5,7 +5,7 @@
     <Style TargetType="TreeViewItem" x:Key="TreeViewStyle" >
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontFamily" Value="./Font/#Roboto" />
         <Setter Property="Foreground" Value="#FF303030" />
         <Style.Triggers>
             <!--Highlight files with backup count of 1-->

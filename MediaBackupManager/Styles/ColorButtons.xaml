@@ -22,7 +22,7 @@
     <SolidColorBrush x:Key="ButtonBlue.Disabled.Border" Color="Black"/>
 
     <Style x:Key="ColorButtonBlue" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="Margin" Value="1" />
         <Setter Property="Padding" Value="10,0" />
         <Setter Property="Height" Value="30" />
@@ -79,7 +79,7 @@
     <SolidColorBrush x:Key="ButtonGray.Disabled.Border" Color="Black"/>
 
     <Style x:Key="ColorButtonGray" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="Margin" Value="1" />
         <Setter Property="Padding" Value="10,0" />
         <Setter Property="Height" Value="30" />
@@ -136,7 +136,7 @@
     <SolidColorBrush x:Key="IconButton.Disabled.Border" Color="Transparent"/>
 
     <Style x:Key="IconButton" TargetType="{x:Type Button}">
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="Margin" Value="0" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>

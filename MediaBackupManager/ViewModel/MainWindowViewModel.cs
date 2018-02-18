@@ -13,7 +13,6 @@ namespace MediaBackupManager.ViewModel
 {
     class MainWindowViewModel : ViewModelBase
     {
-        //TODO: Font MT Extra is not readable on some machine, either include it in the assembly or replace it
         //TODO: In some cases, when removing all cases from the label, new backup sets can still be created
         //TODO: Reporting?
         //TODO: file deduplication feature?

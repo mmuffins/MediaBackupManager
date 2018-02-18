@@ -7,7 +7,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Height" Value="35" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontFamily" Value="./Font/#Roboto" />
         <Setter Property="Foreground" Value="#FF303030" />
         <Setter Property="Template">
             <Setter.Value>
@@ -124,7 +124,7 @@
         </Setter>
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Foreground" Value="#FF303030" />
-        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontFamily" Value="./Font/#Roboto" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Height" Value="30" />
     </Style>
