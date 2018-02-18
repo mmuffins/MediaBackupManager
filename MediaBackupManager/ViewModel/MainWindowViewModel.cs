@@ -17,7 +17,6 @@ namespace MediaBackupManager.ViewModel
         //TODO: In some cases, when removing all cases from the label, new backup sets can still be created
         //TODO: Reporting?
         //TODO: file deduplication feature?
-        //TODO: Build tree structure right on import?
         //TODO: Header buttons still show the button outline when disabled
         //TODO: Add additional hints to indicate to the user that header buttons can be clicked?
         //TODO: Normalize functions of file index => add/remove functions for hashes/volumes
