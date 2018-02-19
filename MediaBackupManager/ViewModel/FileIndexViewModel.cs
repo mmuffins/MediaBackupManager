@@ -343,9 +343,9 @@ namespace MediaBackupManager.ViewModel
         /// <summary>
         /// Creates a new file exclusion which prevents files from being scanned if they match the provided string.</summary>  
         /// <param name="exclusion">A regex string matching a file or path name.</param>
-        public async Task CreateFileExclusionAsync(string exclusion)
+        public async Task AddFileExclusionAsync(string exclusion)
         {
-            await index.CreateFileExclusionAsync(exclusion);
+            await index.AddFileExclusionAsync(exclusion, true);
         }
 
         /// <summary>

@@ -119,7 +119,7 @@ namespace MediaBackupManager.ViewModel
 
         private async void AddExclusionAsync(string exclusion)
         {
-            await index.CreateFileExclusionAsync(exclusion);
+            await index.AddFileExclusionAsync(exclusion);
             NewExclusionText = String.Empty;
         }
 

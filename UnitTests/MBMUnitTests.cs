@@ -497,8 +497,8 @@ namespace UnitTests
             // Act
             var refFi = new FileIndex();
             await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "testSet");
-            await refFi.CreateFileExclusionAsync(exclusionString1);
-            await refFi.CreateFileExclusionAsync(exclusionString2);
+            await refFi.AddFileExclusionAsync(exclusionString1, true);
+            await refFi.AddFileExclusionAsync(exclusionString2, true);
 
             var diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
@@ -765,8 +765,8 @@ namespace UnitTests
 
             // Act
             var diffFi = new FileIndex();
-            await diffFi.CreateFileExclusionAsync(@"\.exe");
-            await diffFi.CreateFileExclusionAsync(@".*\\subdir1");
+            await diffFi.AddFileExclusionAsync(@"\.exe", true);
+            await diffFi.AddFileExclusionAsync(@".*\\subdir1", true);
 
             await diffFi.CreateBackupSetAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileExclusionSet");
 

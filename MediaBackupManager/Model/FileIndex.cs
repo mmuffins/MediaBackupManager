@@ -52,10 +52,10 @@ namespace MediaBackupManager.Model
         public async Task LoadDataAsync()
         {
             foreach (var ex in await Database.GetExclusionsAsync())
-                Exclusions.Add(ex);
+                await AddFileExclusionAsync(ex, false);
 
             foreach (var hash in await Database.GetFileHashAsync())
-                Hashes.Add(hash);
+                AddFileHash(hash);
 
             var loadedSets = await Database.GetBackupSetAsync();
 
@@ -66,17 +66,7 @@ namespace MediaBackupManager.Model
 
                 set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
                 set.Volume.RefreshStatus();
-                if (LogicalVolumes.Contains(set.Volume))
-                {
-                    // If the index already contains the logical volume of the set,
-                    // update the set to use the volume of the index in order to point to the same object
-                    set.Volume = LogicalVolumes.FirstOrDefault(x => x.SerialNumber.Equals(set.Volume.SerialNumber));
-                }
-                else
-                {
-                    // If not, add the new volume to the index
-                    LogicalVolumes.Add(set.Volume);
-                }
+                set.Volume = await AddLogicalVolume(set.Volume, false);
 
                 // rebuild the directory tree of the set
 
@@ -349,19 +339,10 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Creates a new file exclusion which prevents files from being scanned if they match the provided string.</summary>  
-        /// <param name="exclusion">A regex string matching a file or path name.</param>
-        public async Task CreateFileExclusionAsync(string exclusion)
-        {
-            //TODO:Q any nicer way to do this than in a wrapper containing a single line?
-            // public wrapper function for AddExclusionAsync to avoid exposing the writeToDB swich
-            await AddExclusionAsync(exclusion, true);
-        }
-
-        /// <summary>
         /// Adds the specified string collection of file exclusions.</summary>  
+        /// <param name="exclusion">A regex string matching a file or path name.</param>
         /// <param name="writeToDb">If true, the object will be written to the Database.</param>
-        private async Task AddExclusionAsync(string exclusion, bool writeToDb)
+        public async Task AddFileExclusionAsync(string exclusion, bool writeToDb)
         {
             if (string.IsNullOrWhiteSpace(exclusion))
                 return;
@@ -371,6 +352,32 @@ namespace MediaBackupManager.Model
                 if (writeToDb)
                     await Database.InsertExclusionAsync(exclusion);
             }
+        }
+
+        /// <summary>
+        /// Adds the specified file hash to the index.</summary>  
+        public FileHash AddFileHash(FileHash hash)
+        {
+            // if a hash is not yet on the index, add it and return the provided pointer
+            // otherwise return the pointer of the object that is already in the index
+            if (Hashes.Add(hash))
+                return hash;
+            else
+                return Hashes.FirstOrDefault(x => x.Equals(hash));
+        }
+
+        /// <summary>
+        /// Adds the specified string collection of file exclusions.</summary>  
+        /// <param name="writeToDb">If true, the object will be written to the Database.</param>
+        public async Task<LogicalVolume> AddLogicalVolume(LogicalVolume volume, bool writeToDb)
+        {
+            if (LogicalVolumes.Contains(volume))
+                return LogicalVolumes.First(x => x.Equals(volume));
+
+            LogicalVolumes.Add(volume);
+            if (writeToDb) await Database.InsertLogicalVolumeAsync(volume);
+
+            return volume;
         }
 
         /// <summary>
@@ -474,11 +481,11 @@ namespace MediaBackupManager.Model
         /// Adds the default exclusions to the collection if they don't already exist.</summary>  
         public async Task RestoreDefaultExclusionsAsync()
         {
-            await AddExclusionAsync(@".*usrclass.dat.log.*", true);
-            await AddExclusionAsync(@".*\$RECYCLE\.BIN*", true);
-            await AddExclusionAsync(@".*System Volume Information*", true);
-            await AddExclusionAsync(@".*\.lnk", true);
-            await AddExclusionAsync(@".*thumbs\.db", true);
+            await AddFileExclusionAsync(@".*usrclass.dat.log.*", true);
+            await AddFileExclusionAsync(@".*\$RECYCLE\.BIN*", true);
+            await AddFileExclusionAsync(@".*System Volume Information*", true);
+            await AddFileExclusionAsync(@".*\.lnk", true);
+            await AddFileExclusionAsync(@".*thumbs\.db", true);
         }
 
         /// <summary>
@@ -495,20 +502,21 @@ namespace MediaBackupManager.Model
                 if (file.Hash is null)
                     continue;
 
-                // For each hash in the staging set, check if it already exists
-                // in the file index. If so, update the pointer of the respective node
+                // For each hash in the staging set, check if it already exists in the file index.
+                // If so, update the pointer of the file node
                 // in the staging set to use the existing object. If not, add the hash to the index
-                var hash = Hashes.FirstOrDefault(x => x.Equals(file.Hash));
-                if (hash != null)
+
+                if (Hashes.Contains(file.Hash))
                 {
-                    hash.AddNode(file);
-                    file.Hash = hash;
+                    file.Hash = AddFileHash(file.Hash);
+                    file.Hash.AddNode(file);
                 }
                 else
                 {
-                    Hashes.Add(file.Hash);
-                    newHashes.Add(file.Hash); 
+                    AddFileHash(file.Hash);
+                    newHashes.Add(file.Hash);
                 }
+
             }
             await Database.BatchInsertFileHashAsync(newHashes);
 
@@ -517,16 +525,7 @@ namespace MediaBackupManager.Model
             dbInsertList.AddRange(stagingSet.GetFileNodes());
             await Database.BatchInsertFileNodeAsync(dbInsertList);
 
-            if (!LogicalVolumes.Contains(stagingSet.Volume))
-            {
-                LogicalVolumes.Add(stagingSet.Volume);
-                await Database.InsertLogicalVolumeAsync(stagingSet.Volume);
-            }
-            else
-            {
-                // Update the reference to make sure the set points to the correct object
-                stagingSet.Volume = LogicalVolumes.FirstOrDefault((x => x.Equals(stagingSet.Volume)));
-            }
+            stagingSet.Volume = await AddLogicalVolume(stagingSet.Volume, true);
 
             await AddBackupSetAsync(stagingSet, true);
         }
