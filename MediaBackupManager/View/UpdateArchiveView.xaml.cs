@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace MediaBackupManager.View
 {
     /// <summary>
-    /// Interaction logic for UpdateBackupSetView.xaml
+    /// Interaction logic for UpdateArchiveView.xaml
     /// </summary>
-    public partial class UpdateBackupSetView : UserControl
+    public partial class UpdateArchiveView : UserControl
     {
-        public UpdateBackupSetView()
+        public UpdateArchiveView()
         {
             InitializeComponent();
         }

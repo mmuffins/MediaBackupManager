@@ -15,7 +15,7 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         FileDirectory dir;
-        BackupSetViewModel backupSet;
+        ArchiveViewModel archive;
         FileDirectoryViewModel parent;
         ObservableCollection<FileDirectoryViewModel> subDirectories;
         ObservableCollection<FileNodeViewModel> fileNodes;
@@ -43,7 +43,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets the full path Name from the pof the current directory, with its parent Backup Set as root.</summary>  
+        /// Gets the full path Name from the pof the current directory, with its parent Archive as root.</summary>  
         public string FullName
         {
             get => dir.FullName;
@@ -87,15 +87,15 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets the Backup Set containing the current directory.</summary>  
-        public BackupSetViewModel BackupSet
+        /// Gets or sets the Archive containing the current directory.</summary>  
+        public ArchiveViewModel Archive
             {
-                get { return backupSet; }
+                get { return archive; }
                 set
                 {
-                    if (value != backupSet)
+                    if (value != archive)
                     {
-                        backupSet = value;
+                        archive = value;
                         NotifyPropertyChanged();
                     }
                 }
@@ -166,7 +166,7 @@ namespace MediaBackupManager.ViewModel
                 // Expand all the way up to the root.
                 if (treeViewIsExpanded)
                 {
-                    this.BackupSet.TreeViewIsExpanded = true;
+                    this.Archive.TreeViewIsExpanded = true;
                     if(parent != null)
                     {
                         Parent.TreeViewIsExpanded = true;
@@ -178,21 +178,21 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public FileDirectoryViewModel(FileDirectory fileDirectory, FileDirectoryViewModel parent, BackupSetViewModel backupSet)
+        public FileDirectoryViewModel(FileDirectory fileDirectory, FileDirectoryViewModel parent, ArchiveViewModel archive)
         {
             this.dir = fileDirectory;
-            this.backupSet = backupSet;
+            this.archive = archive;
             this.Parent = parent;
 
             this.subDirectories = new ObservableCollection<FileDirectoryViewModel>();
             this.fileNodes = new ObservableCollection<FileNodeViewModel>();
 
             foreach (var item in dir.SubDirectories)
-                this.SubDirectories.Add(new FileDirectoryViewModel(item, this, backupSet));
+                this.SubDirectories.Add(new FileDirectoryViewModel(item, this, archive));
 
             foreach (var item in dir.FileNodes)
             {
-                this.FileNodes.Add(new FileNodeViewModel(item, this, backupSet));
+                this.FileNodes.Add(new FileNodeViewModel(item, this, archive));
             }
 
             dir.SubDirectories.CollectionChanged += SubDirectories_CollectionChanged;
@@ -213,7 +213,7 @@ namespace MediaBackupManager.ViewModel
                 SubDirectories.Clear();
 
                 foreach (var node in dir.SubDirectories)
-                    SubDirectories.Add(new FileDirectoryViewModel(node, null, BackupSet));
+                    SubDirectories.Add(new FileDirectoryViewModel(node, null, Archive));
             }
             else
             {
@@ -236,7 +236,7 @@ namespace MediaBackupManager.ViewModel
                 // Add new items to the collection.
                 if (null != e.NewItems && e.NewItems.Count > 0)
                     foreach (var item in e.NewItems)
-                        SubDirectories.Add(new FileDirectoryViewModel((FileDirectory)item, this, BackupSet));
+                        SubDirectories.Add(new FileDirectoryViewModel((FileDirectory)item, this, Archive));
             }
 
             ignoreSubdirectoryChanges = false;
@@ -255,7 +255,7 @@ namespace MediaBackupManager.ViewModel
                 SubDirectories.Clear();
 
                 foreach (var node in dir.FileNodes)
-                    FileNodes.Add(new FileNodeViewModel(node, this, BackupSet));
+                    FileNodes.Add(new FileNodeViewModel(node, this, Archive));
             }
             else
             {
@@ -278,7 +278,7 @@ namespace MediaBackupManager.ViewModel
                 // Add new items to the collection.
                 if (null != e.NewItems && e.NewItems.Count > 0)
                     foreach (var item in e.NewItems)
-                        FileNodes.Add(new FileNodeViewModel((FileNode)item, this, BackupSet));
+                        FileNodes.Add(new FileNodeViewModel((FileNode)item, this, Archive));
             }
 
             ignoreFileChanges = false;

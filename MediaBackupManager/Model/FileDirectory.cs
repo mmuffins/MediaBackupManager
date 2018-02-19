@@ -20,7 +20,7 @@ namespace MediaBackupManager.Model
 
         string name;
         string directoryName;
-        BackupSet backupSet;
+        Archive archive;
         FileDirectory parent;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -44,15 +44,15 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the Backup Set containing the current directory.</summary>  
-        public BackupSet BackupSet
+        /// Gets or sets the Archive containing the current directory.</summary>  
+        public Archive Archive
         {
-            get { return backupSet; }
+            get { return archive; }
             set
             {
-                if (value != backupSet)
+                if (value != archive)
                 {
-                    backupSet = value;
+                    archive = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -74,12 +74,12 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the full path Name from the of the current directory, with its parent Backup Set as root.</summary>  
-        public virtual string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
+        /// Gets the full path Name from the of the current directory, with its parent Archive as root.</summary>  
+        public virtual string FullName { get => Path.Combine(Archive.Label, DirectoryName, Name); }
 
         /// <summary>
         /// Gets the full path Name from the of the current directory, with its current mount point as root.</summary>  
-        public virtual string FullSessionName { get => Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name); }
+        public virtual string FullSessionName { get => Path.Combine(Archive.Volume.MountPoint, DirectoryName, Name); }
 
         /// <summary>
         /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volumes.</summary>  
@@ -132,9 +132,9 @@ namespace MediaBackupManager.Model
             this.FileNodes = new ObservableCollection<FileNode>();
         }
 
-        public FileDirectory(DirectoryInfo directoryInfo, FileDirectory parent, BackupSet backupSet) : this()
+        public FileDirectory(DirectoryInfo directoryInfo, FileDirectory parent, Archive archive) : this()
         {
-            this.BackupSet = backupSet;
+            this.Archive = archive;
             this.Parent = parent;
 
             // set name to \ if the this is the root directory
@@ -171,13 +171,13 @@ namespace MediaBackupManager.Model
             {
                 foreach (var item in directory.GetDirectories())
                 {
-                    if (BackupSet.IsFileExcluded(directory.FullName))
+                    if (Archive.IsFileExcluded(directory.FullName))
                     {
                         //MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directory.FullName + " is excluded from scanning due to a matching file exclusion."));
                         continue;
                     }
 
-                    var newSubDirectory = new FileDirectory(item, this, BackupSet);
+                    var newSubDirectory = new FileDirectory(item, this, Archive);
                     SubDirectories.Add(newSubDirectory);
                     newSubDirectory.ScanSubDirectories(this, cancellationToken, processingDirectory);
                 }
@@ -200,7 +200,7 @@ namespace MediaBackupManager.Model
                 if (cancellationToken.IsCancellationRequested)
                     break;
 
-                if (BackupSet.IsFileExcluded(file.FullName))
+                if (Archive.IsFileExcluded(file.FullName))
                 {
                     //MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("File " + file.FullName + " is excluded from scanning due to a matching file exclusion."));
                     continue;
@@ -212,7 +212,7 @@ namespace MediaBackupManager.Model
 
                 try
                 {
-                    FileNodes.Add(new FileNode(file, BackupSet, this));
+                    FileNodes.Add(new FileNode(file, Archive, this));
                 }
                 catch (Exception ex)
                 {
@@ -267,7 +267,7 @@ namespace MediaBackupManager.Model
 
         public override int GetHashCode()
         {
-            return (BackupSet.Guid + DirectoryName + Name).GetHashCode();
+            return (Archive.Guid + DirectoryName + Name).GetHashCode();
         }
 
         public virtual bool Equals(FileDirectory other)
@@ -277,7 +277,7 @@ namespace MediaBackupManager.Model
 
             return this.Name.Equals(other.Name)
                 && this.DirectoryName.Equals(other.DirectoryName)
-                && this.BackupSet.Equals(other.BackupSet);
+                && this.Archive.Equals(other.Archive);
         }
 
         public override bool Equals(object obj)
@@ -331,7 +331,7 @@ namespace MediaBackupManager.Model
 
                 // set large fields to null.
                 Parent = null;
-                BackupSet = null;
+                Archive = null;
                 disposedValue = true;
             }
         }

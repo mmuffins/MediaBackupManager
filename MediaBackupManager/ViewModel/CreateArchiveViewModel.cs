@@ -2,6 +2,8 @@
 using MediaBackupManager.ViewModel.Popups;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,25 +12,42 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class UpdateBackupSetViewModel : ViewModelBase
+    public class CreateArchiveViewModel : ViewModelBase
     {
+        string selectedDirectory;
+        string archiveLabel;
         string scanStatusText;
         int scanProgress;
         string cancelButtonCaption;
         bool isScanInProgressOrCompleted;
         bool isScanCompleted;
-        BackupSetViewModel updateSet;
 
         FileIndexViewModel index;
         CancellationTokenSource tokenSource;
         string fileScanErrorString;
         Task directoryScan;
 
+        RelayCommand selectDirectoryCommand;
         RelayCommand cancelCommand;
         RelayCommand startCommand;
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the command to open a Dialog that lets the user a directory for the archive.</summary>  
+        public RelayCommand SelectDirectoryCommand
+        {
+            get
+            {
+                if (selectDirectoryCommand == null)
+                {
+                    selectDirectoryCommand = new RelayCommand(
+                        SelectDirectoryCommand_Execute,
+                        p => !IsScanInProgressOrCompleted);
+                }
+                return selectDirectoryCommand;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the command to close the overlay.</summary>  
@@ -47,7 +66,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets the command to start the update process.</summary>  
+        /// Gets or sets the command to create a Archive for the selected drive.</summary>  
         public RelayCommand StartCommand
         {
             get
@@ -55,10 +74,42 @@ namespace MediaBackupManager.ViewModel
                 if (startCommand == null)
                 {
                     startCommand = new RelayCommand(
-                        async p => await UpdateBackupSet(UpdateSet),
-                        p => true);
+                        async p => await CreateArchive(),
+                        p => !String.IsNullOrWhiteSpace(ArchiveLabel) 
+                        && !String.IsNullOrWhiteSpace(SelectedDirectory)
+                        && !IsScanInProgressOrCompleted);
                 }
                 return startCommand;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the currently selected directory.</summary>  
+        public string SelectedDirectory
+        {
+            get { return selectedDirectory; }
+            set
+            {
+                if (value != selectedDirectory)
+                {
+                    selectedDirectory = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the label of the new archive.</summary>  
+        public string ArchiveLabel
+        {
+            get { return archiveLabel; }
+            set
+            {
+                if (value != archiveLabel)
+                {
+                    archiveLabel = value;
+                    NotifyPropertyChanged();
+                }
             }
         }
 
@@ -140,21 +191,6 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets Backup Set that is being updated.</summary>  
-        public BackupSetViewModel UpdateSet
-        {
-            get { return updateSet; }
-            set
-            {
-                if (value != updateSet)
-                {
-                    updateSet = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the token source for the scanning operation.</summary>  
         public CancellationTokenSource TokenSource
         {
@@ -202,16 +238,13 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public UpdateBackupSetViewModel(FileIndexViewModel index, BackupSetViewModel backupSet)
+        public CreateArchiveViewModel(FileIndexViewModel index)
         {
             this.index = index;
             this.CancelButtonCaption = "Cancel";
             this.IsScanInProgressOrCompleted = false;
             this.IsScanCompleted = false;
             this.FileScanErrorString = "";
-            this.UpdateSet = backupSet;
-            this.Title = "Updating Backup Set" + backupSet.Label;
-            StartCommand.Execute(null);
         }
 
         /// <summary>
@@ -225,7 +258,7 @@ namespace MediaBackupManager.ViewModel
                 case "FileScanException":
                     // Sent during scanning or hashing operations
                     // add them to the error log to display to the user once done
-                    if (e.Parameter is ApplicationException)
+                    if(e.Parameter is ApplicationException)
                     {
                         var errorMsg = $"{((ApplicationException)e.Parameter).Message}";
                         if (((ApplicationException)e.Parameter).InnerException != null)
@@ -242,11 +275,25 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        /// <summary>
-        /// Updates the provided Backup Set.</summary>  
-        private async Task UpdateBackupSet(BackupSetViewModel backupSet)
+        /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
+        private void SelectDirectoryCommand_Execute(object obj)
         {
-            if (directoryScan != null && !directoryScan.IsCompleted)
+            var browser = new FolderBrowserDialog
+            {
+                Description = "Please Select a folder"
+            };
+
+            if (browser.ShowDialog() == DialogResult.OK)
+            {
+                SelectedDirectory = browser.SelectedPath;
+            }
+        }
+
+        /// <summary>
+        /// Creates a archive for the currently selected directory.</summary>  
+        private async Task CreateArchive()
+        {
+            if(directoryScan != null && !directoryScan.IsCompleted)
             {
                 // a scan is currently running, ignore the ok button
                 return;
@@ -254,11 +301,14 @@ namespace MediaBackupManager.ViewModel
 
             FileScanErrorString = "";
 
+            if (string.IsNullOrWhiteSpace(SelectedDirectory) || string.IsNullOrWhiteSpace(ArchiveLabel))
+                return;
+
             var statusText = new Progress<string>(p => ScanStatusText = p);
             var scanProgress = new Progress<int>(p => ScanProgress = p);
 
             // Clean up previous tasks if the user has canceled it
-            if (directoryScan != null && directoryScan.IsCompleted)
+            if(directoryScan != null && directoryScan.IsCompleted)
             {
                 try
                 {
@@ -283,7 +333,7 @@ namespace MediaBackupManager.ViewModel
 
             IsScanInProgressOrCompleted = true;
 
-            directoryScan = index.UpdateBackupSetAsync(backupSet, TokenSource.Token, scanProgress, statusText);
+            directoryScan = index.CreateArchiveAsync(new DirectoryInfo(SelectedDirectory), TokenSource.Token, scanProgress, statusText, ArchiveLabel);
             await directoryScan;
 
             if (tokenSource.IsCancellationRequested)
@@ -303,7 +353,7 @@ namespace MediaBackupManager.ViewModel
         private void CancelCommand_Execute(object obj)
         {
             // IsCompleted also includes IsFaulted and IsCanceled
-            if (directoryScan is null || directoryScan.IsCompleted)
+            if(directoryScan is null || directoryScan.IsCompleted)
             {
                 // No scan in progress, close the overlay
 
@@ -323,8 +373,8 @@ namespace MediaBackupManager.ViewModel
 
             // A scan is in progress, prompt the user for confirmation
             // and abort the scan, but don't close the overlay
-            var confirmDiag = new OKCancelPopupViewModel("Do you want to abort the update?", "", "Continue", "Abort");
-            if (confirmDiag.ShowDialog() == DialogResult.Cancel)
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to abort the scan in progress?", "", "Continue", "Abort");
+            if(confirmDiag.ShowDialog() == DialogResult.Cancel)
             {
                 // User has clicked abort, cancel the token 
                 TokenSource.Cancel();

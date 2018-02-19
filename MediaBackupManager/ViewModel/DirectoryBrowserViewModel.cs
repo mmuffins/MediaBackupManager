@@ -26,12 +26,12 @@ namespace MediaBackupManager.ViewModel
 
         ObservableCollection<object> searchResults;
 
-        RelayCommand removeBackupSetCommand;
-        RelayCommand showCreateBackupSetViewCommand;
+        RelayCommand removeArchiveCommand;
+        RelayCommand showCreateArchiveViewCommand;
         RelayCommand searchFilesCommand;
         RelayCommand clearSearchResultsCommand;
         RelayCommand showExclusionCommand;
-        RelayCommand showBackupSetOverviewCommand;
+        RelayCommand showArchiveOverviewCommand;
 
         #endregion
 
@@ -57,8 +57,8 @@ namespace MediaBackupManager.ViewModel
                 if (value != selectedDirectoryTreeItem)
                 {
                     selectedDirectoryTreeItem = value;
-                    if (value is BackupSetViewModel)
-                        CurrentDirectory = ((BackupSetViewModel)value).RootDirectory;
+                    if (value is ArchiveViewModel)
+                        CurrentDirectory = ((ArchiveViewModel)value).RootDirectory;
                     else
                         CurrentDirectory = (FileDirectoryViewModel)value;
 
@@ -138,32 +138,32 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand ShowCreateBackupSetViewCommand
+        public RelayCommand ShowCreateArchiveViewCommand
         {
             get
             {
-                if (showCreateBackupSetViewCommand == null)
+                if (showCreateArchiveViewCommand == null)
                 {
-                    // Messages the mainview to open the create backupset overlay
-                    showCreateBackupSetViewCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowCreateBackupSetOverlay", null), 
+                    // Messages the mainview to open the create archive overlay
+                    showCreateArchiveViewCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowCreateArchiveOverlay", null), 
                         p => !Index.IsOperationInProgress);
                 }
-                return showCreateBackupSetViewCommand;
+                return showCreateArchiveViewCommand;
             }
         }
 
-        public RelayCommand RemoveBackupSetCommand
+        public RelayCommand RemoveArchiveCommand
         {
             get
             {
-                if (removeBackupSetCommand == null)
+                if (removeArchiveCommand == null)
                 {
-                    removeBackupSetCommand = new RelayCommand(
-                        p => RemoveBackupSet(p as BackupSetViewModel),
+                    removeArchiveCommand = new RelayCommand(
+                        p => RemoveArchive(p as ArchiveViewModel),
                         p => !Index.IsOperationInProgress);
                 }
-                return removeBackupSetCommand;
+                return removeArchiveCommand;
             }
         }
 
@@ -209,17 +209,17 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand ShowBackupSetOverviewCommand
+        public RelayCommand ShowArchiveOverviewCommand
         {
             get
             {
-                if (showBackupSetOverviewCommand == null)
+                if (showArchiveOverviewCommand == null)
                 {
-                    showBackupSetOverviewCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowBackupSetOverview", null),
+                    showArchiveOverviewCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowArchiveOverview", null),
                         p => true);
                 }
-                return showBackupSetOverviewCommand;
+                return showArchiveOverviewCommand;
             }
         }
 
@@ -260,12 +260,12 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Removes the provided Backupset from the file index.</summary>
-        private async void RemoveBackupSet(BackupSetViewModel backupSet)
+        /// Removes the provided Archive from the file index.</summary>
+        private async void RemoveArchive(ArchiveViewModel archive)
         {
-            if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
+            if (archive != null && archive is ArchiveViewModel && archive.Archive != null)
             {
-                await Index.RemoveBackupSetAsync(backupSet.BackupSet);
+                await Index.RemoveArchiveAsync(archive.Archive);
             }
         }
 

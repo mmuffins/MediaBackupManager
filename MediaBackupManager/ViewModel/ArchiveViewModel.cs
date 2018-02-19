@@ -11,25 +11,25 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class BackupSetViewModel : ViewModelBase, IEquatable<BackupSetViewModel>
+    public class ArchiveViewModel : ViewModelBase, IEquatable<ArchiveViewModel>
     {
         #region Fields
 
-        BackupSet backupSet;
+        Archive archive;
         FileDirectoryViewModel rootDirectory;
         FileIndexViewModel index;
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
         bool renameMode;
 
-        RelayCommand renameBackupSetCommand;
+        RelayCommand renameArchiveCommand;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Gets or sets the file Index containing the current Backup Set.</summary>  
+        /// Gets or sets the file Index containing the current Archive.</summary>  
         public FileIndexViewModel Index
         {
             get { return index; }
@@ -44,29 +44,29 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets the Backup set for this viewmodel.</summary>
-        public BackupSet BackupSet
+        /// Gets the Archive for this viewmodel.</summary>
+        public Archive Archive
         {
-            get { return backupSet; }
+            get { return archive; }
             set
             {
-                if (value != backupSet)
+                if (value != archive)
                 {
-                    backupSet = value;
+                    archive = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Gets the Guid of the current Backup Set.</summary>  
+        /// Gets the Guid of the current Archive.</summary>  
         public Guid Guid
         {
-            get => backupSet.Guid;
+            get => archive.Guid;
         }
 
         /// <summary>
-        /// Gets or sets the root directory of the current Backup Set.</summary>  
+        /// Gets or sets the root directory of the current Archive.</summary>  
         public FileDirectoryViewModel RootDirectory
         {
             get { return rootDirectory; }
@@ -82,18 +82,18 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets the user defined label for the current Backup Set.</summary>
+        /// Gets or sets the user defined label for the current Archive.</summary>
         public string Label
         {
             get
             {
-                return  backupSet.Label;
+                return  archive.Label;
             }
             set
             {
-                if (value != backupSet.Label && !String.IsNullOrWhiteSpace(value))
+                if (value != archive.Label && !String.IsNullOrWhiteSpace(value))
                 {
-                    RenameBackupSetCommand.Execute(value);
+                    RenameArchiveCommand.Execute(value);
                     this.NotifyPropertyChanged();
                 }
 
@@ -104,42 +104,42 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets the date the current Backup Set was last updated.</summary>  
+        /// Gets or sets the date the current Archive was last updated.</summary>  
         public DateTime LastScanDate
         {
-            get => BackupSet.LastScanDate;
+            get => Archive.LastScanDate;
         }
 
         /// <summary>
-        /// Gets or sets the logical volume of the current Backup Set.</summary>  
+        /// Gets or sets the logical volume of the current Archive.</summary>  
         public LogicalVolume Volume
         {
-            get => BackupSet.Volume;
+            get => Archive.Volume;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating if the logical volume containing the current Backup Set is currently connected to the host. To update, execute RefreshVolumeStatus.</summary>  
+        /// Gets or sets a value indicating if the logical volume containing the current Archive is currently connected to the host. To update, execute RefreshVolumeStatus.</summary>  
         public bool IsConnected
         {
             get => Volume.IsConnected;
         }
 
         /// <summary>
-        /// Gets point or drive letter of the current Backup Set.</summary>  
+        /// Gets point or drive letter of the current Archive.</summary>  
         public string MountPoint
         {
-            get => BackupSet.MountPoint;
+            get => Archive.MountPoint;
         }
 
         /// <summary>
-        /// Gets the volume serial number of the logical volume containing the current Backup Set.</summary>  
+        /// Gets the volume serial number of the logical volume containing the current Archive.</summary>  
         public string SerialNumber
         {
             get => Volume.SerialNumber;
         }
 
         /// <summary>
-        /// Gets the drive type of the logical volume containing the current Backup Set.</summary>  
+        /// Gets the drive type of the logical volume containing the current Archive.</summary>  
         public DriveType DriveType
         {
             get => Volume.Type;
@@ -180,7 +180,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets whether this backup set is currently in renaming mode.
+        /// Gets or sets whether this archive is currently in renaming mode.
         /// </summary>
         public bool RenameMode
         {
@@ -195,20 +195,20 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public RelayCommand RenameBackupSetCommand
+        public RelayCommand RenameArchiveCommand
         {
             get
             {
-                if (renameBackupSetCommand == null)
+                if (renameArchiveCommand == null)
                 {
-                    renameBackupSetCommand = new RelayCommand(
+                    renameArchiveCommand = new RelayCommand(
                         async p => {
                             RenameMode = false;
-                            await backupSet.UpdateLabel(p.ToString());
+                            await archive.UpdateLabel(p.ToString());
                             },
                         p => !String.IsNullOrWhiteSpace(p.ToString()));
                 }
-                return renameBackupSetCommand;
+                return renameArchiveCommand;
             }
         }
 
@@ -216,17 +216,17 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public BackupSetViewModel(BackupSet backupSet, FileIndexViewModel index)
+        public ArchiveViewModel(Archive archive, FileIndexViewModel index)
         {
-            this.BackupSet = backupSet;
+            this.Archive = archive;
             this.Index = index;
             this.RenameMode = false;
-            this.RootDirectory = new FileDirectoryViewModel(backupSet.RootDirectory, null, this);
+            this.RootDirectory = new FileDirectoryViewModel(archive.RootDirectory, null, this);
 
-            backupSet.PropertyChanged += BackupSet_PropertyChanged;
+            archive.PropertyChanged += Archive_PropertyChanged;
         }
 
-        private void BackupSet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Archive_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //TODO: Q-Any way to directly pass notifications from model to view instead of hooking up the event and manually forward it?
             switch (e.PropertyName)
@@ -240,15 +240,15 @@ namespace MediaBackupManager.ViewModel
                     break;
 
                 case "RootDirectory":
-                    if (backupSet.RootDirectory is null)
+                    if (archive.RootDirectory is null)
                         RootDirectory = null;
                     else
-                        RootDirectory = new FileDirectoryViewModel(backupSet.RootDirectory, null, this);
+                        RootDirectory = new FileDirectoryViewModel(archive.RootDirectory, null, this);
                     break;
 
                 case "Volume":
-                    if(backupSet.Volume != null)
-                        backupSet.Volume.PropertyChanged += Volume_PropertyChanged;
+                    if(archive.Volume != null)
+                        archive.Volume.PropertyChanged += Volume_PropertyChanged;
 
                     this.NotifyPropertyChanged("Volume");
                     break;
@@ -276,23 +276,23 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Returns true if the provided object is the base object of the current viewmodel.</summary>  
-        public bool IsViewFor(BackupSet backupSet)
+        public bool IsViewFor(Archive archive)
         {
-            return this.backupSet.Equals(backupSet);
+            return this.archive.Equals(archive);
         }
 
         /// <summary>
-        /// Refreshes the status and mount point of the volume containing the backup set.</summary>  
+        /// Refreshes the status and mount point of the volume containing the archive.</summary>  
         public void RefreshVolumeStatus()
         {
             Volume.RefreshStatus();
         }
 
         /// <summary>
-        /// Changes the label of the BackupSet.</summary>  
+        /// Changes the label of the Archive.</summary>  
         public async Task UpdateLabel(string label)
         {
-            await backupSet.UpdateLabel(label);
+            await archive.UpdateLabel(label);
         }
 
         /// <summary>
@@ -317,15 +317,15 @@ namespace MediaBackupManager.ViewModel
 
         public override int GetHashCode()
         {
-            return this.BackupSet.GetHashCode();
+            return this.Archive.GetHashCode();
         }
 
-        public virtual bool Equals(BackupSetViewModel other)
+        public virtual bool Equals(ArchiveViewModel other)
         {
             if (other == null)
                 return false;
 
-            return this.BackupSet.Equals(other.BackupSet);
+            return this.Archive.Equals(other.Archive);
         }
 
         public override bool Equals(object obj)
@@ -333,7 +333,7 @@ namespace MediaBackupManager.ViewModel
             if (obj == null)
                 return false;
 
-            var otherObj = obj as BackupSetViewModel;
+            var otherObj = obj as ArchiveViewModel;
             if (otherObj == null)
                 return false;
             else

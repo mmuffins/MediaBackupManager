@@ -113,17 +113,17 @@ namespace MediaBackupManager.Model
                 await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
-                    "BackupSet TEXT NOT NULL" +
+                    "Archive TEXT NOT NULL" +
                     ", DirectoryName TEXT NOT NULL" +
                     ", Name TEXT" +
                     ", Extension TEXT" +
                     ", Checksum TEXT" +
                     ", NodeType INTEGER" +
-                    ", PRIMARY KEY (BackupSet, DirectoryName, Name)" +
+                    ", PRIMARY KEY (Archive, DirectoryName, Name)" +
                     ")";
                 await sqlCmd.ExecuteNonQueryAsync();
 
-                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS BackupSet (" +
+                sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS Archive (" +
                     "Guid TEXT PRIMARY KEY" +
                     ", Volume TEXT" +
                     ", RootDirectoryPath TEXT" +
@@ -170,7 +170,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Retrieves the specified LogicalVolume objects from the database.</summary>
-        /// <param name="guid">Guid of the Backupset containing the logical volume.</param>
+        /// <param name="guid">Guid of the Archive containing the logical volume.</param>
         public static async Task<List<LogicalVolume>> GetLogicalVolumeAsync(string guid = "")
         {
             var res = new List<LogicalVolume>();
@@ -179,7 +179,7 @@ namespace MediaBackupManager.Model
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
                 var cmdText = new StringBuilder("SELECT v.*FROM LogicalVolume AS v " +
-                    "INNER JOIN BackupSet AS s " +
+                    "INNER JOIN Archive AS s " +
                     "ON v.SerialNumber = s.Volume");
 
                 if (!string.IsNullOrWhiteSpace(guid))
@@ -211,22 +211,22 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Retrieves the specified BackupSet objects from the database.</summary>
+        /// Retrieves the specified Archive objects from the database.</summary>
         /// <param name="guid">Guid of the object that should be retrieved.</param>
-        public static async Task<List<BackupSet>> GetBackupSetAsync(string guid = "")
+        public static async Task<List<Archive>> GetArchiveAsync(string guid = "")
         {
-            // To build a complete backup set:
-            // load base data from Backupset
+            // To build a complete archive:
+            // load base data from Archive
             // load volume
             // load file nodes/directories
 
-            var res = new List<BackupSet>();
+            var res = new List<Archive>();
 
             using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
 
-                var cmdText = new StringBuilder("SELECT * FROM BackupSet");
+                var cmdText = new StringBuilder("SELECT * FROM Archive");
                 if (!string.IsNullOrWhiteSpace(guid))
                 {
                     cmdText.Append(" WHERE Guid = @Guid");
@@ -242,7 +242,7 @@ namespace MediaBackupManager.Model
                 {
                     while (await reader.ReadAsync())
                     {
-                        var newSet = new BackupSet()
+                        var newArchive = new Archive()
                         {
                             Guid = new Guid(reader["Guid"].ToString()),
                             RootDirectoryPath = reader["RootDirectoryPath"].ToString(),
@@ -251,8 +251,7 @@ namespace MediaBackupManager.Model
                         };
 
                         // Load related objects
-                        //newSet.Volume = (await GetLogicalVolumeAsync(reader["Volume"].ToString())).FirstOrDefault();
-                        res.Add(newSet);
+                        res.Add(newArchive);
                     }
                 }
             }
@@ -262,7 +261,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Retrieves the specified FileHash objects from the database.</summary>
-        /// <param name="guid">Guid of the Backupset containing the File hashes.</param>
+        /// <param name="guid">Guid of the Archive containing the File hashes.</param>
         public static async Task<List<FileHash>> GetFileHashAsync(string guid = "")
         {
             var res = new List<FileHash>();
@@ -276,7 +275,7 @@ namespace MediaBackupManager.Model
                 if (!string.IsNullOrWhiteSpace(guid))
                 {
                     cmdText.Append(" INNER JOIN FileNode As n ON h.Checksum = n.Checksum");
-                    cmdText.Append(" INNER JOIN BackupSet AS s ON n.BackupSet = s.Guid ");
+                    cmdText.Append(" INNER JOIN Archive AS s ON n.Archive = s.Guid ");
 
                     cmdText.Append(" WHERE s.Guid = @Guid");
                     sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
@@ -334,7 +333,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Retrieves the specified FileDirectory and FileNode objects from the database.</summary>
-        /// <param name="guid">Guid of the Backupset containing the File nodes.</param>
+        /// <param name="guid">Guid of the Archive containing the File nodes.</param>
         public static async Task<List<FileDirectory>> GetFileNodeAsync(string guid = "")
         {
             var res = new List<FileDirectory>();
@@ -343,7 +342,7 @@ namespace MediaBackupManager.Model
             {
                 var sqlCmd = new SQLiteCommand(dbConn)
                 {
-                    CommandText = "SELECT * FROM FileNode WHERE BackupSet = @Guid",
+                    CommandText = "SELECT * FROM FileNode WHERE Archive = @Guid",
                     CommandType = CommandType.Text
                 };
                 sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
@@ -389,14 +388,14 @@ namespace MediaBackupManager.Model
             var sqlCmd = new SQLiteCommand
             {
                 CommandText = "INSERT INTO FileNode (" +
-                "BackupSet" +
+                "Archive" +
                 ", DirectoryName" +
                 ", Name" +
                 ", Extension" +
                 ", File" +
                 ", NodeType" +
                 ") VALUES (" +
-                "@BackupSet" +
+                "@Archive" +
                 ", @DirectoryName" +
                 ", @Name" +
                 ", @Extension" +
@@ -411,11 +410,11 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@File", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
 
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
-            sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
+            sqlCmd.Parameters["@Archive"].Value = fileNode.Archive.Guid;
             sqlCmd.Parameters["@Name"].Value = fileNode.Name;
             sqlCmd.Parameters["@Extension"].Value = "";
             sqlCmd.Parameters["@File"].Value = "";
@@ -425,7 +424,7 @@ namespace MediaBackupManager.Model
             {
                 sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
                 sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.Checksum;
-                sqlCmd.Parameters["@BackupSet"].Value = (fileNode as FileNode).BackupSet.Guid;
+                sqlCmd.Parameters["@Archive"].Value = (fileNode as FileNode).Archive.Guid;
                 sqlCmd.Parameters["@NodeType"].Value = 1;
             }
 
@@ -434,11 +433,11 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Inserts the specified object to the database.</summary>
-        public static async Task InsertBackupSetAsync(BackupSet backupSet)
+        public static async Task InsertArchiveAsync(Archive archive)
         {
             var sqlCmd = new SQLiteCommand
             {
-                CommandText = "INSERT INTO BackupSet (" +
+                CommandText = "INSERT INTO Archive (" +
                 "Guid" +
                 ", Volume" +
                 ", RootDirectoryPath" +
@@ -461,11 +460,11 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
-            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
-            sqlCmd.Parameters["@Volume"].Value = backupSet.Volume.SerialNumber;
-            sqlCmd.Parameters["@RootDirectoryPath"].Value = backupSet.RootDirectoryPath;
-            sqlCmd.Parameters["@Label"].Value = backupSet.Label;
-            sqlCmd.Parameters["@LastScanDate"].Value = backupSet.LastScanDate;
+            sqlCmd.Parameters["@Guid"].Value = archive.Guid;
+            sqlCmd.Parameters["@Volume"].Value = archive.Volume.SerialNumber;
+            sqlCmd.Parameters["@RootDirectoryPath"].Value = archive.RootDirectoryPath;
+            sqlCmd.Parameters["@Label"].Value = archive.Label;
+            sqlCmd.Parameters["@LastScanDate"].Value = archive.LastScanDate;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -593,16 +592,16 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Deletes the specified object from the database.</summary>
-        public static async Task DeleteBackupSetAsync(BackupSet backupSet)
+        public static async Task DeleteArchiveAsync(Archive archive)
         {
             var sqlCmd = new SQLiteCommand
             {
-                CommandText = "DELETE FROM BackupSet WHERE Guid = @Guid",
+                CommandText = "DELETE FROM Archive WHERE Guid = @Guid",
                 CommandType = CommandType.Text
             };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+            sqlCmd.Parameters["@Guid"].Value = archive.Guid;
 
             await ExecuteNonQueryAsync(sqlCmd);
         }
@@ -613,16 +612,16 @@ namespace MediaBackupManager.Model
         {
             var sqlCmd = new SQLiteCommand();
             var cmdText = new StringBuilder("DELETE FROM FileNode WHERE");
-            cmdText.Append(" BackupSet = @BackupSet");
+            cmdText.Append(" Archive = @Archive");
             cmdText.Append(" AND DirectoryName = @DirectoryName");
             cmdText.Append(" AND Name = @Name");
 
 
-            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
 
-            sqlCmd.Parameters["@BackupSet"].Value = fileNode.BackupSet.Guid;
+            sqlCmd.Parameters["@Archive"].Value = fileNode.Archive.Guid;
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
             sqlCmd.Parameters["@Name"].Value = "";
 
@@ -653,12 +652,12 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Updates the label of the provided Backup Set.</summary>
-        public static async Task UpdateBackupSetLabel(BackupSet backupSet, string newLabel)
+        /// Updates the label of the provided Archive.</summary>
+        public static async Task UpdateArchiveLabel(Archive archive, string newLabel)
         {
             var sqlCmd = new SQLiteCommand
             {
-                CommandText = "UPDATE BackupSet" +
+                CommandText = "UPDATE Archive" +
                 " SET Label = @Label" +
                 " WHERE Guid = @Guid",
                 CommandType = CommandType.Text
@@ -667,7 +666,7 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
 
-            sqlCmd.Parameters["@Guid"].Value = backupSet.Guid;
+            sqlCmd.Parameters["@Guid"].Value = archive.Guid;
             sqlCmd.Parameters["@Label"].Value = newLabel;
 
             await ExecuteNonQueryAsync(sqlCmd);
@@ -678,7 +677,7 @@ namespace MediaBackupManager.Model
         public static async Task BatchDeleteFileNodeAsync(List<FileDirectory> nodes)
         {
             var commandText = "DELETE FROM FileNode WHERE" +
-            " BackupSet = @BackupSet" +
+            " Archive = @Archive" +
             " AND DirectoryName = @DirectoryName" +
             " AND Name = @Name";
 
@@ -697,11 +696,11 @@ namespace MediaBackupManager.Model
                                 CommandType = CommandType.Text
                             };
 
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
 
-                            sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
+                            sqlCmd.Parameters["@Archive"].Value = node.Archive.Guid;
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
                             sqlCmd.Parameters["@Name"].Value = node.Name;
 
@@ -760,9 +759,9 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Inserts the specified list into the database via transaction.</summary>
-        public static async Task BatchInsertBackupSetAsync(List<BackupSet> sets)
+        public static async Task BatchInsertArchiveAsync(List<Archive> archives)
         {
-            var commandText = "INSERT INTO BackupSet (" +
+            var commandText = "INSERT INTO Archive (" +
                 "Guid" +
                 ", Volume" +
                 ", RootDirectoryPath" +
@@ -784,7 +783,7 @@ namespace MediaBackupManager.Model
                 {
                     try
                     {
-                        foreach (var set in sets)
+                        foreach (var archive in archives)
                         {
                             var sqlCmd = new SQLiteCommand(commandText, dbConn, transaction)
                             {
@@ -797,11 +796,11 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
-                            sqlCmd.Parameters["@Guid"].Value = set.Guid;
-                            sqlCmd.Parameters["@Volume"].Value = set.Volume.SerialNumber;
-                            sqlCmd.Parameters["@RootDirectoryPath"].Value = set.RootDirectoryPath;
-                            sqlCmd.Parameters["@Label"].Value = set.Label;
-                            sqlCmd.Parameters["@LastScanDate"].Value = set.LastScanDate;
+                            sqlCmd.Parameters["@Guid"].Value = archive.Guid;
+                            sqlCmd.Parameters["@Volume"].Value = archive.Volume.SerialNumber;
+                            sqlCmd.Parameters["@RootDirectoryPath"].Value = archive.RootDirectoryPath;
+                            sqlCmd.Parameters["@Label"].Value = archive.Label;
+                            sqlCmd.Parameters["@LastScanDate"].Value = archive.LastScanDate;
 
                             await sqlCmd.ExecuteNonQueryAsync();
                         }
@@ -877,14 +876,14 @@ namespace MediaBackupManager.Model
         public static async Task BatchInsertFileNodeAsync(List<FileDirectory> nodes)
         {
             var commandText = "INSERT INTO FileNode (" +
-                "BackupSet" +
+                "Archive" +
                 ", DirectoryName" +
                 ", Name" +
                 ", Extension" +
                 ", Checksum" +
                 ", NodeType" +
                 ") VALUES (" +
-                "@BackupSet" +
+                "@Archive" +
                 ", @DirectoryName" +
                 ", @Name" +
                 ", @Extension" +
@@ -912,11 +911,11 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@BackupSet", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
 
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
-                            sqlCmd.Parameters["@BackupSet"].Value = node.BackupSet.Guid;
+                            sqlCmd.Parameters["@Archive"].Value = node.Archive.Guid;
                             sqlCmd.Parameters["@Name"].Value = node.Name;
                             sqlCmd.Parameters["@Extension"].Value = "";
                             sqlCmd.Parameters["@Checksum"].Value = "";
@@ -925,7 +924,7 @@ namespace MediaBackupManager.Model
                             if (node is FileNode)
                             {
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
-                                sqlCmd.Parameters["@BackupSet"].Value = (node as FileNode).BackupSet.Guid;
+                                sqlCmd.Parameters["@Archive"].Value = (node as FileNode).Archive.Guid;
                                 sqlCmd.Parameters["@NodeType"].Value = 1;
 
                                 if((node as FileNode).Hash != null)

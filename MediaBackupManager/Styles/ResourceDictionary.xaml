@@ -19,7 +19,7 @@
         <Setter Property="VerticalAlignment" Value="Bottom" />
     </Style>
 
-    <Style TargetType="Label" x:Key="BackupSetTitle">
+    <Style TargetType="Label" x:Key="ArchiveTitle">
         <Setter Property="FontFamily" Value="./Font/#Roboto"/>
         <Setter Property="FontSize" Value="20" />
         <Setter Property="VerticalAlignment" Value="Bottom" />

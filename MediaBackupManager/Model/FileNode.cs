@@ -68,8 +68,8 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the full path Name from the of the file node, with its parent Backup Set as root.</summary>  
-        public override string FullName { get => Path.Combine(BackupSet.Label, DirectoryName, Name); }
+        /// Gets the full path Name from the of the file node, with its parent Archive as root.</summary>  
+        public override string FullName { get => Path.Combine(Archive.Label, DirectoryName, Name); }
 
         /// <summary>
         /// Gets the full path Name from the of the current file node, with its current mount point as root.</summary>  
@@ -78,14 +78,14 @@ namespace MediaBackupManager.Model
             get
             {
                 if(DirectoryName == @"\")
-                    return Path.Combine(BackupSet.Volume.MountPoint, Name);
+                    return Path.Combine(Archive.Volume.MountPoint, Name);
                 else 
-                    return Path.Combine(BackupSet.Volume.MountPoint, DirectoryName, Name);
+                    return Path.Combine(Archive.Volume.MountPoint, DirectoryName, Name);
             }
         }
 
         /// <summary>
-        /// Returns true if all subdirectories or related file hashes have more than one related backup set.</summary>
+        /// Returns true if all subdirectories or related file hashes have more than one related archive.</summary>
         public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
 
         #endregion
@@ -94,11 +94,11 @@ namespace MediaBackupManager.Model
 
         public FileNode() { }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileDirectory parent)
+        public FileNode(FileInfo fileInfo, Archive archive, FileDirectory parent)
         {
             this.Name = fileInfo.Name;
             this.Extension = fileInfo.Extension;
-            this.BackupSet = backupSet;
+            this.Archive = archive;
             this.Parent = parent;
 
             //Set root directory to \
@@ -108,7 +108,7 @@ namespace MediaBackupManager.Model
                 this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
         }
 
-        public FileNode(FileInfo fileInfo, BackupSet backupSet, FileDirectory parent, FileHash file) : this (fileInfo, backupSet, parent)
+        public FileNode(FileInfo fileInfo, Archive archive, FileDirectory parent, FileHash file) : this (fileInfo, archive, parent)
         {
             this.Hash = file;
             this.Checksum = file.Checksum;
@@ -120,7 +120,7 @@ namespace MediaBackupManager.Model
         {
             if (!(this.Hash is null)) // If the current object refers to a directory it has no file
                 this.Hash.RemoveNode(this);
-                //this.BackupSet.Index.RemoveFileNode(this);
+                //this.Archive.Index.RemoveFileNode(this);
                 //this.File.RemoveNode(this);
         }
 
@@ -130,7 +130,7 @@ namespace MediaBackupManager.Model
 
         public override int GetHashCode()
         {
-            return (BackupSet.Guid + DirectoryName + Name).GetHashCode();
+            return (Archive.Guid + DirectoryName + Name).GetHashCode();
         }
 
         public bool Equals(FileNode other)
@@ -140,7 +140,7 @@ namespace MediaBackupManager.Model
 
             return this.Name.Equals(other.Name)
                 && this.DirectoryName.Equals(other.DirectoryName)
-                && this.BackupSet.Equals(other.BackupSet);
+                && this.Archive.Equals(other.Archive);
         }
 
         public override bool Equals(object obj)

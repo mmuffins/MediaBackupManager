@@ -20,7 +20,7 @@ namespace MediaBackupManager.ViewModel
         FileIndex index;
         FileDirectory currentDirectory;
         bool isOperationInProgress;
-        ObservableCollection<BackupSetViewModel> backupSets;
+        ObservableCollection<ArchiveViewModel> archives;
         ObservableHashSet<FileHashViewModel> hashes;
         ObservableCollection<string> exclusions;
 
@@ -44,15 +44,15 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets a list of all backup sets on the file index.</summary>  
-        public ObservableCollection<BackupSetViewModel> BackupSets
+        /// Gets a list of all archives on the file index.</summary>  
+        public ObservableCollection<ArchiveViewModel> Archives
         {
-            get { return backupSets; }
+            get { return archives; }
             set
             {
-                if (value != backupSets)
+                if (value != archives)
                 {
-                    backupSets = value;
+                    archives = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -89,7 +89,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or if a file scan or backup set deletion is currently in progress.</summary>  
+        /// Gets or if a file scan or archive deletion is currently in progress.</summary>  
         public bool IsOperationInProgress
         {
             get { return isOperationInProgress; }
@@ -110,20 +110,20 @@ namespace MediaBackupManager.ViewModel
         public FileIndexViewModel(FileIndex index)
         {
             this.index = index;
-            this.BackupSets = new ObservableCollection<BackupSetViewModel>();
+            this.Archives = new ObservableCollection<ArchiveViewModel>();
             this.FileHashes = new ObservableHashSet<FileHashViewModel>();
             this.Exclusions = new ObservableCollection<string>();
             foreach (var hash in index.Hashes)
                 this.FileHashes.Add(new FileHashViewModel(hash));
 
-            foreach (var set in index.BackupSets)
-                this.BackupSets.Add(new BackupSetViewModel(set, this));
+            foreach (var archive in index.Archives)
+                this.Archives.Add(new ArchiveViewModel(archive, this));
 
             foreach (var item in index.Exclusions)
                 this.Exclusions.Add(item);
 
             index.Hashes.CollectionChanged += new NotifyCollectionChangedEventHandler(FileHashes_CollectionChanged);
-            index.BackupSets.CollectionChanged += new NotifyCollectionChangedEventHandler(BackupSets_CollectionChanged);
+            index.Archives.CollectionChanged += new NotifyCollectionChangedEventHandler(Archives_CollectionChanged);
             index.Exclusions.CollectionChanged += new NotifyCollectionChangedEventHandler(Exclusions_CollectionChanged);
         }
 
@@ -165,7 +165,7 @@ namespace MediaBackupManager.ViewModel
             NotifyPropertyChanged("FileHashes");
         }
 
-        private void BackupSets_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void Archives_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (ignoreChanges)
                 return;
@@ -175,29 +175,29 @@ namespace MediaBackupManager.ViewModel
             // If the collection was reset, then e.OldItems is empty. Just clear and reload.
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
             {
-                BackupSets.Clear();
+                Archives.Clear();
 
-                foreach (var set in index.BackupSets)
-                    BackupSets.Add(new BackupSetViewModel(set, this));
+                foreach (var archive in index.Archives)
+                    Archives.Add(new ArchiveViewModel(archive, this));
             }
             else
             {
                 // Remove items from collection.
-                var toRemove = new List<BackupSetViewModel>();
+                var toRemove = new List<ArchiveViewModel>();
 
                 if (null != e.OldItems && e.OldItems.Count > 0)
                     foreach (var item in e.OldItems)
-                        foreach (var existingItem in BackupSets)
-                            if (existingItem.IsViewFor((BackupSet)item))
+                        foreach (var existingItem in Archives)
+                            if (existingItem.IsViewFor((Archive)item))
                                 toRemove.Add(existingItem);
 
                 foreach (var item in toRemove)
-                    BackupSets.Remove(item);
+                    Archives.Remove(item);
 
                 // Add new items to the collection.
                 if (null != e.NewItems && e.NewItems.Count > 0)
                     foreach (var item in e.NewItems)
-                        BackupSets.Add(new BackupSetViewModel((BackupSet)item, this));
+                        Archives.Add(new ArchiveViewModel((Archive)item, this));
             }
             ignoreChanges = false;
         }
@@ -236,44 +236,44 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
+        /// Recursively scans the specified directory and adds it as new Archive to the file index.</summary>  
         /// <param name="dir">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="label">The display name for the new backup set.</param>
-        public async Task CreateBackupSetAsync(DirectoryInfo dir, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
+        /// <param name="label">The display name for the new archive.</param>
+        public async Task CreateArchiveAsync(DirectoryInfo dir, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
             IsOperationInProgress = true;
 
-            await index.CreateBackupSetAsync(dir, cancellationToken, progress, statusText, label);
+            await index.CreateArchiveAsync(dir, cancellationToken, progress, statusText, label);
 
             IsOperationInProgress = false;
         }
 
         /// <summary>
-        /// Rescans the provided BackupSet and refreshes all file hashes, nodes and the directory structure.</summary>  
-        /// <param name="backupSet">The Backup Set that should be updated.</param>
+        /// Rescans the provided Archive and refreshes all file hashes, nodes and the directory structure.</summary>  
+        /// <param name="archive">The Archive that should be updated.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="label">The display name for the new backup set.</param>
-        public async Task UpdateBackupSetAsync(BackupSetViewModel backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
+        /// <param name="label">The display name for the new archive.</param>
+        public async Task UpdateArchiveAsync(ArchiveViewModel archive, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
             IsOperationInProgress = true;
 
-            await index.UpdateBackupSetAsync(backupSet.BackupSet, cancellationToken, progress, statusText);
+            await index.UpdateArchiveAsync(archive.Archive, cancellationToken, progress, statusText);
 
             IsOperationInProgress = false;
         }
 
         /// <summary>
-        /// Removes the specified backup set and all children from the index.</summary>  
-        public async Task RemoveBackupSetAsync(BackupSet backupSet)
+        /// Removes the specified archive and all children from the index.</summary>  
+        public async Task RemoveArchiveAsync(Archive archive)
         {
             IsOperationInProgress = true;
 
-            await index.RemoveBackupSetAsync(backupSet, true);
+            await index.RemoveArchiveAsync(archive, true);
 
             IsOperationInProgress = false;
         }
@@ -314,14 +314,14 @@ namespace MediaBackupManager.ViewModel
         /// Returns a list of all file nodes matching the provided search term.</summary>  
         public IEnumerable<FileNodeViewModel> FindFileNodes(string searchTerm)
         {
-            return BackupSets.SelectMany(x => x.FindFileNodes(searchTerm));
+            return Archives.SelectMany(x => x.FindFileNodes(searchTerm));
         }
 
         /// <summary>
         /// Returns a list of all directories matching the provided search term.</summary>  
         public IEnumerable<FileDirectoryViewModel> FindDirectories(string searchTerm)
         {
-            return BackupSets.SelectMany(x => x.FindDirectories(searchTerm));
+            return Archives.SelectMany(x => x.FindDirectories(searchTerm));
         }
 
         /// <summary>

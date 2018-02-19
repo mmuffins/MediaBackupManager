@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MediaBackupManager.View.BackupSetOverview"
+﻿<UserControl x:Class="MediaBackupManager.View.ArchiveOverview"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -43,8 +43,8 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button x:Name="btnCreateBackupSet" Content="Add Backup Set" 
-                    Command="{Binding ShowCreateBackupSetOverlayCommand}" 
+            <Button x:Name="btnCreateArchive" Content="Add Archive" 
+                    Command="{Binding ShowCreateArchiveOverlayCommand}" 
                     Style="{DynamicResource HeaderButton}"/>
             <Button x:Name="btnShowExclusionList" Content="File Exclusions" 
                     Command="{Binding ShowExclusionOverlayCommand}" 
@@ -61,12 +61,12 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!--BackupSet List-->
+            <!--Archive List-->
             <ListBox Grid.Row="0" Grid.Column="0"
-                     ItemsSource="{Binding Index.BackupSets}"
-                     SelectedItem="{Binding SelectedBackupset}" 
+                     ItemsSource="{Binding Index.Archives}"
+                     SelectedItem="{Binding SelectedArchive}" 
                      BorderThickness="0" HorizontalAlignment="Stretch" MaxWidth="600" 
-                     ItemContainerStyle="{DynamicResource BackupSetListStyle}"
+                     ItemContainerStyle="{DynamicResource ArchiveListStyle}"
                      >
                 <ListBox.Resources>
                     <Style TargetType="ListBoxItem">
@@ -76,7 +76,7 @@
                 </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid MouseDown="BackupSet_MouseDown">
+                        <Grid MouseDown="Archive_MouseDown">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="8*" />
@@ -88,11 +88,11 @@
 
                             <!--Description-->
                             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                                <Label DockPanel.Dock="Left" Content="{Binding Label}" Style="{StaticResource BackupSetTitle}"
+                                <Label DockPanel.Dock="Left" Content="{Binding Label}" Style="{StaticResource ArchiveTitle}"
                                         Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}" />
                                 
                                 <TextBox Text="{Binding Label}"
-                                         KeyDown="OnBackupSetLabelKeyDown" 
+                                         KeyDown="OnArchiveLabelKeyDown" 
                                          FontSize="20" 
                                          Background="Transparent" 
                                          Foreground="#FF44ABB0"
@@ -130,7 +130,7 @@
 
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
                                         Width="33" Height="38" Margin="3,0"
-                                        Command="{Binding DataContext.ShowUpdateBackupSetOverlayCommand, ElementName=LayoutRoot}"
+                                        Command="{Binding DataContext.ShowUpdateArchiveOverlayCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="20" Height="23" Style="{StaticResource appbar_refresh}"
@@ -139,7 +139,7 @@
                                 
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonRed}" 
                                         Width="32" Height="38"  Margin="3,0"
-                                        Command="{Binding DataContext.RemoveBackupSetCommand, ElementName=LayoutRoot}"
+                                        Command="{Binding DataContext.RemoveArchiveCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="18" Height="23"  Style="{StaticResource appbar_delete}"

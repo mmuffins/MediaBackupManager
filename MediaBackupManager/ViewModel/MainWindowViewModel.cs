@@ -13,7 +13,7 @@ namespace MediaBackupManager.ViewModel
 {
     class MainWindowViewModel : ViewModelBase
     {
-        //TODO: In some cases, when removing all cases from the label, new backup sets can still be created
+        //TODO: In some cases, when removing all cases from the label, new archives can still be created
         //TODO: Reporting?
         //TODO: file deduplication feature?
         //TODO: Should nodes always be registered over the file index (this way we could set the relations in both the hash and the node and don't need to worry about forgetting anything)
@@ -94,11 +94,11 @@ namespace MediaBackupManager.ViewModel
             this.Index = new FileIndexViewModel(new FileIndex());
             PrepareDatabaseAsync().Wait();
 
-            ChangeViewModel(new BackupSetOverviewViewModel(Index));
+            ChangeViewModel(new ArchiveOverviewViewModel(Index));
             AppViewModels.Add(new DirectoryBrowserViewModel(Index));
 
             // Check what drives are connected every few seconds
-            // to show the correct status in the backupset overview
+            // to show the correct status in the archive overview
             DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background);
             //TODO: Q-Any better way to do this?
             timer.Tick += RefreshVolumeStatus;
@@ -118,11 +118,11 @@ namespace MediaBackupManager.ViewModel
                     CurrentOverlay = null;
                     break;
 
-                case "ShowCreateBackupSetOverlay":
+                case "ShowCreateArchiveOverlay":
                     // Assigning a viewmodel to CurrentOverlay will automatically
                     // display it as overlay in the view
-                    CurrentOverlay = new CreateBackupSetViewModel(Index);
-                    CurrentOverlay.Title = "Add Backup Set";
+                    CurrentOverlay = new CreateArchiveViewModel(Index);
+                    CurrentOverlay.Title = "Add Archive";
                     break;
 
                 case "ShowExclusionListViewOverlay":
@@ -133,10 +133,10 @@ namespace MediaBackupManager.ViewModel
                     CurrentOverlay.Title = "File Exlusions";
                     break;
 
-                case "ShowUpdateBackupSetOverlay":
-                    if(e.Parameter != null && e.Parameter is BackupSetViewModel)
+                case "ShowUpdateArchiveOverlay":
+                    if(e.Parameter != null && e.Parameter is ArchiveViewModel)
                     {
-                        CurrentOverlay = new UpdateBackupSetViewModel(Index, (BackupSetViewModel)e.Parameter);
+                        CurrentOverlay = new UpdateArchiveViewModel(Index, (ArchiveViewModel)e.Parameter);
                     }
 
                     break;
@@ -151,24 +151,24 @@ namespace MediaBackupManager.ViewModel
                         browserView.Title = "Directory Browser";
                     }
 
-                    // Directly open a backup set if it was provided as parameter
-                    if (e.Parameter is BackupSetViewModel)
-                        browserView.SetDirectory(((BackupSetViewModel)e.Parameter).RootDirectory);
+                    // Directly open a archive if it was provided as parameter
+                    if (e.Parameter is ArchiveViewModel)
+                        browserView.SetDirectory(((ArchiveViewModel)e.Parameter).RootDirectory);
 
                     ChangeViewModel(browserView);
                     break;
 
-                case "ShowBackupSetOverview":
-                    var backupSetView = AppViewModels
-                        .OfType<BackupSetOverviewViewModel>()
-                        .FirstOrDefault(x => x is BackupSetOverviewViewModel);
-                    if (backupSetView is null)
+                case "ShowArchiveOverview":
+                    var archiveView = AppViewModels
+                        .OfType<ArchiveOverviewViewModel>()
+                        .FirstOrDefault(x => x is ArchiveOverviewViewModel);
+                    if (archiveView is null)
                     {
-                        backupSetView = new BackupSetOverviewViewModel(index);
-                        backupSetView.Title = "Backup Sets";
+                        archiveView = new ArchiveOverviewViewModel(index);
+                        archiveView.Title = "Archives";
                     }
 
-                    ChangeViewModel(backupSetView);
+                    ChangeViewModel(archiveView);
                     break;
 
                 default:

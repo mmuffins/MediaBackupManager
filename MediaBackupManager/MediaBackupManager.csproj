@@ -96,7 +96,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\FileHash.cs" />
-    <Compile Include="Model\BackupSet.cs" />
+    <Compile Include="Model\Archive.cs" />
     <Compile Include="Model\Database.cs" />
     <Compile Include="Model\FileDirectory.cs" />
     <Compile Include="Model\FileIndex.cs" />
@@ -105,9 +105,9 @@
     <Compile Include="Supporting Classes\ObservableHashSet.cs" />
     <Compile Include="Supporting Classes\RelayCommand.cs" />
     <Compile Include="Supporting Classes\ViewModelBase.cs" />
-    <Compile Include="ViewModel\BackupSetOverviewViewModel.cs" />
-    <Compile Include="ViewModel\BackupSetViewModel.cs" />
-    <Compile Include="ViewModel\CreateBackupSetViewModel.cs" />
+    <Compile Include="ViewModel\ArchiveOverviewViewModel.cs" />
+    <Compile Include="ViewModel\ArchiveViewModel.cs" />
+    <Compile Include="ViewModel\CreateArchiveViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
     <Compile Include="ViewModel\ExclusionListViewModel.cs" />
     <Compile Include="ViewModel\FileDirectoryViewModel.cs" />
@@ -118,13 +118,13 @@
     <Compile Include="Supporting Classes\MessageService.cs" />
     <Compile Include="ViewModel\Popups\OKCancelPopupViewModel.cs" />
     <Compile Include="ViewModel\Popups\PopupBaseViewModel.cs" />
-    <Compile Include="ViewModel\UpdateBackupSetViewModel.cs" />
-    <Compile Include="View\BackupSetOverview.xaml.cs">
-      <DependentUpon>BackupSetOverview.xaml</DependentUpon>
+    <Compile Include="ViewModel\UpdateArchiveViewModel.cs" />
+    <Compile Include="View\ArchiveOverview.xaml.cs">
+      <DependentUpon>ArchiveOverview.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Converters.cs" />
-    <Compile Include="View\CreateBackupSetView.xaml.cs">
-      <DependentUpon>CreateBackupSetView.xaml</DependentUpon>
+    <Compile Include="View\CreateArchiveSetView.xaml.cs">
+      <DependentUpon>CreateArchiveSetView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\DirectoryBrowserView.xaml.cs">
       <DependentUpon>DirectoryBrowserView.xaml</DependentUpon>
@@ -141,8 +141,8 @@
     <Compile Include="View\Popups\PopupBase.xaml.cs">
       <DependentUpon>PopupBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\UpdateBackupSetView.xaml.cs">
-      <DependentUpon>UpdateBackupSetView.xaml</DependentUpon>
+    <Compile Include="View\UpdateArchiveView.xaml.cs">
+      <DependentUpon>UpdateArchiveView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ValidationRules.cs" />
   </ItemGroup>
@@ -163,6 +163,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Resource Include="Font\Roboto-Bold.ttf" />
     <Resource Include="Font\Roboto-BoldItalic.ttf" />
@@ -233,11 +234,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\BackupSetOverview.xaml">
+    <Page Include="View\ArchiveOverview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\CreateBackupSetView.xaml">
+    <Page Include="View\CreateArchiveSetView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -261,7 +262,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\UpdateBackupSetView.xaml">
+    <Page Include="View\UpdateArchiveView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

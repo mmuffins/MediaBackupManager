@@ -41,7 +41,7 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Gets the count logical volumes containing the current file hash.</summary>  
-        public int BackupCount { get => Nodes.Select(x => x.BackupSet.Volume).Distinct().Count(); }
+        public int BackupCount { get => Nodes.Select(x => x.Archive.Volume).Distinct().Count(); }
 
         #endregion
 

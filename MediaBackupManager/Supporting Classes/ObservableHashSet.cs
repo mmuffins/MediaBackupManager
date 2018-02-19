@@ -30,7 +30,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
         /// </summary>
-        /// <param name="collection">The collection whose elements are copied to the new set.</param>
+        /// <param name="collection">The collection whose elements are copied to the new archive.</param>
         public ObservableHashSet(IEnumerable<T> collection)
         {
             this.hashSet = new HashSet<T>(collection);
@@ -48,7 +48,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
         /// </summary>
-        /// <param name="collection">The collection whose elements are copied to the new set.</param>
+        /// <param name="collection">The collection whose elements are copied to the new archive.</param>
         /// <param name="comparer">The IEqualityComparer&lt;T&gt; implementation to use when comparing values in the set, or null to use the default EqualityComparer&lt;T&gt; implementation for the set type.</param>
         public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {

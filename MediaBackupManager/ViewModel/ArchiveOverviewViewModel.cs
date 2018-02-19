@@ -10,16 +10,16 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
-    public class BackupSetOverviewViewModel :ViewModelBase
+    public class ArchiveOverviewViewModel :ViewModelBase
     {
         #region Fields
 
         FileIndexViewModel index;
-        BackupSetViewModel selectedBackupSet;
+        ArchiveViewModel selectedArchive;
 
-        RelayCommand showCreateBackupSetOverlayCommand;
-        RelayCommand removeBackupSetCommand;
-        RelayCommand showUpdateBackupSetOverlayCommand;
+        RelayCommand showCreateArchiveOverlayCommand;
+        RelayCommand removeArchiveCommand;
+        RelayCommand showUpdateArchiveOverlayCommand;
         RelayCommand showDirectoryBrowserViewCommand;
         RelayCommand showExclusionCommand;
         RelayCommand enableRenamingModeCommand;
@@ -41,59 +41,59 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
-        public BackupSetViewModel SelectedBackupset
+        public ArchiveViewModel SelectedArchive
         {
-            get { return selectedBackupSet; }
+            get { return selectedArchive; }
             set
             {
-                if (value != selectedBackupSet)
+                if (value != selectedArchive)
                 {
-                    selectedBackupSet = value;
+                    selectedArchive = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        public RelayCommand ShowCreateBackupSetOverlayCommand
+        public RelayCommand ShowCreateArchiveOverlayCommand
         {
             get
             {
-                if (showCreateBackupSetOverlayCommand == null)
+                if (showCreateArchiveOverlayCommand == null)
                 {
-                    // Messages the mainview to open the create backupset overlay
-                    showCreateBackupSetOverlayCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowCreateBackupSetOverlay", null),
+                    // Messages the mainview to open the create archive overlay
+                    showCreateArchiveOverlayCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowCreateArchiveOverlay", null),
                         p => !Index.IsOperationInProgress);
                 }
-                return showCreateBackupSetOverlayCommand;
+                return showCreateArchiveOverlayCommand;
             }
         }
 
-        public RelayCommand RemoveBackupSetCommand
+        public RelayCommand RemoveArchiveCommand
         {
             get
             {
-                if (removeBackupSetCommand == null)
+                if (removeArchiveCommand == null)
                 {
-                    removeBackupSetCommand = new RelayCommand(
-                        async p => await RemoveBackupSet(p as BackupSetViewModel),
+                    removeArchiveCommand = new RelayCommand(
+                        async p => await RemoveArchive(p as ArchiveViewModel),
                         p => !Index.IsOperationInProgress);
                 }
-                return removeBackupSetCommand;
+                return removeArchiveCommand;
             }
         }
 
-        public RelayCommand ShowUpdateBackupSetOverlayCommand
+        public RelayCommand ShowUpdateArchiveOverlayCommand
         {
             get
             {
-                if (showUpdateBackupSetOverlayCommand == null)
+                if (showUpdateArchiveOverlayCommand == null)
                 {
-                    showUpdateBackupSetOverlayCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowUpdateBackupSetOverlay", p as BackupSetViewModel),
+                    showUpdateArchiveOverlayCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowUpdateArchiveOverlay", p as ArchiveViewModel),
                         p => !Index.IsOperationInProgress);
                 }
-                return showUpdateBackupSetOverlayCommand;
+                return showUpdateArchiveOverlayCommand;
             }
         }
 
@@ -132,8 +132,8 @@ namespace MediaBackupManager.ViewModel
                 if (enableRenamingModeCommand == null)
                 {
                     enableRenamingModeCommand = new RelayCommand(
-                        p => ((BackupSetViewModel)p).RenameMode = true,
-                        p => p is BackupSetViewModel);
+                        p => ((ArchiveViewModel)p).RenameMode = true,
+                        p => p is ArchiveViewModel);
                 }
                 return enableRenamingModeCommand;
             }
@@ -143,22 +143,22 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public BackupSetOverviewViewModel(FileIndexViewModel index)
+        public ArchiveOverviewViewModel(FileIndexViewModel index)
         {
             this.Index = index;
         }
 
         /// <summary>
-        /// Removes the provided Backupset from the file index.</summary>
-        private async Task RemoveBackupSet(BackupSetViewModel backupSet)
+        /// Removes the provided Archive from the file index.</summary>
+        private async Task RemoveArchive(ArchiveViewModel archive)
         {
-            var confirmDiag = new OKCancelPopupViewModel("Do you want to delete Backup Set " + backupSet.Label + "?", "", "Delete", "No");
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to delete Archive " + archive.Label + "?", "", "Delete", "No");
             if (confirmDiag.ShowDialog() == DialogResult.Cancel)
                 return;
 
             // User has confirmed the deletion, continue 
-            if (backupSet != null && backupSet is BackupSetViewModel && backupSet.BackupSet != null)
-                await Index.RemoveBackupSetAsync(backupSet.BackupSet);
+            if (archive != null && archive is ArchiveViewModel && archive.Archive != null)
+                await Index.RemoveArchiveAsync(archive.Archive);
         }
 
         #endregion

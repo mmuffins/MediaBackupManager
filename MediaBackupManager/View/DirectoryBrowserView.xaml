@@ -46,7 +46,7 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Button x:Name="btnShowBackupSetView" Content="Home" Command="{Binding ShowBackupSetOverviewCommand}" Style="{DynamicResource HeaderButton}"  />
+            <Button x:Name="btnShowArchiveView" Content="Home" Command="{Binding ShowArchiveOverviewCommand}" Style="{DynamicResource HeaderButton}"  />
         </StackPanel>
 
         <Separator Grid.Row="0"  Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Background="#FF303030" />
@@ -59,7 +59,7 @@
         
         <!--Directory Tree-->
         <TreeView x:Name="treeDirectory" Grid.Row="2"  Grid.Column="0" Margin="2" MinWidth="50"
-                  ItemsSource="{Binding Path=Index.BackupSets}"
+                  ItemsSource="{Binding Path=Index.Archives}"
                   SelectedItemChanged="treeDirectory_SelectedItemChanged" >
             <TreeView.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FFAFECFF" />

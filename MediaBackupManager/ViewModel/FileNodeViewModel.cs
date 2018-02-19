@@ -15,7 +15,7 @@ namespace MediaBackupManager.ViewModel
         #region Fields
 
         FileNode node;
-        BackupSetViewModel backupSet;
+        ArchiveViewModel archive;
         FileHashViewModel hash;
         FileDirectoryViewModel parent;
 
@@ -24,15 +24,15 @@ namespace MediaBackupManager.ViewModel
         #region Properties
 
         /// <summary>
-        /// Gets or sets the Backup Set containing the current directory.</summary>  
-        public BackupSetViewModel BackupSet
+        /// Gets or sets the Archive containing the current directory.</summary>  
+        public ArchiveViewModel Archive
         {
-            get { return backupSet; }
+            get { return archive; }
             set
             {
-                if (value != backupSet)
+                if (value != archive)
                 {
-                    backupSet = value;
+                    archive = value;
                     NotifyPropertyChanged();
                 }
             }
@@ -94,7 +94,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets the full path Name from the of the file node, with its parent Backup Set as root.</summary>  
+        /// Gets the full path Name from the of the file node, with its parent Archive as root.</summary>  
         public string FullName
         {
             get => node.FullName;
@@ -134,10 +134,10 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public FileNodeViewModel(FileNode fileNode, FileDirectoryViewModel parent, BackupSetViewModel backupSet)
+        public FileNodeViewModel(FileNode fileNode, FileDirectoryViewModel parent, ArchiveViewModel archive)
         {
             this.node = fileNode;
-            this.backupSet = backupSet;
+            this.archive = archive;
             this.Hash = RefreshHash();
             this.Parent = parent;
 
@@ -172,10 +172,10 @@ namespace MediaBackupManager.ViewModel
             if (hash != null)
                 hash.RemoveNode(this);
 
-            if(BackupSet is null || string.IsNullOrWhiteSpace(Checksum))
+            if(Archive is null || string.IsNullOrWhiteSpace(Checksum))
                 return null;
 
-            var newHash = BackupSet.Index.GetFileHashViewModel(Checksum);
+            var newHash = Archive.Index.GetFileHashViewModel(Checksum);
 
             if (newHash != null)
                 newHash.AddNode(this);
@@ -214,7 +214,7 @@ namespace MediaBackupManager.ViewModel
 
             //return this.Name.Equals(other.Name)
             //    && this.DirectoryName.Equals(other.DirectoryName)
-            //    && this.BackupSet.Equals(other.BackupSet);
+            //    && this.Archive.Equals(other.Archive);
 
             return this.node.Equals(other.node);
 

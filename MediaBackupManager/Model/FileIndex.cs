@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace MediaBackupManager.Model
 {
     /// <summary>
-    /// Manages a collection of Backup Sets and provides an index of unique file hash objects.</summary>  
+    /// Manages a collection of Archives and provides an index of unique file hash objects.</summary>  
     public class FileIndex
     {
         #region Properties
@@ -28,8 +28,8 @@ namespace MediaBackupManager.Model
         public List<LogicalVolume> LogicalVolumes { get; private set; }
 
         /// <summary>
-        /// Gets a list of Backup Sets contained in the current file index.</summary>  
-        public ObservableCollection<BackupSet> BackupSets { get; private set; }
+        /// Gets a list of Archives contained in the current file index.</summary>  
+        public ObservableCollection<Archive> Archives { get; private set; }
 
         /// <summary>
         /// Gets a list of file exclusions contained in the current file index.</summary>  
@@ -43,7 +43,7 @@ namespace MediaBackupManager.Model
         {
             this.Hashes = new ObservableHashSet<FileHash>();
             this.LogicalVolumes = new List<LogicalVolume>();
-            this.BackupSets = new ObservableCollection<BackupSet>();
+            this.Archives = new ObservableCollection<Archive>();
             this.Exclusions = new ObservableHashSet<string>();
         }
 
@@ -57,21 +57,21 @@ namespace MediaBackupManager.Model
             foreach (var hash in await Database.GetFileHashAsync())
                 AddFileHash(hash);
 
-            var loadedSets = await Database.GetBackupSetAsync();
+            var loadedArchives = await Database.GetArchiveAsync();
 
             // Prepare loaded sets before adding them to the index
-            foreach (var set in loadedSets)
+            foreach (var archive in loadedArchives)
             {
-                set.Index = this;
+                archive.Index = this;
 
-                set.Volume = (await Database.GetLogicalVolumeAsync(set.Guid.ToString())).FirstOrDefault();
-                set.Volume.RefreshStatus();
-                set.Volume = await AddLogicalVolume(set.Volume, false);
+                archive.Volume = (await Database.GetLogicalVolumeAsync(archive.Guid.ToString())).FirstOrDefault();
+                archive.Volume.RefreshStatus();
+                archive.Volume = await AddLogicalVolume(archive.Volume, false);
 
-                // rebuild the directory tree of the set
+                // rebuild the directory tree of the archive
 
-                // load all nodes of the set
-                var loadedNodes = await Database.GetFileNodeAsync(set.Guid.ToString());
+                // load all nodes of the archive
+                var loadedNodes = await Database.GetFileNodeAsync(archive.Guid.ToString());
                 loadedNodes.Sort();
 
                 // create a lookup collection by grouping each node by their respective directory name
@@ -81,7 +81,7 @@ namespace MediaBackupManager.Model
                 // child items in the lookup collection
                 foreach (var node in loadedNodes)
                 {
-                    node.BackupSet = set;
+                    node.Archive = archive;
 
                     if(node is FileNode)
                     {
@@ -122,13 +122,13 @@ namespace MediaBackupManager.Model
 
                 // The only directory left without a parent is the root directory
 
-                set.RootDirectory = loadedNodes
+                archive.RootDirectory = loadedNodes
                     .OfType<FileDirectory>()
                     .FirstOrDefault(x => x.Parent == null && x.GetType() == typeof(FileDirectory));
             }
 
-            foreach (var set in loadedSets)
-                BackupSets.Add(set);
+            foreach (var archive in loadedArchives)
+                Archives.Add(archive);
         }
 
         /// <summary>
@@ -139,39 +139,39 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Recursively scans the specified directory and adds it as new BackupSet to the file index.</summary>  
+        /// Recursively scans the specified directory and adds it as new Archive to the file index.</summary>  
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="label">The display name for the new backup set.</param>
-        public async Task<BackupSet> CreateBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
+        /// <param name="label">The display name for the new archive.</param>
+        public async Task<Archive> CreateArchiveAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
             if (statusText != null)
                 statusText.Report("Starting scan");
 
             if (FileIndexContainsDirectory(directoryPath))
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is already indexed in another Backup Set."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is already indexed in another Archive."));
                 return null;
             }
 
             if (IsDirectoryParentOfFileIndex(directoryPath))
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is the parent directory of another Backup Set. Please remove the existing Set before proceeding."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + " is the parent directory of another Archive. Please remove the existing Set before proceeding."));
                 return null;
             }
 
-            var stagingSet = await PrepareBackupSetAsync(directoryPath, cancellationToken, progress, statusText, label);
+            var stagingArchive = await PrepareArchiveAsync(directoryPath, cancellationToken, progress, statusText, label);
 
-            // No need to inform the user here, all errors have been handled inside PrepareBackupSet
-            if (stagingSet is null)
+            // No need to inform the user here, all errors have been handled inside PrepareArchive
+            if (stagingArchive is null)
                 return null;
 
             if (statusText != null)
                 statusText.Report("Hashing files");
 
-            await stagingSet.HashFilesAsync(cancellationToken, progress, statusText);
+            await stagingArchive.HashFilesAsync(cancellationToken, progress, statusText);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -185,26 +185,26 @@ namespace MediaBackupManager.Model
             // if we cancel after this point, we risk database corruption
 
             if (statusText != null)
-                statusText.Report("Writing Backup Set to Database");
+                statusText.Report("Writing Archive to Database");
 
-            // At this point the staging set and all children have been properly created
+            // At this point the staging archive and all children have been properly created
             // merge it into the main list and write new data into the db
-            await AppendBackupSetAsync(stagingSet);
+            await AppendArchiveAsync(stagingArchive);
 
             if (statusText != null)
                 statusText.Report("Done!");
 
-            return stagingSet;
+            return stagingArchive;
         }
 
         /// <summary>
-        /// Prepares a BackupSet without hashing any files.</summary>  
+        /// Prepares a Archive without hashing any files.</summary>  
         /// <param name="directoryPath">The directory thas should be scanned.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="label">The display name for the new backup set.</param>
-        private async Task<BackupSet> PrepareBackupSetAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
+        /// <param name="label">The display name for the new archive.</param>
+        private async Task<Archive> PrepareArchiveAsync(DirectoryInfo directoryPath, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText, string label = "")
         {
 
             if (!Directory.Exists(directoryPath.FullName))
@@ -224,9 +224,9 @@ namespace MediaBackupManager.Model
                 return null;
             }
 
-            var stagingSet = new BackupSet(directoryPath, stagingVolume, Exclusions.ToList());
+            var stagingArchive = new Archive(directoryPath, stagingVolume, Exclusions.ToList());
             if (!string.IsNullOrWhiteSpace(label))
-                stagingSet.Label = label;
+                stagingArchive.Label = label;
 
             // Up to this point the function should be fast enough that we don't need 
             // to check for task cancellation
@@ -234,49 +234,49 @@ namespace MediaBackupManager.Model
             if (statusText != null)
                 statusText.Report("Getting file list");
 
-            await stagingSet.ScanFilesAsync(cancellationToken, statusText);
+            await stagingArchive.ScanFilesAsync(cancellationToken, statusText);
 
             if (cancellationToken.IsCancellationRequested)
                 return null;
 
             // There is either an issue with the provided directory or it's
             // on the exclusion list. In either case, abort the function
-            var stagingSetNodes = stagingSet.GetFileDirectories();
-            stagingSetNodes.AddRange(stagingSet.GetFileNodes());
-            if (stagingSetNodes is null || stagingSetNodes.Count == 0)
+            var stagingArchiveNodes = stagingArchive.GetFileDirectories();
+            stagingArchiveNodes.AddRange(stagingArchive.GetFileNodes());
+            if (stagingArchiveNodes is null || stagingArchiveNodes.Count == 0)
             {
                 MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not access the scan directory: " + directoryPath.FullName));
                 return null;
             }
 
-            return stagingSet;
+            return stagingArchive;
         }
 
         /// <summary>
-        /// Rescans the provided BackupSet and refreshes all file hashes, nodes and the directory structure.</summary>  
-        /// <param name="backupSet">The Backup Set that should be updated.</param>
+        /// Rescans the provided Archive and refreshes all file hashes, nodes and the directory structure.</summary>  
+        /// <param name="archive">The Archive that should be updated.</param>
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="statusText">Progress object used to provide feedback over the current status of the operation.</param>
-        /// <param name="label">The display name for the new backup set.</param>
-        public async Task UpdateBackupSetAsync(BackupSet backupSet, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
+        /// <param name="label">The display name for the new archive.</param>
+        public async Task UpdateArchiveAsync(Archive archive, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
             if (statusText != null)
                 statusText.Report("Checking if drive is connected");
 
             // Make sure that the volume is connected and the directory not deleted
-            backupSet.Volume.RefreshStatus();
+            archive.Volume.RefreshStatus();
 
-            if (!backupSet.Volume.IsConnected)
+            if (!archive.Volume.IsConnected)
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not verify that logical volume " + backupSet.Volume.SerialNumber + " is connected."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not verify that logical volume " + archive.Volume.SerialNumber + " is connected."));
                 return;
             }
 
-            var guid = backupSet.Guid;
-            var rootDirectory = backupSet.RootDirectoryPath;
-            var label = backupSet.Label;
-            var mountPoint = backupSet.MountPoint;
+            var guid = archive.Guid;
+            var rootDirectory = archive.RootDirectoryPath;
+            var label = archive.Label;
+            var mountPoint = archive.MountPoint;
 
             DirectoryInfo rootDirObject;
 
@@ -292,8 +292,8 @@ namespace MediaBackupManager.Model
             }
 
             // We now know that the drive is connected and the directory still exists
-            // Create a temporary backup set to get a list of all files
-            var newSet = await PrepareBackupSetAsync(rootDirObject, cancellationToken, progress, statusText, label);
+            // Create a temporary archive to get a list of all files
+            var newArchive = await PrepareArchiveAsync(rootDirObject, cancellationToken, progress, statusText, label);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -303,16 +303,16 @@ namespace MediaBackupManager.Model
                 return;
             }
 
-            if (newSet is null)
+            if (newArchive is null)
                 return;
 
-            newSet.Guid = guid;
+            newArchive.Guid = guid;
 
-            // Hash the temporary set before attempting to remove the previous set in case the user changes his mind
+            // Hash the temporary set before attempting to remove the previous archive in case the user changes his mind
             if (statusText != null)
                 statusText.Report("Hashing files");
 
-            await newSet.HashFilesAsync(cancellationToken, progress, statusText);
+            await newArchive.HashFilesAsync(cancellationToken, progress, statusText);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -322,17 +322,17 @@ namespace MediaBackupManager.Model
                 return;
             }
 
-            // Now that all files are hashed, remove the old backup set and append the new one
+            // Now that all files are hashed, remove the old archive and append the new one
             // ignore the cancellation token in order to avoid DB corruption
 
-            await RemoveBackupSetAsync(backupSet, true);
+            await RemoveArchiveAsync(archive, true);
 
             if (statusText != null)
                 statusText.Report("Writing changes to database");
 
-            // At this point the staging set and all children have been properly created
+            // At this point the staging archive and all children have been properly created
             // merge it into the main list and write new data into the db
-            await AppendBackupSetAsync(newSet);
+            await AppendArchiveAsync(newArchive);
 
             if (statusText != null)
                 statusText.Report("Done!");
@@ -381,51 +381,51 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Adds the provided Backup set to the collection.</summary>  
+        /// Adds the provided Archive to the collection.</summary>  
         /// <param name="writeToDb">If true, the object will be written to the Database.</param>
-        private async Task AddBackupSetAsync(BackupSet backupSet, bool writeToDb)
+        private async Task AddArchiveAsync(Archive archive, bool writeToDb)
         {
-            BackupSets.Add(backupSet);
+            Archives.Add(archive);
 
             if (writeToDb)
-                await Database.InsertBackupSetAsync(backupSet);
+                await Database.InsertArchiveAsync(archive);
         }
 
         /// <summary>
-        /// Removes the specified backup set and all children from the index.</summary>  
+        /// Removes the specified archive and all children from the index.</summary>  
         /// <param name="writeToDb">If true, the object will be removed from the Database.</param>
-        public async Task RemoveBackupSetAsync(BackupSet set, bool writeToDb)
+        public async Task RemoveArchiveAsync(Archive archive, bool writeToDb)
         {
-            if (set is null)
+            if (archive is null)
                 return;
 
-            if(BackupSets.Where(x => x.Volume.Equals(set.Volume)).Count() < 2)
+            if(Archives.Where(x => x.Volume.Equals(archive.Volume)).Count() < 2)
             {
-                // No other backup set shares the logical volume of the 
+                // No other archive shares the logical volume of the 
                 // set that's about to be deleted, it can therefore be removed
-                LogicalVolumes.Remove(set.Volume);
+                LogicalVolumes.Remove(archive.Volume);
                 if(writeToDb)
-                    await Database.DeleteLogicalVolumeAsync(set.Volume);
+                    await Database.DeleteLogicalVolumeAsync(archive.Volume);
             }
 
-            // Get a list of all hashes related to the current set,
+            // Get a list of all hashes related to the current archive,
             // remove all nodes from these hashes.
-            var setHashes = set.GetFileHashes();
-            await set.ClearAsync();
-            set.Dispose();
+            var archiveHashes = archive.GetFileHashes();
+            await archive.ClearAsync();
+            archive.Dispose();
 
             // Get hashes in the collection with node count 0 
             // these can be removed from the index
-            var emptyHashes = setHashes.Where(x => x.NodeCount.Equals(0)).ToList();
+            var emptyHashes = archiveHashes.Where(x => x.NodeCount.Equals(0)).ToList();
             emptyHashes.ForEach(x => Hashes.Remove(x));
 
             if (writeToDb)
                 await Database.BatchDeleteFileHashAsync(emptyHashes);
 
-            BackupSets.Remove(set);
-            //NotifyPropertyChanged("BackupSet");
+            Archives.Remove(archive);
+            //NotifyPropertyChanged("Archive");
             if(writeToDb)
-                await Database.DeleteBackupSetAsync(set);
+                await Database.DeleteArchiveAsync(archive);
         }
 
         /// <summary>
@@ -443,14 +443,14 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Determines whether the provided directory is already indexed in one of the backup sets.</summary>  
+        /// Determines whether the provided directory is already indexed in one of the archives.</summary>  
         public bool FileIndexContainsDirectory(DirectoryInfo dir)
         {
             bool result = false;
 
-            foreach (var set in BackupSets)
+            foreach (var archive in Archives)
             {
-                if (set.ContainsDirectory(dir))
+                if (archive.ContainsDirectory(dir))
                 {
                     result = true;
                     break;
@@ -461,14 +461,14 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Determines whether the provided directory is a parent of one of the backup sets.</summary>  
+        /// Determines whether the provided directory is a parent of one of the archives.</summary>  
         public bool IsDirectoryParentOfFileIndex(DirectoryInfo dir)
         {
             bool result = false;
 
-            foreach (var set in BackupSets)
+            foreach (var archive in Archives)
             {
-                if (set.IsParentDirectory(dir))
+                if (archive.IsParentDirectory(dir))
                 {
                     result = true;
                     break;
@@ -489,22 +489,22 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Appends the provided BackupSet to the index and writes new elements into the Database.</summary>  
-        private async Task AppendBackupSetAsync(BackupSet stagingSet)
+        /// Appends the provided Archive to the index and writes new elements into the Database.</summary>  
+        private async Task AppendArchiveAsync(Archive stagingArchive)
         {
             // Hashes
             // To prevent any issues, rebuild the hash index by looping through each filenode and
             // reapplying the correct values/relations
             var newHashes = new List<FileHash>();
 
-            foreach (var file in stagingSet.GetFileNodes())
+            foreach (var file in stagingArchive.GetFileNodes())
             {
                 if (file.Hash is null)
                     continue;
 
-                // For each hash in the staging set, check if it already exists in the file index.
+                // For each hash in the staging archive, check if it already exists in the file index.
                 // If so, update the pointer of the file node
-                // in the staging set to use the existing object. If not, add the hash to the index
+                // in the staging archive to use the existing object. If not, add the hash to the index
 
                 if (Hashes.Contains(file.Hash))
                 {
@@ -520,14 +520,14 @@ namespace MediaBackupManager.Model
             }
             await Database.BatchInsertFileHashAsync(newHashes);
 
-            // All filenodes are unique to a backup set so they can be added to the DB in any case
-            var dbInsertList = stagingSet.GetFileDirectories();
-            dbInsertList.AddRange(stagingSet.GetFileNodes());
+            // All filenodes are unique to a archive so they can be added to the DB in any case
+            var dbInsertList = stagingArchive.GetFileDirectories();
+            dbInsertList.AddRange(stagingArchive.GetFileNodes());
             await Database.BatchInsertFileNodeAsync(dbInsertList);
 
-            stagingSet.Volume = await AddLogicalVolume(stagingSet.Volume, true);
+            stagingArchive.Volume = await AddLogicalVolume(stagingArchive.Volume, true);
 
-            await AddBackupSetAsync(stagingSet, true);
+            await AddArchiveAsync(stagingArchive, true);
         }
 
         #endregion

@@ -15,7 +15,7 @@ namespace MediaBackupManager.Model
 {
     /// <summary>
     /// A collection of directories and files below a root location.</summary>  
-    public class BackupSet : IEquatable<BackupSet>, INotifyPropertyChanged, IDisposable
+    public class Archive : IEquatable<Archive>, INotifyPropertyChanged, IDisposable
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace MediaBackupManager.Model
         #region Properties
 
         /// <summary>
-        /// Gets or sets the file Index containing the current Backup Set.</summary>  
+        /// Gets or sets the file Index containing the current Archive.</summary>  
         public FileIndex Index
         {
             get { return index; }
@@ -49,7 +49,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the Guid of the current Backup Set.</summary>  
+        /// Gets or sets the Guid of the current Archive.</summary>  
         public Guid Guid
         {
             get { return guid; }
@@ -64,7 +64,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the logical volume of the current Backup Set.</summary>  
+        /// Gets or sets the logical volume of the current Archive.</summary>  
         public LogicalVolume Volume
         {
             get { return volume; }
@@ -79,7 +79,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the root directory path of the current Backup Set.</summary>  
+        /// Gets or sets the root directory path of the current Archive.</summary>  
         public string RootDirectoryPath
         {
             get { return rootDirectoryPath; }
@@ -94,7 +94,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the root directory of the current Backup Set.</summary>  
+        /// Gets or sets the root directory of the current Archive.</summary>  
         public FileDirectory RootDirectory
         {
             get { return rootDirectory; }
@@ -109,7 +109,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets or sets the date the current Backup Set was last updated.</summary>  
+        /// Gets or sets the date the current Archive was last updated.</summary>  
         public DateTime LastScanDate
         {
             get { return lastScanDate; }
@@ -124,11 +124,11 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the mount point or drive letter of the current Backup Set.</summary>  
+        /// Gets the mount point or drive letter of the current Archive.</summary>  
         public string MountPoint { get => Volume.MountPoint; }
 
         /// <summary>
-        /// Gets or sets the user defined label for the current Backup Set.</summary>
+        /// Gets or sets the user defined label for the current Archive.</summary>
         public string Label
         {
             get { return label; }
@@ -145,7 +145,7 @@ namespace MediaBackupManager.Model
         #endregion
 
         #region Methods
-        public BackupSet()
+        public Archive()
         {
             this.Guid = Guid.NewGuid();
             //this.FileNodes = new ObservableHashSet<FileDirectory>();
@@ -153,7 +153,7 @@ namespace MediaBackupManager.Model
                 this.Label = this.Guid.ToString();
         }
 
-        public BackupSet(DirectoryInfo directory, LogicalVolume drive, List<string> exclusions) : this()
+        public Archive(DirectoryInfo directory, LogicalVolume drive, List<string> exclusions) : this()
         {
             this.Volume = drive;
             var pathRoot = Path.GetPathRoot(directory.FullName);
@@ -175,13 +175,13 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Changes the label of the BackupSet.</summary>  
+        /// Changes the label of the Archive.</summary>  
         public async Task UpdateLabel(string label)
         {
             if (Label.Equals(label))
                 return;
 
-            await Database.UpdateBackupSetLabel(this, label);
+            await Database.UpdateArchiveLabel(this, label);
             Label = label;
         }
 
@@ -197,7 +197,7 @@ namespace MediaBackupManager.Model
 
             if (IsFileExcluded(scanPath))
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("The root directory of the Backup Set is excluded from scanning due to a matching file exclusion."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("The root directory of the Archive is excluded from scanning due to a matching file exclusion."));
                 return;
             }
 
@@ -209,7 +209,7 @@ namespace MediaBackupManager.Model
 
 
         /// <summary>
-        /// Generates hash for all files in the backupset and adds them to the hash index.</summary>  
+        /// Generates hash for all files in the archive and adds them to the hash index.</summary>  
         /// <param name="cancellationToken">Cancellation token for the async operation.</param>
         /// <param name="progress">Progress object used to report the progress of the operation.</param>
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
@@ -256,7 +256,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Determines whether a directory is already indexed in the backup set.</summary>  
+        /// Determines whether a directory is already indexed in the archive.</summary>  
         public bool ContainsDirectory(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)
@@ -266,7 +266,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Determines whether the backup set is a child of the provided directory.</summary>  
+        /// Determines whether the archive is a child of the provided directory.</summary>  
         public bool IsParentDirectory(DirectoryInfo dir)
         {
             if (MountPoint != dir.Root.Name)
@@ -287,7 +287,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Returns a list of all Hashes related to the nodes in the current BackupSet.</summary>  
+        /// Returns a list of all Hashes related to the nodes in the current Archive.</summary>  
         public List<FileHash> GetFileHashes()
         {
             return RootDirectory.GetAllFileNodes()
@@ -298,14 +298,14 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Returns a list of all File Nodes contained the current BackupSet.</summary>  
+        /// Returns a list of all File Nodes contained the current Archive.</summary>  
         public List<FileNode> GetFileNodes()
         {
             return RootDirectory.GetAllFileNodes();
         }
 
         /// <summary>
-        /// Returns a list of all File Directories contained the current BackupSet.</summary>  
+        /// Returns a list of all File Directories contained the current Archive.</summary>  
         public List<FileDirectory> GetFileDirectories()
         {
             var resultList = new List<FileDirectory>();
@@ -344,7 +344,7 @@ namespace MediaBackupManager.Model
             return Label + " " + RootDirectoryPath;
         }
 
-        public bool Equals(BackupSet other)
+        public bool Equals(Archive other)
         {
             if (other == null)
                 return false;
@@ -359,7 +359,7 @@ namespace MediaBackupManager.Model
             if (obj == null)
                 return false;
 
-            var otherObj = obj as BackupSet;
+            var otherObj = obj as Archive;
             if (otherObj == null)
                 return false;
             else
@@ -400,7 +400,7 @@ namespace MediaBackupManager.Model
             }
         }
 
-         ~BackupSet()
+         ~Archive()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(false);

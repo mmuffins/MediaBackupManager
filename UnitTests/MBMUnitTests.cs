@@ -140,7 +140,7 @@ namespace UnitTests
         private const string testDirD = @"D:\indexdir\unit";
         private const string testDirF = @"F:\indexdir\unit";
         private const string testFileDir = @"..\..\testfiles";
-        private string[] dbTables = { "LogicalVolume", "FileHash", "FileNode", "BackupSet", "Exclusion" };
+        private string[] dbTables = { "LogicalVolume", "FileHash", "FileNode", "Archive", "Exclusion" };
 
 
         private async Task<bool> ResetDatabase()
@@ -282,7 +282,7 @@ namespace UnitTests
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "randomExe.exe")), Path.Combine(targetDir, "randomExe.exe"));
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "umlaut_äü(&テスト.txt")), Path.Combine(targetDir, "umlaut_äü(&テスト.txt"));
 
-            var setLabel = "BasicFileScanSet";
+            var archiveLabel = "BasicFileScanArchive";
 
             // Create reference file index
             var fileRootDir = Path.GetFullPath(targetDir).Substring(Path.GetPathRoot(targetDir).Length);
@@ -298,23 +298,22 @@ namespace UnitTests
             };
             refFi.LogicalVolumes.Add(dDrive);
 
-            var refSet = new BackupSet()
+            var refArchive = new Archive()
             {
                 RootDirectoryPath = fileRootDir,
                 Volume = dDrive,
                 Index = refFi,
-                Label = setLabel
+                Label = archiveLabel
             };
-            refFi.BackupSets.Add(refSet);
+            refFi.Archives.Add(refArchive);
 
             var d1 = new FileDirectory()
             {
-                BackupSet = refSet,
+                Archive = refArchive,
                 DirectoryName = Path.GetFullPath(testDirD).Substring(Path.GetPathRoot(testDirD).Length),
                 Name = "dir1"
             };
-            refSet.RootDirectory = d1;
-            //refSet.FileNodes.Add(d1);
+            refArchive.RootDirectory = d1;
 
             var h1 = new FileHash()
             {
@@ -331,12 +330,11 @@ namespace UnitTests
                 Extension = ".jpeg",
                 Checksum = "F03F01D5778DFB6DC499BFFC11C26EF7",
                 Hash = h1,
-                BackupSet = refSet,
+                Archive = refArchive,
                 Parent = d1,
             };
             h1.AddNode(f1);
             refFi.Hashes.Add(h1);
-            //refSet.FileNodes.Add(f1);
             d1.FileNodes.Add(f1);
 
             var h2 = new FileHash()
@@ -354,12 +352,11 @@ namespace UnitTests
                 Extension = ".txt",
                 Checksum = "9BFCF0A5F4660C7251F487F085C2580B",
                 Hash = h2,
-                BackupSet = refSet,
+                Archive = refArchive,
                 Parent = d1
             };
             h2.AddNode(f2);
             refFi.Hashes.Add(h2);
-            //refSet.FileNodes.Add(f2);
             d1.FileNodes.Add(f2);
 
             var h3 = new FileHash()
@@ -377,12 +374,11 @@ namespace UnitTests
                 Extension = ".jpg",
                 Checksum = "C9C02F785EE42EFACE21B3164BE718C2",
                 Hash = h3,
-                BackupSet = refSet,
+                Archive = refArchive,
                 Parent = d1
             };
             h3.AddNode(f3);
             refFi.Hashes.Add(h3);
-            //refSet.FileNodes.Add(f3);
             d1.FileNodes.Add(f3);
 
             var h4 = new FileHash()
@@ -400,12 +396,11 @@ namespace UnitTests
                 Extension = ".exe",
                 Checksum = "F6BA3E6C9CA1D37B980536ECF4075C77",
                 Hash = h4,
-                BackupSet = refSet,
+                Archive = refArchive,
                 Parent = d1
             };
             h4.AddNode(f4);
             refFi.Hashes.Add(h4);
-            //refSet.FileNodes.Add(f4);
             d1.FileNodes.Add(f4);
 
             var h5 = new FileHash()
@@ -423,25 +418,23 @@ namespace UnitTests
                 Extension = ".txt",
                 Checksum = "D41D8CD98F00B204E9800998ECF8427E",
                 Hash = h5,
-                BackupSet = refSet,
+                Archive = refArchive,
                 Parent = d1
             };
             h5.AddNode(f5);
             refFi.Hashes.Add(h5);
-            //refSet.FileNodes.Add(f5);
             d1.FileNodes.Add(f5);
 
             // Act
             var diffFi = new FileIndex();
-            var diffSet = await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), setLabel);
+            var diffArchive = await diffFi.CreateArchiveAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), archiveLabel);
 
             // Several attributes are created on the fly, so we need to copy them
-            // to the reference set
-            //var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Label.Equals(refSet.Label));
-            refSet.Guid = diffSet.Guid;
+            // to the reference archive
+            refArchive.Guid = diffArchive.Guid;
 
             // Assert
-            Assert.AreEqual(refFi.BackupSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(refFi.Archives.Count, diffFi.Archives.Count, "Archive count incorrect.");
 
             Assert.AreEqual(refFi.LogicalVolumes.Count, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
 
@@ -457,18 +450,18 @@ namespace UnitTests
                 Assert.AreEqual(refHash, diffFi.Hashes.FirstOrDefault(x => x.Equals(refHash)), "FileHash not equal.");
             }
 
-            Assert.AreEqual(refSet.GetFileNodes().Count, diffSet.GetFileNodes().Count, "FileNodes count incorrect.");
+            Assert.AreEqual(refArchive.GetFileNodes().Count, diffArchive.GetFileNodes().Count, "FileNodes count incorrect.");
 
-            foreach (var refNode in refSet.GetFileNodes())
+            foreach (var refNode in refArchive.GetFileNodes())
             {
-                Assert.IsTrue(diffSet.GetFileNodes().Contains(refNode), "FileNode not found.");
+                Assert.IsTrue(diffArchive.GetFileNodes().Contains(refNode), "FileNode not found.");
             }
 
-            Assert.AreEqual(refSet.GetFileDirectories().Count, diffSet.GetFileDirectories().Count, "FileDirectory count incorrect.");
+            Assert.AreEqual(refArchive.GetFileDirectories().Count, diffArchive.GetFileDirectories().Count, "FileDirectory count incorrect.");
 
-            foreach (var refNode in refSet.GetFileDirectories())
+            foreach (var refNode in refArchive.GetFileDirectories())
             {
-                Assert.IsTrue(diffSet.GetFileDirectories().Contains(refNode), "FileDirectory not found.");
+                Assert.IsTrue(diffArchive.GetFileDirectories().Contains(refNode), "FileDirectory not found.");
             }
 
 
@@ -496,7 +489,7 @@ namespace UnitTests
 
             // Act
             var refFi = new FileIndex();
-            await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "testSet");
+            await refFi.CreateArchiveAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "testArchive");
             await refFi.AddFileExclusionAsync(exclusionString1, true);
             await refFi.AddFileExclusionAsync(exclusionString2, true);
 
@@ -504,27 +497,27 @@ namespace UnitTests
             await diffFi.LoadDataAsync();
 
             // Assert
-            Assert.AreEqual(refFi.BackupSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(refFi.Archives.Count, diffFi.Archives.Count, "Archive count incorrect.");
 
-            foreach (var refSet in refFi.BackupSets)
+            foreach (var refArchive in refFi.Archives)
             {
-                Assert.IsTrue(diffFi.BackupSets.Contains(refSet), "BackupSet not found.");
+                Assert.IsTrue(diffFi.Archives.Contains(refArchive), "Archive not found.");
 
-                var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Equals(refSet));
+                var diffArchive = diffFi.Archives.FirstOrDefault(x => x.Equals(refArchive));
 
 
-                Assert.AreEqual(refSet.GetFileNodes().Count, diffSet.GetFileNodes().Count, "FileNodes count incorrect.");
+                Assert.AreEqual(refArchive.GetFileNodes().Count, diffArchive.GetFileNodes().Count, "FileNodes count incorrect.");
 
-                foreach (var refNode in refSet.GetFileNodes())
+                foreach (var refNode in refArchive.GetFileNodes())
                 {
-                    Assert.IsTrue(diffSet.GetFileNodes().Contains(refNode), "FileNode not found.");
+                    Assert.IsTrue(diffArchive.GetFileNodes().Contains(refNode), "FileNode not found.");
                 }
 
-                Assert.AreEqual(refSet.GetFileDirectories().Count, diffSet.GetFileDirectories().Count, "FileDirectory count incorrect.");
+                Assert.AreEqual(refArchive.GetFileDirectories().Count, diffArchive.GetFileDirectories().Count, "FileDirectory count incorrect.");
 
-                foreach (var refNode in refSet.GetFileDirectories())
+                foreach (var refNode in refArchive.GetFileDirectories())
                 {
-                    Assert.IsTrue(diffSet.GetFileDirectories().Contains(refNode), "FileDirectory not found.");
+                    Assert.IsTrue(diffArchive.GetFileDirectories().Contains(refNode), "FileDirectory not found.");
                 }
 
 
@@ -549,8 +542,8 @@ namespace UnitTests
         }
 
         [TestMethod]
-        [Description("Tests whether all data is properly cleaned up after deleting a backup set.")]
-        public async Task DeleteBackupSet()
+        [Description("Tests whether all data is properly cleaned up after deleting a archive.")]
+        public async Task DeleteArchive()
         {
             // Arrange
             // Prepare DB & files
@@ -574,58 +567,58 @@ namespace UnitTests
             // Act
             var refFi = new FileIndex();
 
-            var refSets = new List<BackupSet>();
-            var set1 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet1");
-            refSets.Add(set1);
+            var refArchives = new List<Archive>();
+            var archive1 = await refFi.CreateArchiveAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteArchive1");
+            refArchives.Add(archive1);
 
-            // Backupset on same volume       
-            var set2 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet2");
-            refSets.Add(set2);
+            // Archive on same volume       
+            var archive2 = await refFi.CreateArchiveAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteArchive2");
+            refArchives.Add(archive2);
 
-            // Backupset on different volume
-            var set3 = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteBackupSet3");
-            refSets.Add(set3);
+            // Archive on different volume
+            var archive3 = await refFi.CreateArchiveAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "DeleteArchive3");
+            refArchives.Add(archive3);
 
             // Assert
-            // Remove each set from the index and check if all data
-            // (and only data from the deleted set) has been removed
+            // Remove each archive from the index and check if all data
+            // (and only data from the deleted archive) has been removed
             // from the file index in memory and the db after each deletion
 
-            // Remove first set
-            await refFi.RemoveBackupSetAsync(set1, true);
-            refSets.Remove(set1);
-            set1 = null;
+            // Remove first archive
+            await refFi.RemoveArchiveAsync(archive1, true);
+            refArchives.Remove(archive1);
+            archive1 = null;
             var diffFi = refFi;
-            DeleteBackupSet_CheckEquality(refSets, diffFi);
+            DeleteArchive_CheckEquality(refArchives, diffFi);
 
             diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
-            DeleteBackupSet_CheckEquality(refSets, diffFi);
+            DeleteArchive_CheckEquality(refArchives, diffFi);
 
-            // Remove second set
-            await refFi.RemoveBackupSetAsync(set2, true);
-            refSets.Remove(set2);
-            set2 = null;
+            // Remove second archive
+            await refFi.RemoveArchiveAsync(archive2, true);
+            refArchives.Remove(archive2);
+            archive2 = null;
             diffFi = refFi;
-            DeleteBackupSet_CheckEquality(refSets, diffFi);
+            DeleteArchive_CheckEquality(refArchives, diffFi);
 
             diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
-            DeleteBackupSet_CheckEquality(refSets, diffFi);
+            DeleteArchive_CheckEquality(refArchives, diffFi);
 
-            // Remove third set, all data should now be removed
-            await refFi.RemoveBackupSetAsync(set3, true);
-            refSets.Remove(set3);
-            set3 = null;
+            // Remove third archive, all data should now be removed
+            await refFi.RemoveArchiveAsync(archive3, true);
+            refArchives.Remove(archive3);
+            archive3 = null;
             diffFi = refFi;
 
-            Assert.AreEqual(0, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(0, diffFi.Archives.Count, "Archive count incorrect.");
             Assert.AreEqual(0, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
             Assert.AreEqual(0, diffFi.Hashes.Count, "FileHash count incorrect.");
 
             diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
-            Assert.AreEqual(0, diffFi.BackupSets.Count, "BackupSet count incorrect.");
+            Assert.AreEqual(0, diffFi.Archives.Count, "Archive count incorrect.");
             Assert.AreEqual(0, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
             Assert.AreEqual(0, diffFi.Hashes.Count, "FileHash count incorrect.");
 
@@ -656,27 +649,27 @@ namespace UnitTests
             }
         }
 
-        private void DeleteBackupSet_CheckEquality(List<BackupSet> refSets, FileIndex diffFi)
+        private void DeleteArchive_CheckEquality(List<Archive> refArchives, FileIndex diffFi)
         {
-            Assert.AreEqual(refSets.Count, diffFi.BackupSets.Count, "BackupSet count incorrect.");
-            refSets
-                .ForEach(refSet => Assert.IsTrue(diffFi.BackupSets.Contains(refSet), "BackupSet not found."));
+            Assert.AreEqual(refArchives.Count, diffFi.Archives.Count, "Archive count incorrect.");
+            refArchives
+                .ForEach(refArchive => Assert.IsTrue(diffFi.Archives.Contains(refArchive), "Archive not found."));
 
-            // No need to check for file nodes since they are child elements of a backup set
+            // No need to check for file nodes since they are child elements of a archive
 
-            var refVolumes = refSets.Select(set => set.Volume).Distinct().ToList();
+            var refVolumes = refArchives.Select(archive => archive.Volume).Distinct().ToList();
 
             Assert.AreEqual(refVolumes.Count, diffFi.LogicalVolumes.Count, "LogicalVolume count incorrect.");
             refVolumes
                 .ForEach(refVolume => Assert.IsTrue(diffFi.LogicalVolumes.Contains(refVolume), "LogicalVolume not found."));
 
 
-            var totalHashCount = refSets.Sum(set => set.GetFileHashes().Count);
+            var totalHashCount = refArchives.Sum(archive => archive.GetFileHashes().Count);
             Assert.AreEqual(totalHashCount, diffFi.Hashes.Count, "FileHash count incorrect.");
 
-            refSets.ForEach(refSet =>
+            refArchives.ForEach(refArchive =>
             {
-                refSet.GetFileHashes().ForEach(refHash =>
+                refArchive.GetFileHashes().ForEach(refHash =>
                 {
                     Assert.IsTrue(diffFi.Hashes.Contains(refHash), "FileHash not found.");
                     Assert.AreEqual(refHash, diffFi.Hashes.FirstOrDefault(x => x.Equals(refHash)), "FileHash not equal.");
@@ -685,7 +678,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        [Description("Tests whether file node duplication is correctly counted between backup sets.")]
+        [Description("Tests whether file node duplication is correctly counted between archives.")]
         public async Task FileDuplication()
         {
             // Arrange
@@ -717,12 +710,12 @@ namespace UnitTests
 
             // Act
             var diffFi = new FileIndex();
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet1");
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet2");
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet3");
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(targetDir4), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationSet4");
+            await diffFi.CreateArchiveAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationArchive1");
+            await diffFi.CreateArchiveAsync(new DirectoryInfo(targetDir2), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationArchive2");
+            await diffFi.CreateArchiveAsync(new DirectoryInfo(targetDir3), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationArchive3");
+            await diffFi.CreateArchiveAsync(new DirectoryInfo(targetDir4), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileDuplicationArchive4");
 
-            var allNodes = diffFi.BackupSets.SelectMany(x => x.GetFileNodes());
+            var allNodes = diffFi.Archives.SelectMany(x => x.GetFileNodes());
             var nodeCount11 = allNodes.FirstOrDefault(x => x.Name.Equals("KeyMap.txt"));
             var nodeCount12 = allNodes.FirstOrDefault(x => x.Name.Equals("0266554465.jpeg"));
             var nodeCount23 = allNodes.FirstOrDefault(x => x.Name.Equals("Nikon-1-V3-sample-photo.jpg"));
@@ -768,7 +761,7 @@ namespace UnitTests
             await diffFi.AddFileExclusionAsync(@"\.exe", true);
             await diffFi.AddFileExclusionAsync(@".*\\subdir1", true);
 
-            await diffFi.CreateBackupSetAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileExclusionSet");
+            await diffFi.CreateArchiveAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "FileExclusionArchive");
 
             // Assert
             Assert.AreEqual(1, diffFi.Hashes.Count, "FileHash count incorrect.");
@@ -781,8 +774,8 @@ namespace UnitTests
         }
 
         [TestMethod]
-        [Description("Tests whether changes to BackupSet labels are correctly updated in the DB.")]
-        public async Task ChangeBackupSetLabel()
+        [Description("Tests whether changes to Archive labels are correctly updated in the DB.")]
+        public async Task ChangeArchiveLabel()
         {
             // Arrange
             // Prepare DB & files
@@ -798,25 +791,25 @@ namespace UnitTests
 
             // Act
             var refFi = new FileIndex();
-            var refSet = await refFi.CreateBackupSetAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), oldLabel);
+            var refArchive = await refFi.CreateArchiveAsync(new DirectoryInfo(targetDir), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), oldLabel);
 
-            await refSet.UpdateLabel(newLabel);
+            await refArchive.UpdateLabel(newLabel);
 
             var diffFi = new FileIndex();
             await diffFi.LoadDataAsync();
 
-            var diffSet = diffFi.BackupSets.FirstOrDefault(x => x.Guid.Equals(refSet.Guid));
+            var diffArchive = diffFi.Archives.FirstOrDefault(x => x.Guid.Equals(refArchive.Guid));
 
             // Assert
-            Assert.AreEqual(newLabel, refSet.Label, "Label was not updated correctly.");
-            Assert.AreEqual(newLabel, diffSet.Label, "New Label was not correctly written to DB.");
+            Assert.AreEqual(newLabel, refArchive.Label, "Label was not updated correctly.");
+            Assert.AreEqual(newLabel, diffArchive.Label, "New Label was not correctly written to DB.");
 
 
         }
 
         [TestMethod]
-        [Description("Tests whether the update function properly updates backup sets")]
-        public async Task UpdateBackupSet()
+        [Description("Tests whether the update function properly updates archives")]
+        public async Task UpdateArchive()
         {
             // Arrange
             // Prepare DB & files
@@ -836,12 +829,12 @@ namespace UnitTests
             File.Copy(Path.GetFullPath(Path.Combine(testFileDir, "Nikon-1-V3-sample-photo.jpg")), Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"));
 
             var fi1 = new FileIndex();
-            var set1 = await fi1.CreateBackupSetAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "set1");
-            var set1Guid = set1.Guid;
+            var archive1 = await fi1.CreateArchiveAsync(new DirectoryInfo(testDirD), new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>(), "archive1");
+            var archive1Guid = archive1.Guid;
 
-            var f1 = set1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt")));
-            var f2 = set1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "0266554465.jpeg")));
-            var f3 = set1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg")));
+            var f1 = archive1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt")));
+            var f2 = archive1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "0266554465.jpeg")));
+            var f3 = archive1.GetFileNodes().FirstOrDefault(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg")));
 
             var f1Hash = f1.Checksum;
             var f2Hash = f2.Checksum;
@@ -855,30 +848,30 @@ namespace UnitTests
             File.Move(Path.Combine(targetDir1, "0266554465.jpeg"), Path.Combine(targetDir2, "0266554465.jpeg"));
             File.Delete(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"));
 
-            await fi1.UpdateBackupSetAsync(set1, new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>());
-            set1 = fi1.BackupSets.FirstOrDefault(x => x.Guid.Equals(set1Guid));
+            await fi1.UpdateArchiveAsync(archive1, new CancellationTokenSource().Token, new Progress<int>(), new Progress<string>());
+            archive1 = fi1.Archives.FirstOrDefault(x => x.Guid.Equals(archive1Guid));
 
             // Also check if the changes are correctly written to the DB
             var fi2 = new FileIndex();
             await fi2.LoadDataAsync();
-            var set2 = fi2.BackupSets.FirstOrDefault(x => x.Guid.Equals(set1Guid));
+            var archive2 = fi2.Archives.FirstOrDefault(x => x.Guid.Equals(archive1Guid));
 
             // Assert
-            Assert.IsNotNull(set1, "BackupSet Guid was changed");
-            Assert.IsNotNull(set2, "BackupSet Guid was changed");
+            Assert.IsNotNull(archive1, "Archive Guid was changed");
+            Assert.IsNotNull(archive2, "Archive Guid was changed");
 
-            Assert.AreEqual(3, set1.GetFileNodes().Count(), "FileNode count incorrect.");
-            Assert.AreEqual(1, set1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
-            Assert.AreEqual(1, set1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
-            Assert.AreEqual(0, set1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
-            Assert.AreEqual(1, set1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(3, archive1.GetFileNodes().Count(), "FileNode count incorrect.");
+            Assert.AreEqual(1, archive1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, archive1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(0, archive1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, archive1.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
 
 
-            Assert.AreEqual(3, set2.GetFileNodes().Count(), "FileNode count incorrect.");
-            Assert.AreEqual(1, set2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
-            Assert.AreEqual(1, set2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
-            Assert.AreEqual(0, set2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
-            Assert.AreEqual(1, set2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(3, archive2.GetFileNodes().Count(), "FileNode count incorrect.");
+            Assert.AreEqual(1, archive2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "KeyMap.txt"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, archive2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir2, "0266554465.jpeg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(0, archive2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "Nikon-1-V3-sample-photo.jpg"))).Count(), "FileNode not found.");
+            Assert.AreEqual(1, archive2.GetFileNodes().Where(x => x.FullSessionName.Equals(Path.Combine(targetDir1, "umlaut_äü(&テスト.txt"))).Count(), "FileNode not found.");
 
 
             Assert.AreEqual(3, fi1.Hashes.Count, "FileHash count incorrect.");

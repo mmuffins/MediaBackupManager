@@ -17,22 +17,22 @@ using System.Windows.Shapes;
 namespace MediaBackupManager.View
 {
     /// <summary>
-    /// Interaction logic for BackupSetOverview.xaml
+    /// Interaction logic for ArchiveOverview.xaml
     /// </summary>
-    public partial class BackupSetOverview : UserControl
+    public partial class ArchiveOverview : UserControl
     {
-        public BackupSetOverview()
+        public ArchiveOverview()
         {
             InitializeComponent();
         }
 
-        private void BackupSet_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Archive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             
             MessageService.SendMessage(this, "ShowDirectoryBrowserView", ((Grid)sender).DataContext);
         }
 
-        private void OnBackupSetLabelKeyDown(object sender, KeyEventArgs e)
+        private void OnArchiveLabelKeyDown(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter)
             {
