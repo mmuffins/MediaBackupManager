@@ -72,6 +72,7 @@
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.107.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -102,6 +103,7 @@
     <Compile Include="Model\FileIndex.cs" />
     <Compile Include="Model\FileNode.cs" />
     <Compile Include="Model\LogicalVolume.cs" />
+    <Compile Include="Model\ReportWriter.cs" />
     <Compile Include="Supporting Classes\ObservableHashSet.cs" />
     <Compile Include="Supporting Classes\RelayCommand.cs" />
     <Compile Include="Supporting Classes\ViewModelBase.cs" />
