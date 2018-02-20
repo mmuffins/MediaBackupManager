@@ -193,30 +193,36 @@ namespace MediaBackupManager.Model
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         private void ScanDirectoryFiles(DirectoryInfo directory, FileDirectory parent, CancellationToken cancellationToken, IProgress<string> processingFile)
         {
-            foreach (var file in directory.GetFiles())
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-
-                if (Archive.IsFileExcluded(file.FullName))
+                foreach (var file in directory.GetFiles())
                 {
-                    //MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("File " + file.FullName + " is excluded from scanning due to a matching file exclusion."));
-                    continue;
-                }
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
 
-                // Report the current progress
-                if (processingFile != null)
-                    processingFile.Report(file.FullName);
+                    if (Archive.IsFileExcluded(file.FullName))
+                    {
+                        //MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("File " + file.FullName + " is excluded from scanning due to a matching file exclusion."));
+                        continue;
+                    }
 
-                try
-                {
-                    FileNodes.Add(new FileNode(file, Archive, this));
-                }
-                catch (Exception ex)
-                {
-                    MessageService.SendMessage(file, "FileScanException", new ApplicationException("Could not scan " + file.FullName, ex));
-                }
+                    // Report the current progress
+                    if (processingFile != null)
+                        processingFile.Report(file.FullName);
 
+                    try
+                    {
+                        FileNodes.Add(new FileNode(file, Archive, this));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageService.SendMessage(file, "FileScanException", new ApplicationException("Could not scan " + file.FullName, ex));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageService.SendMessage(directory, "FileScanException", new ApplicationException("Could not enumerate Files in directory " + directory.FullName, ex));
             }
         }
 
