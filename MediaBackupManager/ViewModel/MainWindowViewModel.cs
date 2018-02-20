@@ -121,7 +121,7 @@ namespace MediaBackupManager.ViewModel
                     // Assigning a viewmodel to CurrentOverlay will automatically
                     // display it as overlay in the view
                     CurrentOverlay = new CreateArchiveViewModel(Index);
-                    CurrentOverlay.Title = "Add Archive";
+                    CurrentOverlay.Title = "New Archive";
                     break;
 
                 case "ShowExclusionListViewOverlay":

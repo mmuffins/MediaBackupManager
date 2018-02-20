@@ -43,7 +43,7 @@
 
         <!--Command Bar-->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button x:Name="btnCreateArchive" Content="Add Archive" 
+            <Button x:Name="btnCreateArchive" Content="New Archive" 
                     Command="{Binding ShowCreateArchiveOverlayCommand}" 
                     Style="{DynamicResource HeaderButton}"/>
             <Button x:Name="btnShowExclusionList" Content="File Exclusions" 
