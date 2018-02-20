@@ -75,11 +75,11 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Gets the full path Name from the of the current directory, with its parent Archive as root.</summary>  
-        public virtual string FullName { get => Path.Combine(Archive.Label, DirectoryName, Name); }
+        public virtual string FullName { get => Path.Combine(Archive.Label, DirectoryName == @"\" ? "" : DirectoryName, Name == @"\" ? "" : Name); }
 
         /// <summary>
         /// Gets the full path Name from the of the current directory, with its current mount point as root.</summary>  
-        public virtual string FullSessionName { get => Path.Combine(Archive.Volume.MountPoint, DirectoryName, Name); }
+        public virtual string FullSessionName { get => Path.Combine(Archive.Volume.MountPoint, DirectoryName == @"\" ? "" : DirectoryName, Name == @"\" ? "" : Name); }
 
         /// <summary>
         /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volumes.</summary>  
@@ -148,8 +148,6 @@ namespace MediaBackupManager.Model
                 this.directoryName = @"\";
             else
                 this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
-
-
         }
 
         /// <summary>

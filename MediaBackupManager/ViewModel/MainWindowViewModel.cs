@@ -16,7 +16,6 @@ namespace MediaBackupManager.ViewModel
         //TODO: In some cases, when removing all cases from the label, new archives can still be created
         //TODO: Reporting?
         //TODO: file deduplication feature?
-        //TODO: Should nodes always be registered over the file index (this way we could set the relations in both the hash and the node and don't need to worry about forgetting anything)
         #region Fields
 
         private RelayCommand changePageCommand;

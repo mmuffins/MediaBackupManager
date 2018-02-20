@@ -239,12 +239,12 @@ namespace MediaBackupManager.Model
             if (cancellationToken.IsCancellationRequested)
                 return null;
 
-            // There is either an issue with the provided directory or it's
-            // on the exclusion list. In either case, abort the function
             var stagingArchiveNodes = stagingArchive.GetFileDirectories();
             stagingArchiveNodes.AddRange(stagingArchive.GetFileNodes());
             if (stagingArchiveNodes is null || stagingArchiveNodes.Count == 0)
             {
+                // There is either an issue with the provided directory or it's
+                // on the exclusion list. In either case, abort the function
                 MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not access the scan directory: " + directoryPath.FullName));
                 return null;
             }
@@ -262,7 +262,7 @@ namespace MediaBackupManager.Model
         public async Task UpdateArchiveAsync(Archive archive, CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> statusText)
         {
             if (statusText != null)
-                statusText.Report("Checking if drive is connected");
+                statusText.Report("Checking if drive is connected.");
 
             // Make sure that the volume is connected and the directory not deleted
             archive.Volume.RefreshStatus();
