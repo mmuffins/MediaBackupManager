@@ -13,7 +13,7 @@ namespace MediaBackupManager.Model
     public static class ReportWriter
     {
 
-        public static async Task GenerateReport(Archive exportArchive)
+        public static async Task GenerateArchiveReport(Archive exportArchive)
         {
             using (var sw = new StringWriter())
             {
@@ -21,13 +21,24 @@ namespace MediaBackupManager.Model
                 {
                     writer.RenderBeginTag(HtmlTextWriterTag.Div); // div1
 
+                    // Report header
+                    writer.AddStyleAttribute(HtmlTextWriterStyle.MarginBottom, "5px");
+                    writer.RenderBeginTag(HtmlTextWriterTag.H2);
+                    await writer.WriteAsync("Media Backup Manager Archive Report");
+                    writer.RenderEndTag();
+
+                    writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "grey");
+                    writer.AddStyleAttribute(HtmlTextWriterStyle.FontSize, "small");
+                    writer.RenderBeginTag(HtmlTextWriterTag.Span);
+                    await writer.WriteAsync("Generated: " + DateTime.Now);
+                    writer.RenderEndTag();
+
                     writer.AddAttribute(HtmlTextWriterAttribute.Cellpadding, "15");
-                    //writer.AddAttribute(HtmlTextWriterAttribute.Border, "1px solid black");
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Width, "100%");
+                    writer.AddStyleAttribute(HtmlTextWriterStyle.BorderCollapse, "collapse");
                     writer.RenderBeginTag(HtmlTextWriterTag.Table); // table
 
                     // table header
-                    //TODO: Implement some way to do canned styles
                     writer.AddStyleAttribute(HtmlTextWriterStyle.FontWeight, "Bold");
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "white");
                     writer.AddStyleAttribute(HtmlTextWriterStyle.TextAlign, "left");
@@ -49,7 +60,7 @@ namespace MediaBackupManager.Model
                     writer.RenderEndTag(); // Tr
 
                     bool evenLine = true;
-                    // content
+                    // table content
                     foreach (var node in exportArchive.GetFileNodes())
                     {
                         if (evenLine)
@@ -83,7 +94,7 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Writes a string the provided file path.</summary>  
+        /// Writes a string as file at the provided file path.</summary>  
         private static async Task WriteFileAsync(string text, string filePath)
         {
             var outFile = new FileInfo(filePath);
