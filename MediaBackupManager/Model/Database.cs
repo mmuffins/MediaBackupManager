@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace MediaBackupManager.Model
 {
+    /// <summary>
+    /// Support class used for database access.</summary>
     public static class Database
     {
         #region Fields
