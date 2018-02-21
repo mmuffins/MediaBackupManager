@@ -14,6 +14,7 @@
         <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
         <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
+        <!--Styles-->
         <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
             <Setter Property="Foreground" Value="#FF303030" />
             <Style.Triggers>
