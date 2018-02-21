@@ -144,7 +144,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets a value indicating whether a file scan is in progress or was successfully completed.</summary>  
+        /// Gets or sets a value indicating whether a file scan is in progress or was successfully completed.</summary>  
         public bool IsScanInProgressOrCompleted
         {
             // Needed to simplify binding
@@ -160,7 +160,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets a value indicating whether a file scan was successfully completed.</summary>  
+        /// Gets or sets a value indicating whether a file scan was successfully completed.</summary>  
         public bool IsScanCompleted
         {
             // Needed to simplify binding
@@ -275,6 +275,7 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
         /// Opens a FolderBrowserDialog and populates the path textbox with the selected directory.</summary>  
         private void SelectDirectoryCommand_Execute(object obj)
         {
