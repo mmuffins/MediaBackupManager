@@ -110,6 +110,7 @@
     <Compile Include="ViewModel\ArchiveOverviewViewModel.cs" />
     <Compile Include="ViewModel\ArchiveViewModel.cs" />
     <Compile Include="ViewModel\CreateArchiveViewModel.cs" />
+    <Compile Include="ViewModel\CreateReportViewModel.cs" />
     <Compile Include="ViewModel\DirectoryBrowserViewModel.cs" />
     <Compile Include="ViewModel\ExclusionListViewModel.cs" />
     <Compile Include="ViewModel\FileDirectoryViewModel.cs" />
@@ -127,6 +128,9 @@
     <Compile Include="View\Converters.cs" />
     <Compile Include="View\CreateArchiveSetView.xaml.cs">
       <DependentUpon>CreateArchiveSetView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CreateReportView.xaml.cs">
+      <DependentUpon>CreateReportView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\DirectoryBrowserView.xaml.cs">
       <DependentUpon>DirectoryBrowserView.xaml</DependentUpon>
@@ -241,6 +245,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CreateArchiveSetView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CreateReportView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

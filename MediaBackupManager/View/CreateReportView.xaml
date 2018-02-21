@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="MediaBackupManager.View.CreateReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MediaBackupManager.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Control.Resources>
+        <!--Converters-->
+        <local:InvertBoolConverter x:Key="InvertBool" />
+
+        <!--Styles-->
+        <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="#FF303030" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FF2CA8FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Control.Resources>
+
+    <Border VerticalAlignment="Center" HorizontalAlignment="Center"
+            MinHeight="200" MinWidth="550" MaxWidth="900" Background="White"
+            CornerRadius="4">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <!--Title-->
+            <Label Grid.Row="0" Grid.Column="0"
+                   Content="{Binding Title}" 
+                   Style="{StaticResource Title}"/>
+            <Separator Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Background="#FF303030" />
+
+            <!--Report Type, Path and path picker-->
+            <Grid Grid.Row="1" Grid.Column="0" Margin="0,20"
+                IsEnabled="{Binding Path=IsReportInProgress, Converter={StaticResource InvertBool}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*" MinWidth="200" MaxWidth="400" />
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!--Report Type Picker-->
+                <Label Content="Report Type" Grid.Row="0" Grid.Column="0"  />
+                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ReportList}" SelectedItem="{Binding SelectedReport}" />
+                
+                <!--Report Path-->
+                <Label Content="Report Path" Grid.Row="1" Grid.Column="0"  />
+                <TextBox x:Name="txtReportPath" Grid.Row="1" Grid.Column="1" >
+                    <TextBox.Text>
+                        <Binding Path="ReportPath" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <local:StringNotEmptyRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+
+                <Button x:Name="btnSelectReportPath" Grid.Row="1" Grid.Column="2"
+                        Style="{StaticResource IconButtonBlue}"
+                        Width="31" Height="26" Margin="0,5"
+                        Command="{Binding SelectDirectoryCommand}" 
+                        VerticalAlignment="Bottom"
+                        VerticalContentAlignment="Bottom">
+                    <!--Set the fill to whatever color the parent button currently has-->
+                    <Path Width="29" Height="17" Style="{StaticResource appbar_folder_open}"
+                          Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
+                </Button>
+
+            </Grid>
+
+            <!--Start and Cancel buttons-->
+            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        IsEnabled="{Binding Path=IsReportInProgress, Converter={StaticResource InvertBool}}">
+                <Button x:Name="btnConfirm" Content="Create Report" Style="{StaticResource ColorButtonBlue}"
+                        Command="{Binding CreateReportCommand}">
+                </Button>
+
+                <!--Replace the gray cancel button with a nice blue one if the scan is done-->
+                <Button x:Name="btnCancel" Style="{StaticResource ColorButtonGray}"
+                        Content="Cancel" 
+                        Command="{Binding CancelCommand}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

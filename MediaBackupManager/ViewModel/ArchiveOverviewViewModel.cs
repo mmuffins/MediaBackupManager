@@ -22,6 +22,7 @@ namespace MediaBackupManager.ViewModel
         RelayCommand showUpdateArchiveOverlayCommand;
         RelayCommand showDirectoryBrowserViewCommand;
         RelayCommand showExclusionCommand;
+        RelayCommand showCreateReportOverlayCommand;
         RelayCommand enableRenamingModeCommand;
 
         #endregion
@@ -105,7 +106,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     showDirectoryBrowserViewCommand = new RelayCommand(
                         p => MessageService.SendMessage(this, "ShowDirectoryBrowserView", null),
-                        p => true);
+                        p => !Index.IsOperationInProgress);
                 }
                 return showDirectoryBrowserViewCommand;
             }
@@ -122,6 +123,20 @@ namespace MediaBackupManager.ViewModel
                         p => true);
                 }
                 return showExclusionCommand;
+            }
+        }
+
+        public RelayCommand CreateReportOverlayCommand
+        {
+            get
+            {
+                if (showCreateReportOverlayCommand == null)
+                {
+                    showCreateReportOverlayCommand = new RelayCommand(
+                        p => MessageService.SendMessage(this, "ShowCreateReportOverlay", null),
+                        p => !Index.IsOperationInProgress && Index.Archives.Count > 0);
+                }
+                return showCreateReportOverlayCommand;
             }
         }
 

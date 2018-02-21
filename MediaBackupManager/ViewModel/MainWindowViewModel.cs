@@ -170,6 +170,11 @@ namespace MediaBackupManager.ViewModel
                     ChangeViewModel(archiveView);
                     break;
 
+
+                case "ShowCreateReportOverlay":
+                    CurrentOverlay = new CreateReportViewModel(index);
+                    CurrentOverlay.Title = "Create Report";
+                    break;
                 default:
                     break;
             }

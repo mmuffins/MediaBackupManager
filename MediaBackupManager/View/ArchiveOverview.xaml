@@ -49,6 +49,9 @@
             <Button x:Name="btnShowExclusionList" Content="File Exclusions" 
                     Command="{Binding ShowExclusionOverlayCommand}" 
                     Style="{DynamicResource HeaderButton}" />
+            <Button x:Name="btnCreateReport" Content="Reports" 
+                    Command="{Binding CreateReportOverlayCommand}" 
+                    Style="{DynamicResource HeaderButton}" />
         </StackPanel>
 
         <Separator Grid.Row="0"  Grid.Column="0" VerticalAlignment="Bottom" />
