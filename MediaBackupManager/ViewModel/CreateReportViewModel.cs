@@ -165,15 +165,30 @@ namespace MediaBackupManager.ViewModel
             var rList = new List<ReportObject>();
             rList.Add(new ReportObject()
             {
-                Name = "Type 1",
-                Description = "Type 1 Desc",
+                Name = "File List Report",
+                Description = "A list of all Files in the selected archive.",
                 ReportFunction = ReportWriter.GenerateFileListReport
             });
+
             rList.Add(new ReportObject()
             {
-                Name = "Type 2",
-                Description = "Type 2 Desc",
-                ReportFunction = ReportWriter.GenerateFileListReport
+                Name = "File Hash Report",
+                Description = "A report containing File Hashes in the selected archive and their locations in the filesystem.",
+                ReportFunction = ReportWriter.GenerateFileHashReport
+            });
+
+            rList.Add(new ReportObject()
+            {
+                Name = "Missing Backup Report",
+                Description = "A report containing a list of all Files in the selected archive that are not backed up.",
+                ReportFunction = ReportWriter.GenerateMissingBackupReport
+            });
+
+            rList.Add(new ReportObject()
+            {
+                Name = "File Scan Issue Report",
+                Description = "A report containing a list of all Files without file hash. If a file has no hash, it is an indication that there was an issue scanning the file. This usually happens if a file is damaged or could not be opened due to missing permissions.",
+                ReportFunction = ReportWriter.GenerateMissingFileHashReport
             });
 
             return rList;
