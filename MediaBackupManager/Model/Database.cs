@@ -115,19 +115,19 @@ namespace MediaBackupManager.Model
                 await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
-                    "Archive TEXT NOT NULL" +
+                    "Archive_Guid TEXT NOT NULL" +
                     ", DirectoryName TEXT" +
                     ", Name TEXT" +
                     ", Extension TEXT" +
-                    ", Checksum TEXT" +
+                    ", FileHash_Checksum TEXT" +
                     ", NodeType INTEGER" +
-                    ", PRIMARY KEY (Archive, DirectoryName, Name)" +
+                    ", PRIMARY KEY (Archive_Guid, DirectoryName, Name)" +
                     ")";
                 await sqlCmd.ExecuteNonQueryAsync();
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS Archive (" +
                     "Guid TEXT PRIMARY KEY" +
-                    ", Volume TEXT" +
+                    ", LogicalVolume_SerialNumber TEXT" +
                     ", RootDirectoryPath TEXT" +
                     ", Label TEXT" +
                     ", LastScanDate TEXT" +
@@ -390,18 +390,18 @@ namespace MediaBackupManager.Model
             var sqlCmd = new SQLiteCommand
             {
                 CommandText = "INSERT INTO FileNode (" +
-                "Archive" +
+                "Archive_Guid" +
                 ", DirectoryName" +
                 ", Name" +
                 ", Extension" +
-                ", File" +
+                ", FileHash_Checksum" +
                 ", NodeType" +
                 ") VALUES (" +
-                "@Archive" +
+                "@Archive_Guid" +
                 ", @DirectoryName" +
                 ", @Name" +
                 ", @Extension" +
-                ", @File" +
+                ", @FileHash_Checksum" +
                 ", @NodeType" +
                 ")",
 
@@ -411,22 +411,22 @@ namespace MediaBackupManager.Model
             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@File", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@FileHash_Checksum", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive_Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
 
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
-            sqlCmd.Parameters["@Archive"].Value = fileNode.Archive.Guid;
+            sqlCmd.Parameters["@Archive_Guid"].Value = fileNode.Archive.Guid;
             sqlCmd.Parameters["@Name"].Value = fileNode.Name;
             sqlCmd.Parameters["@Extension"].Value = "";
-            sqlCmd.Parameters["@File"].Value = "";
+            sqlCmd.Parameters["@FileHash_Checksum"].Value = "";
             sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
 
             if (fileNode is FileNode)
             {
                 sqlCmd.Parameters["@Extension"].Value = (fileNode as FileNode).Extension;
-                sqlCmd.Parameters["@File"].Value = (fileNode as FileNode).Hash.Checksum;
-                sqlCmd.Parameters["@Archive"].Value = (fileNode as FileNode).Archive.Guid;
+                sqlCmd.Parameters["@FileHash_Checksum"].Value = (fileNode as FileNode).Hash.Checksum;
+                sqlCmd.Parameters["@Archive_Guid"].Value = (fileNode as FileNode).Archive.Guid;
                 sqlCmd.Parameters["@NodeType"].Value = 1;
             }
 
@@ -441,13 +441,13 @@ namespace MediaBackupManager.Model
             {
                 CommandText = "INSERT INTO Archive (" +
                 "Guid" +
-                ", Volume" +
+                ", LogicalVolume_SerialNumber" +
                 ", RootDirectoryPath" +
                 ", Label" +
                 ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
-                ", @Volume " +
+                ", @LogicalVolume_SerialNumber " +
                 ", @RootDirectoryPath" +
                 ", @Label" +
                 ", @LastScanDate" +
@@ -457,13 +457,13 @@ namespace MediaBackupManager.Model
             };
 
             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-            sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@LogicalVolume_SerialNumber", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectoryPath", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
             sqlCmd.Parameters["@Guid"].Value = archive.Guid;
-            sqlCmd.Parameters["@Volume"].Value = archive.Volume.SerialNumber;
+            sqlCmd.Parameters["@LogicalVolume_SerialNumber"].Value = archive.Volume.SerialNumber;
             sqlCmd.Parameters["@RootDirectoryPath"].Value = archive.RootDirectoryPath;
             sqlCmd.Parameters["@Label"].Value = archive.Label;
             sqlCmd.Parameters["@LastScanDate"].Value = archive.LastScanDate;
@@ -614,16 +614,16 @@ namespace MediaBackupManager.Model
         {
             var sqlCmd = new SQLiteCommand();
             var cmdText = new StringBuilder("DELETE FROM FileNode WHERE");
-            cmdText.Append(" Archive = @Archive");
+            cmdText.Append(" Archive_Guid = @Archive_Guid");
             cmdText.Append(" AND DirectoryName = @DirectoryName");
             cmdText.Append(" AND Name = @Name");
 
 
-            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
+            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive_Guid", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
 
-            sqlCmd.Parameters["@Archive"].Value = fileNode.Archive.Guid;
+            sqlCmd.Parameters["@Archive_Guid"].Value = fileNode.Archive.Guid;
             sqlCmd.Parameters["@DirectoryName"].Value = fileNode.DirectoryName;
             sqlCmd.Parameters["@Name"].Value = "";
 
@@ -679,7 +679,7 @@ namespace MediaBackupManager.Model
         public static async Task BatchDeleteFileNodeAsync(List<FileDirectory> nodes)
         {
             var commandText = "DELETE FROM FileNode WHERE" +
-            " Archive = @Archive" +
+            " Archive_Guid = @Archive_Guid" +
             " AND DirectoryName = @DirectoryName" +
             " AND Name = @Name";
 
@@ -698,11 +698,11 @@ namespace MediaBackupManager.Model
                                 CommandType = CommandType.Text
                             };
 
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive_Guid", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
 
-                            sqlCmd.Parameters["@Archive"].Value = node.Archive.Guid;
+                            sqlCmd.Parameters["@Archive_Guid"].Value = node.Archive.Guid;
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
                             sqlCmd.Parameters["@Name"].Value = node.Name;
 
@@ -765,13 +765,13 @@ namespace MediaBackupManager.Model
         {
             var commandText = "INSERT INTO Archive (" +
                 "Guid" +
-                ", Volume" +
+                ", LogicalVolume_SerialNumber" +
                 ", RootDirectoryPath" +
                 ", Label" +
                 ", LastScanDate" +
                 ") VALUES (" +
                 "@Guid" +
-                ", @Volume " +
+                ", @LogicalVolume_SerialNumber " +
                 ", @RootDirectoryPath" +
                 ", @Label" +
                 ", @LastScanDate" +
@@ -793,13 +793,13 @@ namespace MediaBackupManager.Model
                             };
 
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@Volume", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@LogicalVolume_SerialNumber", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@RootDirectoryPath", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Label", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@LastScanDate", DbType.DateTime));
 
                             sqlCmd.Parameters["@Guid"].Value = archive.Guid;
-                            sqlCmd.Parameters["@Volume"].Value = archive.Volume.SerialNumber;
+                            sqlCmd.Parameters["@LogicalVolume_SerialNumber"].Value = archive.Volume.SerialNumber;
                             sqlCmd.Parameters["@RootDirectoryPath"].Value = archive.RootDirectoryPath;
                             sqlCmd.Parameters["@Label"].Value = archive.Label;
                             sqlCmd.Parameters["@LastScanDate"].Value = archive.LastScanDate;
@@ -878,18 +878,18 @@ namespace MediaBackupManager.Model
         public static async Task BatchInsertFileNodeAsync(List<FileDirectory> nodes)
         {
             var commandText = "INSERT INTO FileNode (" +
-                "Archive" +
+                "Archive_Guid" +
                 ", DirectoryName" +
                 ", Name" +
                 ", Extension" +
-                ", Checksum" +
+                ", FileHash_Checksum" +
                 ", NodeType" +
                 ") VALUES (" +
-                "@Archive" +
+                "@Archive_Guid" +
                 ", @DirectoryName" +
                 ", @Name" +
                 ", @Extension" +
-                ", @Checksum" +
+                ", @FileHash_Checksum" +
                 ", @NodeType" +
                 ")";
 
@@ -912,25 +912,25 @@ namespace MediaBackupManager.Model
                             sqlCmd.Parameters.Add(new SQLiteParameter("@DirectoryName", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Name", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@Extension", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@Checksum", DbType.String));
-                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@FileHash_Checksum", DbType.String));
+                            sqlCmd.Parameters.Add(new SQLiteParameter("@Archive_Guid", DbType.String));
                             sqlCmd.Parameters.Add(new SQLiteParameter("@NodeType", DbType.Int16));
 
                             sqlCmd.Parameters["@DirectoryName"].Value = node.DirectoryName;
-                            sqlCmd.Parameters["@Archive"].Value = node.Archive.Guid;
+                            sqlCmd.Parameters["@Archive_Guid"].Value = node.Archive.Guid;
                             sqlCmd.Parameters["@Name"].Value = node.Name;
                             sqlCmd.Parameters["@Extension"].Value = "";
-                            sqlCmd.Parameters["@Checksum"].Value = "";
+                            sqlCmd.Parameters["@FileHash_Checksum"].Value = "";
                             sqlCmd.Parameters["@NodeType"].Value = 0; // 0 => Directory, 1 => Node
 
                             if (node is FileNode)
                             {
                                 sqlCmd.Parameters["@Extension"].Value = (node as FileNode).Extension;
-                                sqlCmd.Parameters["@Archive"].Value = (node as FileNode).Archive.Guid;
+                                sqlCmd.Parameters["@Archive_Guid"].Value = (node as FileNode).Archive.Guid;
                                 sqlCmd.Parameters["@NodeType"].Value = 1;
 
                                 if((node as FileNode).Hash != null)
-                                    sqlCmd.Parameters["@Checksum"].Value = (node as FileNode).Hash.Checksum;
+                                    sqlCmd.Parameters["@FileHash_Checksum"].Value = (node as FileNode).Hash.Checksum;
                             }
 
                             await sqlCmd.ExecuteNonQueryAsync();
