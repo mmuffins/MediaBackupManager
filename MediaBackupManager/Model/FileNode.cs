@@ -82,8 +82,12 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Returns true if all subdirectories or related file hashes have more than one related archive.</summary>
-        public override bool BackupStatus { get => Hash is null ? false : Hash.BackupCount > 1; }
+        /// Returns true if the related file hashe has a backup count higher than 1.</summary>
+        public override bool BackupStatus { get => BackupCount > 1; }
+
+        /// <summary>
+        /// Gets the count of logical volumes the related file hash is located on.</summary>  
+        public int BackupCount { get => Hash is null ? 0 : Hash.BackupCount; }
 
         #endregion
 
