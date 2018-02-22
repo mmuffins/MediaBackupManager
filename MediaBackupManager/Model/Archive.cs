@@ -203,7 +203,7 @@ namespace MediaBackupManager.Model
 
             RootDirectory = new FileDirectory(new DirectoryInfo(scanPath), null, this);
 
-            await Task.Run(() => RootDirectory.ScanSubDirectories(RootDirectory, cancellationToken, processingFile));
+            await Task.Factory.StartNew(() => RootDirectory.ScanSubDirectories(RootDirectory, cancellationToken, processingFile), cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             LastScanDate = DateTime.Now;
         }
 
@@ -215,7 +215,7 @@ namespace MediaBackupManager.Model
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task HashFilesAsync(CancellationToken cancellationToken, IProgress<int> progress, IProgress<string> processingFile)
         {
-            await Task.Run(() =>
+            await Task.Factory.StartNew(() =>
             {
                 var scanNodes = GetFileNodes();
                 var nodeCount = scanNodes.Count();
@@ -250,7 +250,7 @@ namespace MediaBackupManager.Model
                     node.Checksum = checkSum;
                     node.Hash.AddNode(node);
                 }
-            }, cancellationToken);
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
             LastScanDate = DateTime.Now;
         }
