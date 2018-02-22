@@ -126,8 +126,8 @@
       <DependentUpon>ArchiveOverview.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Converters.cs" />
-    <Compile Include="View\CreateArchiveSetView.xaml.cs">
-      <DependentUpon>CreateArchiveSetView.xaml</DependentUpon>
+    <Compile Include="View\CreateArchiveView.xaml.cs">
+      <DependentUpon>CreateArchiveView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\CreateReportView.xaml.cs">
       <DependentUpon>CreateReportView.xaml</DependentUpon>
@@ -248,7 +248,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\CreateArchiveSetView.xaml">
+    <Page Include="View\CreateArchiveView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
