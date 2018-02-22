@@ -47,6 +47,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80"/>
@@ -54,13 +55,9 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!--Report Type Picker-->
-                <Label Content="Report Type" Grid.Row="0" Grid.Column="0"  />
-                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ReportList}" SelectedItem="{Binding SelectedReport}" />
-                
                 <!--Report Path-->
-                <Label Content="Report Path" Grid.Row="1" Grid.Column="0"  />
-                <TextBox x:Name="txtReportPath" Grid.Row="1" Grid.Column="1" >
+                <Label Content="Report Path" Grid.Row="0" Grid.Column="0"  />
+                <TextBox x:Name="txtReportPath" Grid.Row="0" Grid.Column="1" >
                     <TextBox.Text>
                         <Binding Path="ReportPath" UpdateSourceTrigger="PropertyChanged">
                             <Binding.ValidationRules>
@@ -70,7 +67,7 @@
                     </TextBox.Text>
                 </TextBox>
 
-                <Button x:Name="btnSelectReportPath" Grid.Row="1" Grid.Column="2"
+                <Button x:Name="btnSelectReportPath" Grid.Row="0" Grid.Column="2"
                         Style="{StaticResource IconButtonBlue}"
                         Width="31" Height="26" Margin="0,5"
                         Command="{Binding SelectDirectoryCommand}" 
@@ -80,6 +77,23 @@
                     <Path Width="29" Height="17" Style="{StaticResource appbar_folder_open}"
                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
                 </Button>
+
+                <!--Report Type Picker-->
+                <Label Content="Report Type" Grid.Row="1" Grid.Column="0" Margin="0,10"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ReportList}" 
+                          SelectedItem="{Binding SelectedReport}" Margin="0,10" 
+                          ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Label Content="{Binding SelectedReport.Description}" Grid.Row="2" Grid.Column="1" />
+
 
             </Grid>
 

@@ -172,8 +172,18 @@ namespace MediaBackupManager.ViewModel
 
 
                 case "ShowCreateReportOverlay":
-                    CurrentOverlay = new CreateReportViewModel(index);
-                    CurrentOverlay.Title = "Create Report";
+                    // By default, export all archives
+                    var exportArchives = index.Archives.ToList();
+
+                    if (e.Parameter != null && e.Parameter is ArchiveViewModel)
+                    {
+                        // If the user directly selects an archive to export, the archive
+                        // will be provided as parameter. 
+                        exportArchives = new List<ArchiveViewModel>();
+                        exportArchives.Add((ArchiveViewModel)e.Parameter);
+                    }
+
+                    CurrentOverlay = new CreateReportViewModel(index, exportArchives);
                     break;
                 default:
                     break;

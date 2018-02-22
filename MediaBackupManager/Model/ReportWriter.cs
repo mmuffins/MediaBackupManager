@@ -15,7 +15,11 @@ namespace MediaBackupManager.Model
         //TODO: File Report
         //TODO: Checksum centric report
         //TODO: Report for nodes without hash
-        public static async Task GenerateArchiveReport(Archive exportArchive)
+
+        /// <summary>
+        /// Writes a string as file at the provided file path.</summary>
+        /// <returns>Returns the file path of the generated report if it was successfully created.</returns>
+        public static async Task<string> GenerateArchiveReport(List<Archive> exportArchiveList, string ReportPath)
         {
             using (var sw = new StringWriter())
             {
@@ -35,82 +39,84 @@ namespace MediaBackupManager.Model
                     await writer.WriteAsync("Generated: " + DateTime.Now);
                     writer.RenderEndTag();
 
-                    writer.AddAttribute(HtmlTextWriterAttribute.Cellpadding, "15");
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.Width, "100%");
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.BorderCollapse, "collapse");
-                    writer.RenderBeginTag(HtmlTextWriterTag.Table); // table
-
-                    // table header
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.FontWeight, "Bold");
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "white");
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.TextAlign, "left");
-                    writer.AddStyleAttribute(HtmlTextWriterStyle.BackgroundColor, "dimgrey");
-                    writer.RenderBeginTag(HtmlTextWriterTag.Tr);
-
-                    writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                    await writer.WriteAsync("Name");
-                    writer.RenderEndTag();
-
-                    writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                    await writer.WriteAsync("Extension");
-                    writer.RenderEndTag();
-
-                    writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                    await writer.WriteAsync("Checksum");
-                    writer.RenderEndTag();
-
-                    writer.RenderEndTag(); // Tr
-
-                    bool evenLine = true;
-                    // table content
-                    foreach (var node in exportArchive.GetFileNodes())
+                    // Generate a separate table for each provided archive
+                    foreach (var exportArchive in exportArchiveList)
                     {
-                        if (evenLine)
-                            writer.AddStyleAttribute(HtmlTextWriterStyle.BackgroundColor, "aliceblue");
+                        writer.AddAttribute(HtmlTextWriterAttribute.Cellpadding, "15");
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.Width, "100%");
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.BorderCollapse, "collapse");
+                        writer.RenderBeginTag(HtmlTextWriterTag.Table); // table
 
-                        evenLine = !evenLine;
-
+                        // table header
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.FontWeight, "Bold");
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "white");
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.TextAlign, "left");
+                        writer.AddStyleAttribute(HtmlTextWriterStyle.BackgroundColor, "dimgrey");
                         writer.RenderBeginTag(HtmlTextWriterTag.Tr);
 
-                        writer.RenderBeginTag(HtmlTextWriterTag.Td);
-                        await writer.WriteAsync(node.Name);
+                        writer.RenderBeginTag(HtmlTextWriterTag.Th);
+                        await writer.WriteAsync("Name");
                         writer.RenderEndTag();
 
-                        writer.RenderBeginTag(HtmlTextWriterTag.Td);
-                        await writer.WriteAsync(node.Extension);
+                        writer.RenderBeginTag(HtmlTextWriterTag.Th);
+                        await writer.WriteAsync("Extension");
                         writer.RenderEndTag();
 
-                        writer.RenderBeginTag(HtmlTextWriterTag.Td);
-                        await writer.WriteAsync(node.Checksum);
+                        writer.RenderBeginTag(HtmlTextWriterTag.Th);
+                        await writer.WriteAsync("Checksum");
                         writer.RenderEndTag();
 
                         writer.RenderEndTag(); // Tr
+
+                        bool evenLine = true;
+                        // table content
+                        foreach (var node in exportArchive.GetFileNodes())
+                        {
+                            if (evenLine)
+                                writer.AddStyleAttribute(HtmlTextWriterStyle.BackgroundColor, "aliceblue");
+
+                            evenLine = !evenLine;
+
+                            writer.RenderBeginTag(HtmlTextWriterTag.Tr);
+
+                            writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                            await writer.WriteAsync(node.Name);
+                            writer.RenderEndTag();
+
+                            writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                            await writer.WriteAsync(node.Extension);
+                            writer.RenderEndTag();
+
+                            writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                            await writer.WriteAsync(node.Checksum);
+                            writer.RenderEndTag();
+
+                            writer.RenderEndTag(); // Tr
+                        }
+
+                        writer.RenderEndTag(); // table
                     }
 
-                    writer.RenderEndTag(); // table
                     writer.RenderEndTag(); // div1
                 }
                 //return sw.ToString();
-                await WriteFileAsync(sw.ToString(), @"C:\temp\test");
+                return await WriteFileAsync(sw.ToString(), ReportPath);
             }
         }
 
         /// <summary>
-        /// Writes a string as file at the provided file path.</summary>  
-        private static async Task WriteFileAsync(string text, string filePath)
+        /// Writes a string as file at the provided file path.</summary>
+        /// <returns>Returns the file path of the generated file if the export was successful.</returns>
+        private static async Task<string> WriteFileAsync(string text, string filePath)
         {
             var outFile = new FileInfo(filePath);
 
             if (!outFile.Directory.Exists)
                 throw new ApplicationException("Directory " + outFile.Directory + "could not be found.");
 
-            // make sure that the file is crated as html
-            if (outFile.Extension != "html")
-                outFile = new FileInfo( Path.ChangeExtension(outFile.FullName, "html"));
-
             try
             {
-                using (StreamWriter sw = new StreamWriter(outFile.FullName, false, Encoding.UTF8))
+                using (var sw = new StreamWriter(outFile.FullName, false, Encoding.UTF8))
                 {
                     try
                     {
@@ -126,6 +132,8 @@ namespace MediaBackupManager.Model
             {
                 throw new ApplicationException("Error while creating a report.", ex);
             }
+
+            return filePath;
         }
     }
 }

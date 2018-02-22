@@ -1,8 +1,10 @@
 ﻿using MediaBackupManager.Model;
 using MediaBackupManager.SupportingClasses;
+using MediaBackupManager.ViewModel.Popups;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,15 +12,25 @@ using System.Windows.Forms;
 
 namespace MediaBackupManager.ViewModel
 {
+    /// <summary>
+    /// Struct containing Name, Description and action of a report.</summary>
+    struct ReportObject
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public Func<List<Archive>, string, Task<string>> ReportFunction { get; set; }
+    }
+
     class CreateReportViewModel : ViewModelBase
     {
         #region Fields
 
         FileIndexViewModel index;
         string reportPath;
-        string selectedReport;
         bool isReportInProgress;
-        ObservableCollection<string> reportList;
+        ObservableCollection<ReportObject> reportList;
+        ReportObject? selectedReport;
+        List<Archive> exportArchives;
 
         RelayCommand cancelCommand;
         RelayCommand createReportCommand;
@@ -54,7 +66,7 @@ namespace MediaBackupManager.ViewModel
                 {
                     createReportCommand = new RelayCommand(
                         async p => await ExportReport(),
-                        p => !String.IsNullOrWhiteSpace(SelectedReport)
+                        p => SelectedReport != null
                         && !String.IsNullOrWhiteSpace(ReportPath)
                         && !isReportInProgress);
                 }
@@ -111,22 +123,19 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Gets or sets the selected report type.</summary>  
-        public string SelectedReport
+        public ReportObject? SelectedReport
         {
             get { return selectedReport; }
             set
             {
-                if (value != selectedReport)
-                {
-                    selectedReport = value;
-                    NotifyPropertyChanged();
-                }
+                selectedReport = value;
+                NotifyPropertyChanged();
             }
         }
 
         /// <summary>
         /// Gets a list of possible report types.</summary>  
-        public ObservableCollection<string> ReportList
+        public ObservableCollection<ReportObject> ReportList
         {
             get { return reportList; }
             set { reportList = value; }
@@ -137,20 +146,67 @@ namespace MediaBackupManager.ViewModel
 
         #region Methods
 
-        public CreateReportViewModel(FileIndexViewModel index)
+        public CreateReportViewModel(FileIndexViewModel index, List<ArchiveViewModel> exportArchives)
         {
             this.index = index;
             this.IsReportInProgress = false;
-            this.ReportList = new ObservableCollection<string>();
-            ReportList.Add("Type 1");
-            ReportList.Add("Type 2");
+            this.ReportList = new ObservableCollection<ReportObject>(GetReportList());
+            this.exportArchives = exportArchives.Select(x => x.Archive).ToList();
+
+            this.Title = "Create Report for all archives";
+            if(exportArchives.Count > 1)
+                this.Title = "Create Report for archive " + exportArchives.FirstOrDefault().Label;
+        }
+
+        /// <summary>
+        /// Gets a list of all available report types.</summary>  
+        private List<ReportObject> GetReportList()
+        {
+            var rList = new List<ReportObject>();
+            rList.Add(new ReportObject()
+            {
+                Name = "Type 1",
+                Description = "Type 1 Desc",
+                ReportFunction = ReportWriter.GenerateArchiveReport
+            });
+            rList.Add(new ReportObject()
+            {
+                Name = "Type 2",
+                Description = "Type 2 Desc",
+                ReportFunction = ReportWriter.GenerateArchiveReport
+            });
+
+            return rList;
         }
 
         /// <summary>
         /// Generates the selected report and exports it.</summary>  
         private async Task ExportReport()
         {
-            await ReportWriter.GenerateArchiveReport(index.Archives.ElementAt(0).Archive);
+
+            var de = new List<Archive>();
+            foreach (var item in index.Archives)
+            {
+                de.Add(item.Archive);
+            }
+
+            try
+            {
+                await SelectedReport.Value.ReportFunction(de, ReportPath);
+            }
+            catch (Exception ex)
+            {
+                var confirmDiag = new OKCancelPopupViewModel("An error occured while creating the report: " + ex.InnerException.Message, "", "OK", "")
+                {
+                    ShowCancelButton = false
+                };
+                confirmDiag.ShowDialog();
+            }
+
+            if (File.Exists(ReportPath))
+                System.Diagnostics.Process.Start(ReportPath);
+
+            CancelCommand_Execute(null);
         }
 
         /// <summary>
