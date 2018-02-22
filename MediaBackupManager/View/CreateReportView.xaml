@@ -9,6 +9,8 @@
     <Control.Resources>
         <!--Converters-->
         <local:InvertBoolConverter x:Key="InvertBool" />
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="BoolToVisibility" Collapse="True" />
+        <local:ParemeteredBooleanToVisibilityConverter x:Key="InvertBoolToVisibility" Reverse="True" Collapse="True" />
 
         <!--Styles-->
         <Style x:Key="IconButtonBlue" TargetType="Button" BasedOn="{StaticResource IconButton}">
@@ -93,16 +95,14 @@
                 </ComboBox>
 
                 <Label Content="{Binding SelectedReport.Description}" Grid.Row="2" Grid.Column="1" />
-
-
             </Grid>
 
             <!--Start and Cancel buttons-->
             <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal"
-                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                        IsEnabled="{Binding Path=IsReportInProgress, Converter={StaticResource InvertBool}}">
-                <Button x:Name="btnConfirm" Content="Create Report" Style="{StaticResource ColorButtonBlue}"
-                        Command="{Binding CreateReportCommand}">
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Button x:Name="btnCreateReport" Content="Create Report" Style="{StaticResource ColorButtonBlue}"
+                        Command="{Binding CreateReportCommand}"
+                        Visibility="{Binding IsScanInProgressOrCompleted, Converter={StaticResource InvertBoolToVisibility}}">
                 </Button>
 
                 <!--Replace the gray cancel button with a nice blue one if the scan is done-->
