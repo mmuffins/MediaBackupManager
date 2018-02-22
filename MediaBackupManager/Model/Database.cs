@@ -116,7 +116,7 @@ namespace MediaBackupManager.Model
 
                 sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS FileNode (" +
                     "Archive TEXT NOT NULL" +
-                    ", DirectoryName TEXT NOT NULL" +
+                    ", DirectoryName TEXT" +
                     ", Name TEXT" +
                     ", Extension TEXT" +
                     ", Checksum TEXT" +

@@ -79,7 +79,12 @@ namespace MediaBackupManager.Model
 
         /// <summary>
         /// Gets the full path Name from the of the current directory, with its current mount point as root.</summary>  
-        public virtual string FullSessionName { get => Path.Combine(Archive.Volume.MountPoint, DirectoryName == @"\" ? "" : DirectoryName, Name == @"\" ? "" : Name); }
+        public virtual string FullSessionName {
+            get
+            {
+                return Path.Combine(Archive.Volume.MountPoint, DirectoryName.StartsWith(@"\") ? DirectoryName.Substring(1) : DirectoryName, Name == @"\" ? "" : Name);
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volumes.</summary>  
@@ -143,11 +148,21 @@ namespace MediaBackupManager.Model
             else
                 this.name = directoryInfo.Name;
 
-            // Set root directory to \
-            if (directoryInfo.Parent is null || directoryInfo.Parent.FullName == directoryInfo.Root.FullName)
-                this.directoryName = @"\";
+            if(parent is null)
+            {
+                // If no parent was provided this is the root directory (of the archive, not the file system)
+                // check the filesystem to get the filesystem path
+                if (directoryInfo.Parent is null || directoryInfo.Parent.FullName == directoryInfo.Root.FullName)
+                    // if this is the file system root, set the directory name to null, otherwise use the real path name
+                    this.DirectoryName = "";
+                else
+                    this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
+            }
             else
-                this.DirectoryName = directoryInfo.Parent.FullName.Substring(Path.GetPathRoot(directoryInfo.Parent.FullName).Length);
+            {
+                this.DirectoryName = Path.Combine(Parent.DirectoryName, Parent.Name);
+            }
+
         }
 
         /// <summary>

@@ -77,10 +77,7 @@ namespace MediaBackupManager.Model
         {
             get
             {
-                if(DirectoryName == @"\")
-                    return Path.Combine(Archive.Volume.MountPoint, Name);
-                else 
-                    return Path.Combine(Archive.Volume.MountPoint, DirectoryName, Name);
+                return Path.Combine(Archive.Volume.MountPoint, DirectoryName.StartsWith(@"\") ? DirectoryName.Substring(1) : DirectoryName, Name == @"\" ? "" : Name);
             }
         }
 
@@ -102,10 +99,18 @@ namespace MediaBackupManager.Model
             this.Parent = parent;
 
             //Set root directory to \
-            if (fileInfo.Directory is null || fileInfo.Directory.FullName == fileInfo.Directory.Root.FullName)
-                this.DirectoryName = @"\";
+            if (parent is null)
+            {
+                // No parent was given, check the filesystem to get the directory name
+                if (fileInfo.Directory is null || fileInfo.Directory.FullName == fileInfo.Directory.Root.FullName)
+                    this.DirectoryName = "";
+                else
+                    this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
+            }
             else
-                this.DirectoryName = fileInfo.DirectoryName.Substring(Path.GetPathRoot(fileInfo.DirectoryName).Length);
+            {
+                this.DirectoryName = Path.Combine(Parent.DirectoryName, Parent.Name);
+            }
         }
 
         public FileNode(FileInfo fileInfo, Archive archive, FileDirectory parent, FileHash file) : this (fileInfo, archive, parent)

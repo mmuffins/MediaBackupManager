@@ -77,8 +77,6 @@ namespace MediaBackupManager.Model
                 // create a lookup collection by grouping each node by their respective directory name
                 var groupedNodes = loadedNodes.GroupBy(x => x.DirectoryName);
 
-                // iterate through all loaded node and find their respective
-                // child items in the lookup collection
                 foreach (var node in loadedNodes)
                 {
                     node.Archive = archive;
@@ -96,10 +94,8 @@ namespace MediaBackupManager.Model
                     }
                     else
                     {
+                        // find all child items from the lookup collection
                         var childNodes = groupedNodes.FirstOrDefault(x => x.Key == (Path.Combine(node.DirectoryName, node.Name)));
-
-                        if (node.Name == @"\")
-                            childNodes = groupedNodes.FirstOrDefault(x => x.Key == (node.DirectoryName));
 
                         if (childNodes is null || childNodes.Count() == 0)
                             continue;
