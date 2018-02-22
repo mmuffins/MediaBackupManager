@@ -53,7 +53,7 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80"/>
-                    <ColumnDefinition Width="*" MinWidth="200" MaxWidth="400" />
+                    <ColumnDefinition Width="400" />
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
@@ -94,7 +94,7 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <Label Content="{Binding SelectedReport.Description}" Grid.Row="2" Grid.Column="1" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedReport.Description}" TextWrapping="WrapWithOverflow"/>
             </Grid>
 
             <!--Start and Cancel buttons-->
@@ -102,7 +102,7 @@
                         HorizontalAlignment="Right" VerticalAlignment="Bottom">
                 <Button x:Name="btnCreateReport" Content="Create Report" Style="{StaticResource ColorButtonBlue}"
                         Command="{Binding CreateReportCommand}"
-                        Visibility="{Binding IsScanInProgressOrCompleted, Converter={StaticResource InvertBoolToVisibility}}">
+                        Visibility="{Binding IsReportInProgress, Converter={StaticResource InvertBoolToVisibility}}">
                 </Button>
 
                 <!--Replace the gray cancel button with a nice blue one if the scan is done-->
