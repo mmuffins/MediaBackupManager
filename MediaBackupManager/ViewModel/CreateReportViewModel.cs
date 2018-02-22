@@ -65,7 +65,7 @@ namespace MediaBackupManager.ViewModel
                 if (createReportCommand == null)
                 {
                     createReportCommand = new RelayCommand(
-                        async p => await ExportReport(),
+                        async p => await CreateReport(),
                         p => SelectedReport != null
                         && !String.IsNullOrWhiteSpace(ReportPath)
                         && !isReportInProgress);
@@ -167,13 +167,13 @@ namespace MediaBackupManager.ViewModel
             {
                 Name = "Type 1",
                 Description = "Type 1 Desc",
-                ReportFunction = ReportWriter.GenerateArchiveReport
+                ReportFunction = ReportWriter.GenerateFileListReport
             });
             rList.Add(new ReportObject()
             {
                 Name = "Type 2",
                 Description = "Type 2 Desc",
-                ReportFunction = ReportWriter.GenerateArchiveReport
+                ReportFunction = ReportWriter.GenerateFileListReport
             });
 
             return rList;
@@ -181,18 +181,28 @@ namespace MediaBackupManager.ViewModel
 
         /// <summary>
         /// Generates the selected report and exports it.</summary>  
-        private async Task ExportReport()
+        private async Task CreateReport()
         {
-
-            var de = new List<Archive>();
-            foreach (var item in index.Archives)
+            if (exportArchives.Count == 0)
             {
-                de.Add(item.Archive);
+                var confirmDiag = new OKCancelPopupViewModel("An error occured while creating the report: No archives were selected", "", "OK", "")
+                {
+                    ShowCancelButton = false
+                };
+                confirmDiag.ShowDialog();
+                return;
             }
+
+            IsReportInProgress = true;
 
             try
             {
-                await SelectedReport.Value.ReportFunction(de, ReportPath);
+                // the report writer returns the path the file was exported to if the process was successful
+                var resultPath = await SelectedReport.Value.ReportFunction(exportArchives, ReportPath);
+                IsReportInProgress = false;
+
+                if (File.Exists(resultPath))
+                    System.Diagnostics.Process.Start(resultPath);
             }
             catch (Exception ex)
             {
@@ -202,11 +212,11 @@ namespace MediaBackupManager.ViewModel
                 };
                 confirmDiag.ShowDialog();
             }
-
-            if (File.Exists(ReportPath))
-                System.Diagnostics.Process.Start(ReportPath);
-
-            CancelCommand_Execute(null);
+            finally
+            {
+                IsReportInProgress = false;
+                CancelCommand_Execute(null);
+            }
         }
 
         /// <summary>
