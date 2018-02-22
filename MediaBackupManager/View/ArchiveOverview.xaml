@@ -108,7 +108,7 @@
                                             Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}"
                                             CommandParameter="{Binding}" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Left" >
                                     <!--Set the fill to whatever color the parent button currently has-->
-                                    <Path Width="10" Height="10" Style="{StaticResource appbar_edit_box}"
+                                    <Path Width="12" Height="12" Style="{StaticResource appbar_edit}"
                                               Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
                                 </Button>
                             </StackPanel>
