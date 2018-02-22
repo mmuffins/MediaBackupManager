@@ -12,10 +12,6 @@ namespace MediaBackupManager.Model
     /// Support class used to generate HTML reports.</summary>
     public static class ReportWriter
     {
-        //TODO: File Report
-        //TODO: Checksum centric report
-        //TODO: Report for nodes without hash
-
         /// <summary>
         /// Generates a report containing details about all items and folders in the provided archives.</summary>
         /// <returns>Returns the file path of the generated report if it was successfully created.</returns>
