@@ -133,7 +133,7 @@ namespace MediaBackupManager.ViewModel
                 if (showCreateReportOverlayCommand == null)
                 {
                     showCreateReportOverlayCommand = new RelayCommand(
-                        p => MessageService.SendMessage(this, "ShowCreateReportOverlay", null),
+                        p => MessageService.SendMessage(this, "ShowCreateReportOverlay", p is ArchiveViewModel ?  p as ArchiveViewModel : null ),
                         p => !Index.IsOperationInProgress && Index.Archives.Count > 0);
                 }
                 return showCreateReportOverlayCommand;

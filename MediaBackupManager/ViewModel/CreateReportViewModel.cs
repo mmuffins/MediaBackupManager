@@ -152,10 +152,13 @@ namespace MediaBackupManager.ViewModel
             this.IsReportInProgress = false;
             this.ReportList = new ObservableCollection<ReportObject>(GetReportList());
             this.exportArchives = exportArchives.Select(x => x.Archive).ToList();
-
             this.Title = "Create Report for all archives";
-            if(exportArchives.Count > 1)
+
+            if(exportArchives.Count == 1)
+            {
                 this.Title = "Create Report for archive " + exportArchives.FirstOrDefault().Label;
+                SelectedReport = ReportList.FirstOrDefault(x => x.Name == "File List Report");
+            }
         }
 
         /// <summary>
