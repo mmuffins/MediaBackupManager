@@ -50,7 +50,6 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets the command to start the update process.</summary>  
         public RelayCommand StartCommand
         {
-            //TODO: Creating an archive for C-Portable apps and D-Indexdir, then restarting the app and refreshing c-portable causes a db exception
             get
             {
                 if (startCommand == null)

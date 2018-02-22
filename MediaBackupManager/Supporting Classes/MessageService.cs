@@ -10,7 +10,7 @@ namespace MediaBackupManager.SupportingClasses
     /// A helper class that allows the exchange of messages between objects, decreasing the coupling between MVVM layers.</summary>  
     public static class MessageService
     {
-        //TODO:Q-Fine to use a universal message service with magic strings instead of individual events?
+        //TODO: Q-Fine to use a universal message service with magic strings instead of individual events?
         public static event EventHandler<MessageServiceEventArgs> RoutedMessage;
 
         /// <summary>
