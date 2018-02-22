@@ -74,7 +74,7 @@
                         Width="31" Height="26" Margin="0,5"
                         Command="{Binding SelectDirectoryCommand}" 
                         VerticalAlignment="Bottom"
-                        VerticalContentAlignment="Bottom">
+                        VerticalContentAlignment="Bottom" ToolTip="Select File Path">
                     <!--Set the fill to whatever color the parent button currently has-->
                     <Path Width="29" Height="17" Style="{StaticResource appbar_folder_open}"
                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
