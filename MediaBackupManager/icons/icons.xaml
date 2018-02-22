@@ -37,5 +37,11 @@
         <Setter Property="Fill" Value="#FF000000" />
         <Setter Property="Data" Value="F1 M 23.7501,33.25L 34.8334,44.3333L 52.2499,22.1668L 56.9999,26.9168L 34.8334,53.8333L 19.0001,38L 23.7501,33.25 Z " />
     </Style>
+    
+    <Style x:Key="appbar_inbox_out" TargetType="Path">
+        <Setter Property="Stretch" Value="Fill"/>
+        <Setter Property="Fill" Value="#FF000000" />
+        <Setter Property="Data" Value="F1 M 25.3333,52.25L 50.6667,52.25L 50.6667,45.9167L 55.4167,45.9167L 55.4167,57L 50.6667,57L 25.3333,57L 20.5833,57L 20.5833,45.9167L 25.3333,45.9167L 25.3333,52.25 Z M 34.8333,49.0834L 41.1667,49.0834L 41.1666,28.5L 49.0833,38L 49.0833,28.5L 38,15.8334L 26.9167,28.5L 26.9167,38L 34.8333,28.5L 34.8333,49.0834 Z " />
+    </Style>
 
 </ResourceDictionary>

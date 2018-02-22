@@ -106,7 +106,7 @@
                                             Width="20" Height="20" Margin="3,0"
                                             Visibility="{Binding RenameMode, Converter={StaticResource InvertBoolToVisibility}}"
                                             Command="{Binding DataContext.EnableRenamingModeCommand, ElementName=LayoutRoot}"
-                                            CommandParameter="{Binding}" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Left" >
+                                            CommandParameter="{Binding}" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Left" ToolTip="Rename Archive"  >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="12" Height="12" Style="{StaticResource appbar_edit}"
                                               Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"></Path>
@@ -134,7 +134,7 @@
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
                                         Width="33" Height="38" Margin="3,0"
                                         Command="{Binding DataContext.ShowUpdateArchiveOverlayCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}" >
+                                        CommandParameter="{Binding}" ToolTip="Update Archive"  >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="20" Height="23" Style="{StaticResource appbar_refresh}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
@@ -144,9 +144,9 @@
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
                                         Width="33" Height="38" Margin="3,0"
                                         Command="{Binding DataContext.CreateReportOverlayCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}" >
+                                        CommandParameter="{Binding}" ToolTip="Create Report" >
                                     <!--Set the fill to whatever color the parent button currently has-->
-                                    <Path Width="20" Height="23" Style="{StaticResource appbar_refresh}"
+                                    <Path Width="20" Height="23" Style="{StaticResource appbar_inbox_out}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
                                 </Button>
 
@@ -154,7 +154,7 @@
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonRed}" 
                                         Width="32" Height="38"  Margin="3,0"
                                         Command="{Binding DataContext.RemoveArchiveCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}" >
+                                        CommandParameter="{Binding}" ToolTip="Delete Arvhive" >
                                     <!--Set the fill to whatever color the parent button currently has-->
                                     <Path Width="18" Height="23"  Style="{StaticResource appbar_delete}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>

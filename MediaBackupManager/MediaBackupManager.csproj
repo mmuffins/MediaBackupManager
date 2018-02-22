@@ -204,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="icons\appbar.inbox.out.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="icons\appbar.magnify.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
