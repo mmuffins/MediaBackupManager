@@ -12,7 +12,9 @@ namespace MediaBackupManager.Model
     /// Support class used to generate HTML reports.</summary>
     public static class ReportWriter
     {
-
+        //TODO: File Report
+        //TODO: Checksum centric report
+        //TODO: Report for nodes without hash
         public static async Task GenerateArchiveReport(Archive exportArchive)
         {
             using (var sw = new StringWriter())

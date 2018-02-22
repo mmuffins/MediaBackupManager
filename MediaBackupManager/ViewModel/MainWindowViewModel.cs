@@ -16,6 +16,7 @@ namespace MediaBackupManager.ViewModel
         //TODO: In some cases, when removing all cases from the label, new archives can still be created
         //TODO: Reporting?
         //TODO: file deduplication feature?
+        //TODO: Q-Is it fine to leave the test cases like this, since they don't have a very high test coverage?
         #region Fields
 
         private RelayCommand changePageCommand;
@@ -99,7 +100,6 @@ namespace MediaBackupManager.ViewModel
             // Check what drives are connected every few seconds
             // to show the correct status in the archive overview
             DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background);
-            //TODO: Q-Any better way to do this?
             timer.Tick += RefreshVolumeStatus;
             timer.Interval = new TimeSpan(0, 0, 5);
             timer.Start();
