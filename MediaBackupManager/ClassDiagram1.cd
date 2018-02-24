@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="MediaBackupManager.Model.Archive" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="0.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAECaAEJQEhAABAAaEkQIAFIEQAAMAAgADAAE=</HashCode>
+      <FileName>Model\Archive.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Index" />
+      <Property Name="Volume" />
+      <Property Name="RootDirectory" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MediaBackupManager.Model.Database" Collapsed="true">
+    <Position X="2" Y="6.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>EAAAABApAIAQBIBBBAAALAgEACAgAGQIAEDIAQBAggA=</HashCode>
+      <FileName>Model\Database.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MediaBackupManager.Model.FileDirectory">
+    <Position X="11.75" Y="1" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>BAAAAAAIACAACITEoAAAwAQEgAAEAIAQAAASAiAAEAA=</HashCode>
+      <FileName>Model\FileDirectory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="FileNodes" />
+      <Property Name="SubDirectories" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MediaBackupManager.Model.FileHash" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="6" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAEgAAAAIAAAAAEEgCAAAgBAAAAEAIAAAAAAgAAIAAA=</HashCode>
+      <FileName>Model\FileHash.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Nodes" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MediaBackupManager.Model.FileIndex">
+    <Position X="5" Y="7.25" Width="3" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABIBggAAAgAAAAAACBAAACSwIAAAAJIAAAQEAAAAAA=</HashCode>
+      <FileName>Model\FileIndex.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Archives" />
+      <Property Name="Hashes" />
+      <Property Name="LogicalVolumes" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="MediaBackupManager.Model.FileNode">
+    <Position X="12.5" Y="6" Width="2" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACIAAIQCoCAAAgAAAAIAAYAAAAECAgAAAAA=</HashCode>
+      <FileName>Model\FileNode.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MediaBackupManager.Model.LogicalVolume" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="1.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAEAgIFEgIABQAAAgAEFAIAAAQgAAAAAAAA=</HashCode>
+      <FileName>Model\LogicalVolume.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MediaBackupManager.Model.ReportWriter" Collapsed="true">
+    <Position X="2" Y="7" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABCEAAAAAAAAAAAAAAAAAIIAAAAAAAA=</HashCode>
+      <FileName>Model\ReportWriter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
