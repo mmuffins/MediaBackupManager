@@ -283,7 +283,7 @@ namespace MediaBackupManager.Model
 
             if (!rootDirObject.Exists)
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not find directory " + rootDirObject.FullName + "."));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + rootDirObject.FullName + "could not be found."));
                 return;
             }
 
