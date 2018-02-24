@@ -69,7 +69,7 @@ namespace MediaBackupManager.Model
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                        await writer.WriteAsync("DirectoryName");
+                        await writer.WriteAsync("Directory");
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
@@ -204,7 +204,7 @@ namespace MediaBackupManager.Model
                     writer.RenderEndTag();
 
                     writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                    await writer.WriteAsync("DirectoryName");
+                    await writer.WriteAsync("Directory");
                     writer.RenderEndTag();
 
                     writer.RenderBeginTag(HtmlTextWriterTag.Th);
@@ -344,7 +344,7 @@ namespace MediaBackupManager.Model
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                        await writer.WriteAsync("DirectoryName");
+                        await writer.WriteAsync("Directory");
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
@@ -458,7 +458,7 @@ namespace MediaBackupManager.Model
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                        await writer.WriteAsync("DirectoryName");
+                        await writer.WriteAsync("Directory");
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
