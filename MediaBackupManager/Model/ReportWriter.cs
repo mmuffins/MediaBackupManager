@@ -26,7 +26,7 @@ namespace MediaBackupManager.Model
                     // Report header
                     writer.AddStyleAttribute(HtmlTextWriterStyle.MarginBottom, "5px");
                     writer.RenderBeginTag(HtmlTextWriterTag.H2);
-                    await writer.WriteAsync("Media Backup Manager File List Report");
+                    await writer.WriteAsync("File List Report");
                     writer.RenderEndTag();
 
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "grey");
@@ -163,7 +163,7 @@ namespace MediaBackupManager.Model
                     // Report header
                     writer.AddStyleAttribute(HtmlTextWriterStyle.MarginBottom, "5px");
                     writer.RenderBeginTag(HtmlTextWriterTag.H2);
-                    await writer.WriteAsync("Media Backup Manager File Hash Report");
+                    await writer.WriteAsync("File Hash Report");
                     writer.RenderEndTag();
 
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "grey");
@@ -286,7 +286,7 @@ namespace MediaBackupManager.Model
                     // Report header
                     writer.AddStyleAttribute(HtmlTextWriterStyle.MarginBottom, "5px");
                     writer.RenderBeginTag(HtmlTextWriterTag.H2);
-                    await writer.WriteAsync("Media Backup Manager Missing Hash Report");
+                    await writer.WriteAsync("Missing Hash Report");
                     writer.RenderEndTag();
 
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "grey");
@@ -400,7 +400,7 @@ namespace MediaBackupManager.Model
                     // Report header
                     writer.AddStyleAttribute(HtmlTextWriterStyle.MarginBottom, "5px");
                     writer.RenderBeginTag(HtmlTextWriterTag.H2);
-                    await writer.WriteAsync("Media Backup Manager Missing Backup Report");
+                    await writer.WriteAsync("Missing Backup Report");
                     writer.RenderEndTag();
 
                     writer.AddStyleAttribute(HtmlTextWriterStyle.Color, "grey");
