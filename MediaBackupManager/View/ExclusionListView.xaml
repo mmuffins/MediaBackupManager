@@ -79,7 +79,7 @@
                         <Button Grid.Column="1" Style="{StaticResource IconButtonRed}" 
                                 Width="32" Height="22"  Margin="0,0"
                                 Command="{Binding DataContext.RemoveExclusionCommand, ElementName=LayoutRoot}"
-                                CommandParameter="{Binding}" >
+                                CommandParameter="{Binding}" ToolTip="Remove Exclusion" >
                         <!--Set the fill to whatever color the parent button currently has-->
                         <Path Width="15" Height="19"  Style="{StaticResource appbar_delete}"
                                     Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
@@ -102,7 +102,7 @@
                                         Width="23" Height="20" Margin="3,0"
                                         Command="{Binding AddExclusionCommand}"
                                         CommandParameter="{Binding NewExclusionText}"
-                        HorizontalContentAlignment="Left" HorizontalAlignment="Left">
+                        HorizontalContentAlignment="Left" HorizontalAlignment="Left" ToolTip="Update Archive">
                     <!--Set the fill to whatever color the parent button currently has-->
                     <Path Width="20" Height="17" Style="{StaticResource appbar_check}"
                                           Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}, Path=Foreground}"/>
