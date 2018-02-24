@@ -175,9 +175,9 @@ namespace MediaBackupManager.ViewModel
 
             rList.Add(new ReportObject()
             {
-                Name = "File Hash Report",
-                Description = "A report containing File Hashes in the selected archive and their locations in the filesystem.",
-                ReportFunction = ReportWriter.GenerateFileHashReport
+                Name = "File Copy Report",
+                Description = "A report listing the copies and locations of all files in the selected archive.",
+                ReportFunction = ReportWriter.GenerateFileCopyReport
             });
 
             rList.Add(new ReportObject()
@@ -190,7 +190,7 @@ namespace MediaBackupManager.ViewModel
             rList.Add(new ReportObject()
             {
                 Name = "File Scan Issue Report",
-                Description = "A report containing a list of all Files without file hash. If a file has no hash, it is an indication that there was an issue scanning the file. This usually happens if a file is damaged or could not be opened due to missing permissions.",
+                Description = "A report containing a list of all files that was not successfully scanned. This usually happens if a file is damaged or could not be opened due to missing permissions.",
                 ReportFunction = ReportWriter.GenerateMissingFileHashReport
             });
 
