@@ -180,9 +180,9 @@ namespace MediaBackupManager.Model
             using (var dbConn = new SQLiteConnection(GetConnectionString(), true))
             {
                 var sqlCmd = new SQLiteCommand(dbConn);
-                var cmdText = new StringBuilder("SELECT v.*FROM LogicalVolume AS v " +
+                var cmdText = new StringBuilder("SELECT v.* FROM LogicalVolume AS v " +
                     "INNER JOIN Archive AS s " +
-                    "ON v.SerialNumber = s.Volume");
+                    "ON v.SerialNumber = s.LogicalVolume_SerialNumber");
 
                 if (!string.IsNullOrWhiteSpace(guid))
                 {
@@ -277,7 +277,7 @@ namespace MediaBackupManager.Model
                 if (!string.IsNullOrWhiteSpace(guid))
                 {
                     cmdText.Append(" INNER JOIN FileNode As n ON h.Checksum = n.Checksum");
-                    cmdText.Append(" INNER JOIN Archive AS s ON n.Archive = s.Guid ");
+                    cmdText.Append(" INNER JOIN Archive AS s ON n.Archive_Guid = s.Guid ");
 
                     cmdText.Append(" WHERE s.Guid = @Guid");
                     sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
@@ -344,11 +344,11 @@ namespace MediaBackupManager.Model
             {
                 var sqlCmd = new SQLiteCommand(dbConn)
                 {
-                    CommandText = "SELECT * FROM FileNode WHERE Archive = @Guid",
+                    CommandText = "SELECT * FROM FileNode WHERE Archive_Guid = @Archive_Guid",
                     CommandType = CommandType.Text
                 };
-                sqlCmd.Parameters.Add(new SQLiteParameter("@Guid", DbType.String));
-                sqlCmd.Parameters["@Guid"].Value = guid;
+                sqlCmd.Parameters.Add(new SQLiteParameter("@Archive_Guid", DbType.String));
+                sqlCmd.Parameters["@Archive_Guid"].Value = guid;
 
                 await dbConn.OpenAsync();
                 using (var reader = await sqlCmd.ExecuteReaderAsync())
@@ -372,7 +372,7 @@ namespace MediaBackupManager.Model
                             };
                             ((FileNode)node).Name = reader["Name"].ToString();
                             ((FileNode)node).Extension = reader["Extension"].ToString();
-                            ((FileNode)node).Checksum = reader["Checksum"].ToString();
+                            ((FileNode)node).Checksum = reader["FileHash_Checksum"].ToString();
                         }
 
                         res.Add(node);
