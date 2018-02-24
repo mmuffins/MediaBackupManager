@@ -81,7 +81,11 @@ namespace MediaBackupManager.Model
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
-                        await writer.WriteAsync("Copies");
+                        await writer.WriteAsync("Backup Count");
+                        writer.RenderEndTag();
+
+                        writer.RenderBeginTag(HtmlTextWriterTag.Th);
+                        await writer.WriteAsync("Copy Count");
                         writer.RenderEndTag();
 
                         writer.RenderBeginTag(HtmlTextWriterTag.Th);
@@ -122,6 +126,11 @@ namespace MediaBackupManager.Model
                             writer.RenderEndTag();
 
                             writer.RenderBeginTag(HtmlTextWriterTag.Td);
+                            if (node.Hash != null)
+                                await writer.WriteAsync(node.Hash.NodeCount.ToString());
+                            writer.RenderEndTag();
+
+                            writer.RenderBeginTag(HtmlTextWriterTag.Td);
                             await writer.WriteAsync(node.Checksum);
                             writer.RenderEndTag();
 
@@ -139,9 +148,9 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Generates a report containing details about all file hashes and thei related nodes in the provided archives.</summary>
+        /// Generates a report containing details about all file hashes and related nodes in the provided archives.</summary>
         /// <returns>Returns the file path of the generated report if it was successfully created.</returns>
-        public static async Task<string> GenerateFileHashReport(List<Archive> exportArchiveList, string ReportPath)
+        public static async Task<string> GenerateFileCopyReport(List<Archive> exportArchiveList, string ReportPath)
         {
             // build a distinct list of all file hashes in the provided archives
             var exportHashes = new HashSet<FileHash>();
