@@ -237,7 +237,7 @@ namespace MediaBackupManager.Model
             }
             catch (Exception ex)
             {
-                MessageService.SendMessage(directory, "FileScanException", new ApplicationException("Could not enumerate Files in directory " + directory.FullName, ex));
+                MessageService.SendMessage(directory, "FileScanException", new ApplicationException("Could not enumerate files in directory " + directory.FullName, ex));
             }
         }
 

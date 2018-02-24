@@ -204,7 +204,8 @@ namespace MediaBackupManager.Model
 
             if (!Directory.Exists(directoryPath.FullName))
             {
-                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Could not find directory" + directoryPath.FullName));
+                MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directoryPath.FullName + "could not be found."));
+                
                 return null;
             }
 
