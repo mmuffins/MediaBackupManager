@@ -224,6 +224,9 @@ namespace MediaBackupManager.ViewModel
             this.RootDirectory = new FileDirectoryViewModel(archive.RootDirectory, null, this);
 
             archive.PropertyChanged += Archive_PropertyChanged;
+
+            if(archive.Volume != null)
+                archive.Volume.PropertyChanged += Volume_PropertyChanged;
         }
 
         private void Archive_PropertyChanged(object sender, PropertyChangedEventArgs e)
