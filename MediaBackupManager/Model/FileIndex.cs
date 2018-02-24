@@ -102,7 +102,7 @@ namespace MediaBackupManager.Model
 
                         foreach (var childNode in childNodes)
                         {
-                            // both the name and directory name for root directories are \
+                            // if the name of directory is "\", it's automatically the root directory
                             // it's not possible for these directories to have a parent, so skipt them
                             if (childNode.DirectoryName == @"\" && childNode.Name == @"\")
                                 continue;
@@ -117,7 +117,6 @@ namespace MediaBackupManager.Model
                 }
 
                 // The only directory left without a parent is the root directory
-
                 archive.RootDirectory = loadedNodes
                     .OfType<FileDirectory>()
                     .FirstOrDefault(x => x.Parent == null && x.GetType() == typeof(FileDirectory));
