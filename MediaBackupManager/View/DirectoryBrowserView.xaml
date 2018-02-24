@@ -183,7 +183,7 @@
                     <GridViewColumn Header="Checksum" DisplayMemberBinding="{Binding Checksum}" />
                     <!--<GridViewColumn Header="Backup Status" DisplayMemberBinding="{Binding BackupStatus}" />-->
                     <GridViewColumn Header="Backup Count" DisplayMemberBinding="{Binding Path=Hash.BackupCount}" />
-                    <!--<GridViewColumn Header="Node Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />-->
+                    <GridViewColumn Header="Copy Count" DisplayMemberBinding="{Binding Path=Hash.NodeCount}" />
                 </GridView>
             </ListView.View>
         </ListView>
