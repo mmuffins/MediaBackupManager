@@ -168,7 +168,7 @@ namespace MediaBackupManager.ViewModel
         /// Removes the provided Archive from the file index.</summary>
         private async Task RemoveArchive(ArchiveViewModel archive)
         {
-            var confirmDiag = new OKCancelPopupViewModel("Do you want to delete Archive " + archive.Label + "?", "", "Delete", "No");
+            var confirmDiag = new OKCancelPopupViewModel("Do you want to delete Archive " + archive.Label + "?\nThis action cannot be undone.", "", "Delete", "No");
             if (confirmDiag.ShowDialog() == DialogResult.Cancel)
                 return;
 
