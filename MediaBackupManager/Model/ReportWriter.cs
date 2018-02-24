@@ -128,6 +128,8 @@ namespace MediaBackupManager.Model
                             writer.RenderBeginTag(HtmlTextWriterTag.Td);
                             if (node.Hash != null)
                                 await writer.WriteAsync(node.Hash.NodeCount.ToString());
+                            else
+                                await writer.WriteAsync("1");
                             writer.RenderEndTag();
 
                             writer.RenderBeginTag(HtmlTextWriterTag.Td);
