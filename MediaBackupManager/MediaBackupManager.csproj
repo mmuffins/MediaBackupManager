@@ -179,6 +179,7 @@
     <Resource Include="Font\Roboto-MediumItalic.ttf" />
     <Resource Include="Font\Roboto-Regular.ttf" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
