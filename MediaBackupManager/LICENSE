@@ -24,7 +24,7 @@ SOFTWARE.
 
 Third party software and libraries used:
 
-CallSharp (Implementation of ObservableHashSet)  https://github.com/nesteruk/CallSharp
+CallSharp (Implementation of ObservableHashSet) https://github.com/nesteruk/CallSharp
 Copyright (c) 2016 Dmitri Nesteruk
 License (MIT) https://github.com/nesteruk/CallSharp/blob/master/LICENSE
 
