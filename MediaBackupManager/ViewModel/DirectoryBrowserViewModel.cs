@@ -229,7 +229,6 @@ namespace MediaBackupManager.ViewModel
 
         public DirectoryBrowserViewModel(FileIndexViewModel index)
         {
-            //TODO: Q-How to handle the file browser errors, leave them as is or create dummy values in the file directory viewmodel?
             this.Index = index;
             this.HighlightMissingBackupFiles = false;
             this.ShowSearchResults = false;

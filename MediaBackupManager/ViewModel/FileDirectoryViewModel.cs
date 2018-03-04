@@ -73,7 +73,7 @@ namespace MediaBackupManager.ViewModel
 
 
         /// <summary>
-        /// Gets a value indicating if all subdirectories and child file nodes have are related to more than one logical volumes.</summary>  
+        /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volume.</summary>  
         public bool HasMultipleBackups
         {
             get
@@ -83,7 +83,6 @@ namespace MediaBackupManager.ViewModel
                 else
                     return true;
             }
-
         }
 
         /// <summary>
@@ -126,6 +125,10 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets an IEnumerable containing all directories 
+        /// from the Archive root to the current directory
+        /// </summary>
         public IEnumerable<FileDirectoryViewModel> BreadCrumbList
         {
             get => GetBreadCrumbList();
@@ -174,6 +177,37 @@ namespace MediaBackupManager.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the checksum of the file hash 
+        /// related to the current file directory.</summary>  
+        public string Checksum
+        {
+            // Only added for compatibility reasons in the directory
+            // browser, this does not contain any actual data
+            get => "";
+        }
+
+        /// <summary>
+        /// Gets or sets the file extension of the current file directory.</summary>  
+        public string Extension
+        {
+            // Only added for compatibility reasons in the directory
+            // browser, this does not contain any actual data
+            get => "";
+        }
+
+        /// <summary>
+        /// Gets or sets the file hash related to the current file directory.</summary>  
+        public FileHashViewModel Hash
+        {
+            // Only added for compatibility reasons in the directory
+            // browser, this does not contain any actual data
+            get => null;
+        }
+
+
+
         #endregion
 
         #region Methods

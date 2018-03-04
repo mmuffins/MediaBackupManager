@@ -66,21 +66,21 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets or sets the checksum of the file hash related to the current file node.</summary>  
+        /// Gets the checksum of the file hash related to the current file node.</summary>  
         public string Checksum
         {
             get => node.Checksum;
         }
 
         /// <summary>
-        /// Gets or sets the Name of the current file node.</summary>  
+        /// Gets the Name of the current file node.</summary>  
         public string Name
         {
             get => node.Name;
         }
 
         /// <summary>
-        /// Gets or sets the file extension of the current file node.</summary>  
+        /// Gets the file extension of the current file node.</summary>  
         public string Extension
         {
             get => node.Extension;
@@ -108,7 +108,7 @@ namespace MediaBackupManager.ViewModel
         }
 
         /// <summary>
-        /// Gets a value indicating if the file hash related to this file node is contained on more than one logical volumes.</summary>  
+        /// Gets a value indicating if the file hash related to this file node is contained on more than one logical volume.</summary>  
         public bool HasMultipleBackups
         {
             get => Hash is null ? false : Hash.BackupCount > 1;

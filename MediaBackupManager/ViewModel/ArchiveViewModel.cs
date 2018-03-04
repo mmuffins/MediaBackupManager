@@ -212,6 +212,13 @@ namespace MediaBackupManager.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating if all subdirectories and child file nodes are related to more than one logical volume.</summary>  
+        public bool HasMultipleBackups
+        {
+            get => RootDirectory is null ? true : RootDirectory.HasMultipleBackups;
+        }
+
         #endregion
 
         #region Methods
@@ -231,7 +238,6 @@ namespace MediaBackupManager.ViewModel
 
         private void Archive_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //TODO: Q-Any way to directly pass notifications from model to view instead of hooking up the event and manually forward it?
             switch (e.PropertyName)
             {
                 case "MountPoint":
