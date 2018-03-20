@@ -59,15 +59,7 @@
                 
                 <!--Report Path-->
                 <Label Content="Report Path" Grid.Row="0" Grid.Column="0"  />
-                <TextBox x:Name="txtReportPath" Grid.Row="0" Grid.Column="1" >
-                    <TextBox.Text>
-                        <Binding Path="ReportPath" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <local:StringNotEmptyRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </TextBox>
+                <TextBox x:Name="txtReportPath" Grid.Row="0" Grid.Column="1" Text="{Binding Path=ReportPath, UpdateSourceTrigger=PropertyChanged}" />
 
                 <Button x:Name="btnSelectReportPath" Grid.Row="0" Grid.Column="2"
                         Style="{StaticResource IconButtonBlue}"

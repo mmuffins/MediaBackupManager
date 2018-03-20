@@ -150,7 +150,6 @@
     <Compile Include="View\UpdateArchiveView.xaml.cs">
       <DependentUpon>UpdateArchiveView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ValidationRules.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

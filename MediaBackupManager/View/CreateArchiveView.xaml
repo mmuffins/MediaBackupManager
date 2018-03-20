@@ -59,25 +59,10 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Label" />
-                <TextBox x:Name="ArchiveLabel" Grid.Row="0" Grid.Column="1" >
-                    <TextBox.Text>
-                        <Binding Path="ArchiveLabel" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <local:StringNotEmptyRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </TextBox>
+                <TextBox x:Name="ArchiveLabel" Grid.Row="0" Grid.Column="1" Text="{Binding Path=ArchiveLabel, UpdateSourceTrigger=PropertyChanged}" />
+
                 <Label Content="Directory" Grid.Row="1" Grid.Column="0"  />
-                <TextBox x:Name="ArchivePath" Grid.Row="1" Grid.Column="1" >
-                    <TextBox.Text>
-                        <Binding Path="SelectedDirectory" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <local:StringNotEmptyRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </TextBox>
+                <TextBox x:Name="ArchivePath" Grid.Row="1" Grid.Column="1" Text="{Binding Path=SelectedDirectory, UpdateSourceTrigger=PropertyChanged}" />
 
                 <Button x:Name="btnSelectDirectory" Grid.Row="1" Grid.Column="2"
                         Style="{StaticResource IconButtonBlue}"
