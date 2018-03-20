@@ -124,10 +124,6 @@ namespace MediaBackupManager.Model
         }
 
         /// <summary>
-        /// Gets the mount point or drive letter of the current Archive.</summary>  
-        public string MountPoint { get => Volume.MountPoint; }
-
-        /// <summary>
         /// Gets or sets the user defined label for the current Archive.</summary>
         public string Label
         {
@@ -191,9 +187,9 @@ namespace MediaBackupManager.Model
         /// <param name="processingFile">Progress object used to provide feedback over the file that is currently being hashed.</param>
         public async Task ScanFilesAsync(CancellationToken cancellationToken, IProgress<string> processingFile)
         {
-            var scanPath = Path.Combine(MountPoint, RootDirectoryPath);
+            var scanPath = Path.Combine(Volume.MountPoint, RootDirectoryPath);
             if (RootDirectoryPath == @"\")
-                scanPath = MountPoint;
+                scanPath = Volume.MountPoint;
 
             if (IsFileExcluded(scanPath))
             {
@@ -259,7 +255,7 @@ namespace MediaBackupManager.Model
         /// Determines whether a directory is already indexed in the archive.</summary>  
         public bool ContainsDirectory(DirectoryInfo dir)
         {
-            if (MountPoint != dir.Root.Name)
+            if (Volume.MountPoint != dir.Root.Name)
                 return false;
 
             return (dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length) + "\\").Contains(RootDirectoryPath + "\\");
@@ -269,7 +265,7 @@ namespace MediaBackupManager.Model
         /// Determines whether the archive is a child of the provided directory.</summary>  
         public bool IsParentDirectory(DirectoryInfo dir)
         {
-            if (MountPoint != dir.Root.Name)
+            if (Volume.MountPoint != dir.Root.Name)
                 return false;
             return (RootDirectoryPath + "\\").Contains((dir.FullName.Substring(Path.GetPathRoot(dir.FullName).Length)) + "\\");
         }
