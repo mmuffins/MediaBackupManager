@@ -121,7 +121,7 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets a value indicating if the logical volume containing the current Archive is currently connected to the host. To update, execute RefreshVolumeStatus.</summary>  
         public bool IsConnected
         {
-            get => Volume.IsConnected;
+            get => Volume != null && Volume.IsConnected;
         }
 
         /// <summary>
@@ -135,14 +135,14 @@ namespace MediaBackupManager.ViewModel
         /// Gets the volume serial number of the logical volume containing the current Archive.</summary>  
         public string SerialNumber
         {
-            get => Volume.SerialNumber;
+            get => Volume is null ? "" : Volume.SerialNumber;
         }
 
         /// <summary>
         /// Gets the drive type of the logical volume containing the current Archive.</summary>  
         public DriveType DriveType
         {
-            get => Volume.Type;
+            get => Volume is null ? DriveType.Unknown : Volume.Type;
         }
 
         /// <summary>
