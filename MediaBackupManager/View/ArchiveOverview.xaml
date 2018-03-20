@@ -125,16 +125,6 @@
                                     <Label Content="{Binding DriveType}" ContentStringFormat="{}{0} Volume" />
                                     <Label Content="{Binding MountPoint}" ContentStringFormat="(connected on Drive {0})" 
                                         Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibility}}">
-                                        <!--<Label.Style>
-                                            <Style TargetType="Label">
-                                                <Setter Property="{Binding IsConnected}" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <Trigger Property="{Binding IsConnected}" Value="False">
-                                                        <Setter Property="Visibility" Value="Hidden" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Label.Style>-->
                                     </Label>
                                 </StackPanel>
                             </StackPanel>

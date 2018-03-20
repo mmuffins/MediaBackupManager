@@ -21,6 +21,9 @@ namespace MediaBackupManager.ViewModel
         bool treeViewIsSelected;
         bool treeViewIsExpanded;
         bool renameMode;
+        bool isConnected;
+        string mountPoint;
+        string serialNumber;
 
         RelayCommand renameArchiveCommand;
 
@@ -121,21 +124,46 @@ namespace MediaBackupManager.ViewModel
         /// Gets or sets a value indicating if the logical volume containing the current Archive is currently connected to the host. To update, execute RefreshVolumeStatus.</summary>  
         public bool IsConnected
         {
-            get => Volume != null && Volume.IsConnected;
+            get { return isConnected; }
+            private set
+            {
+                if (value != isConnected)
+                {
+                    isConnected = value;
+                    System.Diagnostics.Debug.WriteLine($"Archive: {value}");
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         /// <summary>
         /// Gets point or drive letter of the current Archive.</summary>  
         public string MountPoint
         {
-            get => Archive.MountPoint;
+            get { return mountPoint; }
+            private set
+            {
+                if (value != mountPoint)
+                {
+                    mountPoint = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         /// <summary>
         /// Gets the volume serial number of the logical volume containing the current Archive.</summary>  
         public string SerialNumber
         {
-            get => Volume is null ? "" : Volume.SerialNumber;
+            get { return serialNumber; }
+            private set
+            {
+                if (value != serialNumber)
+                {
+                    serialNumber = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         /// <summary>
@@ -228,24 +256,28 @@ namespace MediaBackupManager.ViewModel
             this.Archive = archive;
             this.Index = index;
             this.RenameMode = false;
+            this.isConnected = false;
+            this.mountPoint = "";
+            this.serialNumber = "";
             this.RootDirectory = new FileDirectoryViewModel(archive.RootDirectory, null, this);
 
             archive.PropertyChanged += Archive_PropertyChanged;
 
             if(archive.Volume != null)
+            {
                 archive.Volume.PropertyChanged += Volume_PropertyChanged;
+                IsConnected = Volume.IsConnected;
+                MountPoint = Volume.MountPoint;
+                SerialNumber = Volume.SerialNumber;
+            }
         }
 
         private void Archive_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case "MountPoint":
-                    this.NotifyPropertyChanged("MountPoint");
-                    break;
-
                 case "LastScanDate":
-                    this.NotifyPropertyChanged("DriveType");
+                    this.NotifyPropertyChanged("LastScanDate");
                     break;
 
                 case "RootDirectory":
@@ -269,11 +301,15 @@ namespace MediaBackupManager.ViewModel
             switch (e.PropertyName)
             {
                 case "IsConnected":
-                    this.NotifyPropertyChanged("IsConnected");
+                    IsConnected = Volume.IsConnected;
+                    break;
+
+                case "MountPoint":
+                    MountPoint = Volume.MountPoint;
                     break;
 
                 case "SerialNumber":
-                    this.NotifyPropertyChanged("SerialNumber");
+                    SerialNumber = Volume.SerialNumber;
                     break;
 
                 case "Type":

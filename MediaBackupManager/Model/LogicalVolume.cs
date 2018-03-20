@@ -112,6 +112,7 @@ namespace MediaBackupManager.Model
             {
                 if (value != isConnected)
                 {
+                    System.Diagnostics.Debug.WriteLine($"LV {serialNumber}: {value}");
                     isConnected = value;
                     NotifyPropertyChanged();
                 }
@@ -128,6 +129,7 @@ namespace MediaBackupManager.Model
         {
             this.MountPoint = directory.Root.Name;
             this.VolumeName = directory.Root.Name;
+            this.IsConnected = false;
 
             GetLogicalDriveInformation();
             RefreshStatus();

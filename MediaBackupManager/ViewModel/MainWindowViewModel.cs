@@ -13,7 +13,6 @@ namespace MediaBackupManager.ViewModel
 {
     class MainWindowViewModel : ViewModelBase
     {
-        //TODO: In some cases, when removing all cases from the label, new archives can still be created
         #region Fields
 
         private RelayCommand changePageCommand;

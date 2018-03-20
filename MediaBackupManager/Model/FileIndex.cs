@@ -272,7 +272,7 @@ namespace MediaBackupManager.Model
             var guid = archive.Guid;
             var rootDirectory = archive.RootDirectoryPath;
             var label = archive.Label;
-            var mountPoint = archive.MountPoint;
+            var mountPoint = archive.Volume.MountPoint;
 
             DirectoryInfo rootDirObject;
 
