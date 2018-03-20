@@ -282,7 +282,7 @@ namespace MediaBackupManager.Model
             {
                 if (Regex.IsMatch(path.Replace("\\\\", "\\"), item, RegexOptions.IgnoreCase))
                     return true;
-           }
+            }
             return false;
         }
 

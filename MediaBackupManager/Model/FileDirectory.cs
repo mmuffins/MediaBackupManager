@@ -184,7 +184,7 @@ namespace MediaBackupManager.Model
             {
                 foreach (var item in directory.GetDirectories())
                 {
-                    if (Archive.IsFileExcluded(directory.FullName))
+                    if (Archive.IsFileExcluded(item.FullName))
                     {
                         //MessageService.SendMessage(this, "ScanLogicException", new ApplicationException("Directory " + directory.FullName + " is excluded from scanning due to a matching file exclusion."));
                         continue;
