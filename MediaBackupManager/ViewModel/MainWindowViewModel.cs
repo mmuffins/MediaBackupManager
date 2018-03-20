@@ -98,7 +98,7 @@ namespace MediaBackupManager.ViewModel
             // to show the correct status in the archive overview
             DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background);
             timer.Tick += RefreshVolumeStatus;
-            timer.Interval = new TimeSpan(0, 0, 2);
+            timer.Interval = new TimeSpan(0, 0, 1);
             timer.Start();
         }
 
