@@ -112,7 +112,6 @@ namespace MediaBackupManager.Model
             {
                 if (value != isConnected)
                 {
-                    System.Diagnostics.Debug.WriteLine($"LV {serialNumber}: {value}");
                     isConnected = value;
                     NotifyPropertyChanged();
                 }

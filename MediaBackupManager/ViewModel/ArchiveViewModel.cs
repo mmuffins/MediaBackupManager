@@ -130,7 +130,6 @@ namespace MediaBackupManager.ViewModel
                 if (value != isConnected)
                 {
                     isConnected = value;
-                    System.Diagnostics.Debug.WriteLine($"Archive: {value}");
                     NotifyPropertyChanged();
                 }
             }

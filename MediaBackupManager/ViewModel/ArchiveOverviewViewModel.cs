@@ -90,7 +90,6 @@ namespace MediaBackupManager.ViewModel
             {
                 if (showUpdateArchiveOverlayCommand == null)
                 {
-                    //TODO:Check if its possible to disable the update button if the drive is not connected
                     showUpdateArchiveOverlayCommand = new RelayCommand(
                         p => MessageService.SendMessage(this, "ShowUpdateArchiveOverlay", p as ArchiveViewModel),
                         p => !Index.IsOperationInProgress && p != null);
@@ -176,7 +175,6 @@ namespace MediaBackupManager.ViewModel
             if (archive != null && archive is ArchiveViewModel && archive.Archive != null)
                 await Index.RemoveArchiveAsync(archive.Archive);
         }
-
         #endregion
 
     }

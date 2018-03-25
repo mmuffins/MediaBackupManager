@@ -134,6 +134,7 @@
                                 <!--Update Button-->
                                 <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonBlue}"
                                         Width="33" Height="38" Margin="3,0"
+                                        IsEnabled="{Binding IsConnected}"
                                         Command="{Binding DataContext.ShowUpdateArchiveOverlayCommand, ElementName=LayoutRoot}"
                                         CommandParameter="{Binding}" ToolTip="Update Archive"  >
                                     <!--Set the fill to whatever color the parent button currently has-->
